@@ -1,0 +1,125 @@
+<%-include("../layouts/adminHeader.ejs") %>
+        <div class="screen-overlay"></div>
+       
+        <%-include("../layouts/adminSideBar.ejs") %>
+        <main class="main-wrap">
+            <%-include("../layouts/adminNavBar.ejs") %>
+            <section class="content-main">
+                <div class="content-header">
+                    <div>
+                      
+                        <h2 class="content-title card-title">Products</h2>
+                        <p>Edit or delete a Products</p>
+                    </div>
+                    <div>
+                        <input type="text" placeholder="Search Products" class="form-control bg-white" />
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                           
+                            <div class="col-md-12">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead style="color: black;">
+                                            
+                                                  <tr>
+                                                    <th style="color: black;">Name</th>
+                                                    <th style="color: black;">Image</th>
+                                                    <th style="color: black;">Price</th>
+                                                   
+                                                    <th style="color: black;">Stock</th>
+                                                    <th style="color: black;">tax_rate</th>
+                                                    <!-- <th style="color: black;">Description</th> -->
+                                                    <th style="color: black;">Category</th>
+                                                    <th style="color: black;">Sub_Category</th>
+                                                    <th style="color: black;">Is_listed</th>
+                                                    <th style="color: black;">Action</th>
+                                                  </tr>
+                                                </thead>
+                                                <tbody id="categoryTableBody">
+                                                  <% if (product.length > 0) { %>
+                                                    <% for (let i = 0; i < product.length; i++) { %>
+                                                      <tr>
+                                                        <td><%= product[i].name %></td>
+                                                      
+                                                        <td><img src="/productsImages/<%= product[i].mainimage %>"  style="max-width: 70px; max-height: 70px;"></td>
+
+                                                        <td><%= product[i].price %></td>
+                                                       
+                                                        <td><%= product[i].Stock%></td>
+                                                        <td><%= product[i].tax_rate %></td>
+                                                        <!-- <td><%= product[i].Description %></td> -->
+                                                        <td> <%= product[i].category.name %></td>
+                                                        <td><%= product[i].sub_category %></td>
+                                                        <td><%= product[i].is_listed %></td>
+                                                        <td class="text-end">
+                                                            <div class="dropdown">
+                                                                <a href="#" data-bs-toggle="dropdown" class="btn btn-light rounded btn-sm font-sm"> <i class="material-icons md-more_horiz"></i> </a>
+                                                                <div class="dropdown-menu">
+                                                                    <a class="dropdown-item" href="edit_Product?id=<%= product[i]._id %>">Edit info</a>
+                                                                    <!-- Add sweet alert confirmation for delete action -->
+                                                                    <a class="dropdown-item text-danger" href="#" onclick="deleteProduct('<%= product[i]._id %>')">Delete</a>
+                                                                </div>
+                                                                
+                                                            </div>
+                                                            <!-- dropdown //end -->
+                                                        </td>
+                                                      </tr>
+                                                    <% } %>
+                                                  <% } else { %>
+                                                    <tr>
+                                                      <td colspan="3">No product found</td>
+                                                    </tr>
+                                                  <% } %>
+                                                </tbody>
+                                            </table>
+                                </div>
+                            </div>
+                            <!-- .col// -->
+                        </div>
+                        <!-- .row // -->
+                    </div>
+                    <!-- card body .// -->
+                </div>
+                <!-- card .// -->
+            </section>
+           
+        </main>
+        <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+        <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+        <script src="/adminAssets/js/vendors/select2.min.js"></script>
+        <script src="/adminAssets/js/vendors/perfect-scrollbar.js"></script>
+        <script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+        <!-- Main Script -->
+        <script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
+        <script src="/adminAssets/js/category.js" type="text/javascript"></script>
+        <script>
+            function deleteProduct(productId) {
+                // Display sweet alert confirmation
+                swal({
+                    title: "Are you sure?",
+                    text: "Once deleted, you will not be able to recover thisProduct!",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+                .then((willDelete) => {
+                    if (willDelete) {
+                        // If user confirms, redirect to delete_Product route with category id
+                        window.location.href = `delete_Product?id=${productId}`;
+                    } else {
+                        // If user cancels, do nothing
+                    }
+                });
+            }
+        </script>
+        
+
+
+
+    </body>
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChronoLux Dashboard</title>
+    <style>
+        .btn-red {
+            background-color: #ff4c4c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+    <script>
+        function deleteImage(imgId) {
+            var img = document.getElementById(imgId);
+            if (img) {
+                img.src = '';  // Clear the image source
+                img.style.display = 'none';  // Optionally hide the image element
+            }
+        }
+    </script>
+      <link href="/node_modules/cropperjs/dist/cropper.min.css" rel="stylesheet">
+</head>
+<body>
+<%-include("../layouts/adminHeader.ejs") %>
+<div class="screen-overlay"></div>
+<%-include("../layouts/adminSideBar.ejs") %>
+
+<main class="main-wrap">
+    <%-include("../layouts/adminNavBar.ejs") %>
+
+    <section class="content-main">
+        <div >
+        <div class="row">
+            <div class="col-9">
+                <div class="content-header">
+                    <h2 class="content-title">Edit Product</h2>
+                    <div>
+                        <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Basic</h4>
+                    </div>
+                    <div class="card-body">
+
+                        <!-- starting of uploading products ============================================================= -->
+                        <form id="productForm" action="update_product" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="product_id" value="<%= Product._id%>">
+                            <div class="mb-4">
+                                <label for="product_name" class="form-label">Product title</label>
+                                <input type="text" placeholder="Type here" class="form-control" id="product_name" name="product_name" value="<%= Product.name%>"/>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Full description</label>
+                                <textarea placeholder="Type here" class="form-control" rows="4" name="Full_description"><%= Product.Description %></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Regular price</label>
+                                        <div class="row gx-2">
+                                            <input placeholder="$" type="text" class="form-control" name="price" value="<%= Product.price%>"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Stock</label>
+                                        <input placeholder="" type="text" class="form-control" name="stock" value="<%= Product.Stock%>"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Tax rate</label>
+                                <input type="text" placeholder="%" class="form-control" id="product_name" name="tax_rate" value="<%= Product.tax_rate%>" />
+                            </div>
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row gx-2">
+                                        <div class="col-sm-6 mb-3">
+                                            <label class="form-label">Category</label>
+                                            <select class="form-control border" name="category" id="category" required>
+                                                <% categorydata.forEach((category) => { %>
+                                                    <option value="<%= category._id %>" <%= Product.category && Product.category._id.toString() === category._id.toString() ? 'selected' : '' %>><%= category.name %></option>
+                                                <% }) %>
+                                            </select>
+                                        </div>
+                                        <div class="col-sm-6 mb-3">
+                                            <label class="form-label">Sub-category</label>
+                                            <select class="form-select" name="sub_category">
+                                                <option value="Luxury" <%= Product.sub_category === "Luxury" ? "selected" : "" %>>Luxury</option>
+                                                <option value="Normal" <%= Product.sub_category === "Normal" ? "selected" : "" %>>Normal</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                      
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <h4>Photo 1</h4>
+                                    <div class="input-upload">
+                                        <img id="previewMainImage" src="/productsImages/<%= Product.mainimage %>" alt="" class="img-fluid" />
+                                        <br>
+                                        <br>
+                                        <button type="button" class="btn btn-danger mt-2" >change image</button>
+                                        <!-- <button type="button" class="btn btn-danger mt-2" onclick="removeImage('previewSubImages2', this)">change image</button> -->
+                                        <!-- <input class="form-control" type="file" name="mainimage" onchange="previewImagemain(this, 'previewMainImage')" /> -->
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <h4>Photo 2</h4>
+                                    <div class="input-upload">
+                                        <img id="previewSubImages1" src="/productsImages/<%= Product.sub_images1 %>" alt="" class="img-fluid" />
+                                        <br>
+                                        <br>
+                                        <button type="button" class="btn btn-danger mt-2" >change image</button>
+                                        <!-- <input class="form-control" type="file" name="sub_images1" onchange="previewImage(this, 'previewSubImages1')" /> -->
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <h4>Photo 3</h4>
+                                    <div class="input-upload">
+                                        <img id="previewSubImages2" src="/productsImages/<%= Product.sub_images2 %>" alt="" class="img-fluid" />
+                                        <br>
+                                        <br>
+                                        <button type="button" class="btn btn-danger mt-2" >change image</button>
+                                        <!-- <input class="form-control" type="file" name="sub_images2" onchange="previewImage(this, 'previewSubImages2')" /> -->
+                                    </div>
+                                </div>
+                            </div>
+
+
+                           
+                            <br>
+                            <br>
+                            <div class="text-center">
+                                <button class="btn btn-md rounded font-sm hover-up" type="submit">UPDATE</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </section>
+</main>
+<script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/adminAssets/js/vendors/select2.min.js"></script>
+<script src="/adminAssets/js/vendors/perfect-scrollbar.js"></script>
+<script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
+<!-- crop script  -->
+<script src="/node_modules/cropperjs/dist/cropper.min.js"></script>
+<!-- Main Script -->
+<script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
+
+<script>
+    function previewImage(input, imgId) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function(e) {
+                document.getElementById(imgId).src = e.target.result;
+                document.getElementById(imgId).style.display = 'block';
+            }
+
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function deleteImage(imgId) {
+        var img = document.getElementById(imgId);
+        if (img) {
+            img.src = '';  // Clear the image source
+            img.style.display = 'none';  // Optionally hide the image element
+        }
+    }
+</script>
+
+</body>
+</html>
