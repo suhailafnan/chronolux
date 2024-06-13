@@ -37,9 +37,12 @@ user_route.get('/register', auth.isLogout, userController.loadRegister);
 user_route.post('/register', auth.isLogout, userController.insertUser);
 user_route.get('/login', auth.isLogout, userController.loadLogin);
 user_route.post('/login', auth.isLogout, userController.veriyfyLogin);
-user_route.get('/otpverify', auth.isLogout, userController.loadOtp);
+// user_route.get('/otpverify', auth.isLogout, userController.loadOtp);
+user_route.get('/forgotPassword', auth.isLogout, userController.loadforgotPassword);
 user_route.post('/verify', auth.isLogout, userController.verifyOtp);
 user_route.get('/resendOtp', auth.isLogout, userController.loadResendOtp);
+
+user_route.get('/logoutProfile',  userController.userLogout);
 user_route.get('/shop',userController.loadShop);
 user_route.get('/shop_details',userController.loadShopDetials);
 // login only routes routes

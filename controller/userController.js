@@ -91,16 +91,16 @@ const securePassword = async (password) => {
 
 // otp validation loading page
 
-const loadOtp = async (req, res) => {
-  try {
-    let message = req.flash("message");
-    res.render("otpVerification", {
-      message,
-    });
-  } catch (error) {
-    console.log(error.messsage);
-  }
-};
+// const loadOtp = async (req, res) => {
+//   try {
+//     let message = req.flash("message");
+//     res.render("otpVerification", {
+//       message,
+//     });
+//   } catch (error) {
+//     console.log(error.messsage);
+//   }
+// };
 
 // for inserting user to database this method is called
 
@@ -126,8 +126,10 @@ const insertUser = async (req, res) => {
       });
       const userData = await user.save();
       if (userData) {
+        const user=await User.findOne({email})
+        
         const otpBody = await otpController.generateOtpfun(req, res);
-        res.render("otpVerification", { email: email });
+        res.render("otpVerification", { email: email,user });
         console.log(userData);
         console.log("otp is :", otpBody);
         theOtp = otpBody;
@@ -141,35 +143,32 @@ const insertUser = async (req, res) => {
     console.log(error.message);
   }
 };
-// const loadResendOtp = async (req, res) => {
-//   try {
-//     const email = req.body.email;
-//     const userData = await User.findOne({ email: email });
-//     if (userData) {
-//       console.log("helloooooooooooooooooooooooo");
-//       res.render("otpVerification", { email: email });
-//       //let message = req.flash("message");
-//       const newOtp = await otpController.generateOtpfun(req, res);
-//       console.log("newww otp isss", newOtp);
 
-//       // res.render("otpVerification", {
-//       //   message,
-//       // });
-//     }
-//   } catch (error) {
-//     console.log(error.message);
-//   }
-// };
+const loadforgotPassword=async (req, res) => {
+  try {
+    console.log("loadforgotPassword")
+  
+  }catch (error) {
+    console.log(error.message);
+  }
+};
+
 const loadResendOtp = async (req, res) => {
   try {
-    console.log("hello resend otppp")    
-    const email = req.body.email;
+     
+    const email = req.query.email; // Retrieve the email from query parameters
+    console.log("Resending OTP for email:", email);
     const userData = await User.findOne({ email: email });
     if (userData) {
       // Generate a new OTP
-      const newOtp = await otpController.generateOtpfun(req, res);
-      console.log("New OTP is:", newOtp);
-
+      console.log("hello resend otppp")  
+        // const user=await User.findOne({email})
+        // const NewOtpBody = await otpController.generateOtpfun(req, res);
+        // res.render("otpVerification", { email: email,user });
+        // console.log(userData);
+        // // console.log("New  resended OTP is :",NewOtpBody);
+        // theOtp =NewOtpBody;
+      
       // Send response indicating success
       res.status(200).send({ success: true, message: "New OTP has been sent." });
     } else {
@@ -228,7 +227,6 @@ const successGoogleLogin = async (req, res) => {
     });
     const userData = await googleUser.save();
     console.log(req.user);
-    // res.send("Welcome " + req.user.email);
     res.redirect("/home");
   }
 };
@@ -242,15 +240,20 @@ const loadShop = async (req, res) => {
     const user =req.session.user
     const categories = await Category.find();
      const products = await Products.find();
-    // const categories = await Category.find();
-    // res.render('product_list', { product: products, categories: categories });
-
     res.render("shop", { catogeries: categories ,products,user});
   } catch (error) {
     console.log(error.message);
   }
 };
-
+const userLogout=async (req,res)=>{
+  try{
+  req.session.destroy();
+  res.redirect("/")
+  
+  }catch (error) {
+    console.log(error.message);
+  }
+}
 
 const loadShopDetials= async (req, res) => {
   try {
@@ -267,7 +270,7 @@ const loadShopDetials= async (req, res) => {
 
 
 const getProducts = async (req, res) => {
-  console.log("helloooooooo sortt")
+  
   let sortOption = req.query.sort || '';
   let sortCriteria = {};
 
@@ -305,7 +308,9 @@ module.exports = {
   veriyfyLogin,
   insertUser,
   loadWebpage,
-  loadOtp,
+  // loadOtp,
+  userLogout,
+  loadforgotPassword,
   verifyOtp,
   loadResendOtp,
   loadAuth,

@@ -9,12 +9,10 @@ const Cart=require("../models/cart");
 const loadCart = async (req, res) => {
     try {
         const userId = req.session.user;
-
-        // Find the cart for the logged-in user and populate product details
         const cartData = await Cart.findOne({ userId })
             .populate({
                 path: 'product.productId',
-                model: 'products' // Use the correct model name here
+                model: 'products' 
             })
             .exec();
 
@@ -27,7 +25,7 @@ const loadCart = async (req, res) => {
 
 const addToCart = async (req, res) => {
     try {
-         // Log the entire session object for debugging
+       
         const userId = req.session.user;
         const productId = req.query.ProductId;
 

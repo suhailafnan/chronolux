@@ -43,31 +43,36 @@
     });
 
   
-    function resendOTP() {
+    
   // Get the email from the page
-  const email = document.getElementById("your_email").value;
-
+  // const email = document.getElementById("email").value;
   // Send a GET request to /resendOtp with the email as a query parameter
-  fetch(`/resendOtp?email=${email}`)
-    .then(response => {
-      if (response.ok) {
-        // If request is successful, show success message
-        return response.json();
-      } else {
-        // If request fails, show error message
-        throw new Error('Failed to resend OTP');
-      }
-    })
-    .then(data => {
-      // Show success message
-      alert(data.message);
-    })
-    .catch(error => {
-      // Show error message
-      console.error('Error:', error);
-      alert('Failed to resend OTP');
-    });
-}
+  // fetch(`/resendOtp?email=${email}`)
+  
+  function resendOTP() {
+    const email = document.getElementById("email").value;
+      fetch(`/resendOtp?email=${email}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error('Failed to resend OTP');
+        }
+      })
+      .then(data => {
+        alert(data.message);
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to resend OTP');
+      });
+    }
+
 
 
   </script>
@@ -80,6 +85,7 @@
     <h4>Enter OTP Code</h4>
     <form action="/verify" method="post">
       <div class="input-field">
+        
         <!-- Individual input fields for each digit of the OTP -->
         <input type="number" id="1" class="otp-digit" name="digit1" maxlength="1">
         <input type="number" id="2" class="otp-digit" name="digit2" maxlength="1">
@@ -93,10 +99,11 @@
       <button type="submit" >Verify OTP</button>
     </form>
     <!-- Resend OTP button initially hidden -->
-    <!-- <button id="resendOTPButton" style="display: none;" onclick="resendOTP()">Resend OTP</button> -->
-    <button id="resendOTPButton" style="display: none;" ><a href="/resendOtp">Resend OTP</a></button>
- 
+    <button  id="resendOTPButton" style="display: none;" onclick="resendOTP()">Resend OTP</button>
+    <input type="hidden" id="email" name="email" value="<%= user.email %>">
 
+  
+  
 
     <p style="color: rgb(214, 3, 3)">
       <% if(locals.message) { %>

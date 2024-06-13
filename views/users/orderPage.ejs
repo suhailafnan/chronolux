@@ -48,19 +48,23 @@
                         <% orders.reverse().forEach(order => { %>
                             <div class="row mb-4">
                                 <div class="col-md-4">
-                                    <img src="/productsImages/<%= order.items[0].productId.mainimage %>" class="img-fluid rounded" alt="Product Image">
-                                </div>
-                                <div class="col-md-8">
-                                   
-                                    <h5><strong>Product Name:</strong> <%= order.items[0].productId.name %></h5>
-                                    <p><strong>Quantity:</strong> <%= order.items[0].quantity %></p>
-                                    <p><strong>Shipping Address:</strong> 
-                                        <%= order.address[0].name %>, 
-                                        <%= order.address[0].city %>, 
-                                        <%= order.address[0].state %>, 
-                                        <%= order.address[0].country %>, 
-                                        <%= order.address[0].pincode %>
-                                    </p>
+                                    <% for(let i=0;i<items;i++) %>
+                                    <%{%>
+                                        <img src="/productsImages/<%= order.items[i].productId.mainimage%>" class="img-fluid rounded" alt="Product Image">
+                                    </div>
+                                    <div class="col-md-8">
+                                       
+                                        <h5><strong>Product Name:</strong> <%= order.items[i].productId.name %></h5>
+                                        <p><strong>Quantity:</strong> <%= order.items[i].quantity %></p>
+                                        <p><strong>Shipping Address:</strong> 
+                                            <%= order.address[i].name %>, 
+                                            <%= order.address[i].city %>, 
+                                            <%= order.address[i].state %>, 
+                                            <%= order.address[i].country %>, 
+                                            <%= order.address[i].pincode %>
+                                        </p>
+                                    <% }%>
+                                 
                                     <p><strong>Amount:</strong> ₹<%= order.totalAmount %></p>
                                     <p><strong>Date:</strong> <%= new Date(order.currendDate).toLocaleDateString() %></p>
                                     <p><strong>Order Status:</strong> <%= order.orderStatus %></p>
@@ -68,7 +72,8 @@
                                 </div>
                             </div>
                             <hr>
-                        <% }); %>
+                 <% }); %>
+
                     </div>
                 </div>
             </div>

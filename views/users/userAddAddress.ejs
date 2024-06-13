@@ -1,6 +1,4 @@
 
-
-
 <%-include("../layouts/userNavBar.ejs") %>
 <div class="container-xl px-4 mt-4">
 
@@ -9,7 +7,6 @@
 
       <a class="nav-link " href="/Profile"
           target="__blank">Profile</a>
-
       <a class="nav-link active ms-0" href="/Address"
           target="__blank ">Address</a>
       <a class="nav-link" href="/Wallet"
@@ -47,44 +44,44 @@
                                   <div class="col-lg-6">
                                       <div class="checkout__input">
                                           <p>Country<span>*</span></p>
-                                          <input type="text" placeholder="Enter Country" class="form-control" name="country">
+                                          <input type="text" placeholder="Enter Country" class="form-control" name="country" required>
                                       </div>
                                   </div>
                                   <div class="col-lg-6">
                                       <div class="checkout__input">
                                           <p>State<span>*</span></p>
-                                          <input type="text" placeholder="Enter State" class="form-control" name="state">
+                                          <input type="text" placeholder="Enter State" class="form-control" name="state" required>
                                       </div>
                                   </div>
                                   <div class="col-lg-6">
                                     <div class="checkout__input">
                                         <p>District<span>*</span></p>
-                                        <input type="text" placeholder="Enter State" class="form-control" name="district">
+                                        <input type="text" placeholder="Enter State" class="form-control" name="district" required>
                                     </div>
                                 </div>
                                   <div class="col-lg-6">
                                       <div class="checkout__input">
                                           <p>Postcode / ZIP<span>*</span></p>
-                                          <input type="text" placeholder="Enter Postcode / ZIP" class="form-control" name="pincode">
+                                          <input type="text" placeholder="Enter Postcode / ZIP" class="form-control" name="pincode" required >
                                       </div>
                                   </div>
                                   <div class="col-lg-6">
                                       <div class="checkout__input">
                                           <p>Phone<span>*</span></p>
-                                          <input type="text" placeholder="Enter Phone" class="form-control" name="mobile">
+                                          <input type="text" placeholder="Enter Phone" class="form-control" name="mobile" required>
                                       </div>
                                   </div>
                                   <div class="col-lg-12">
                                       <div class="checkout__input">
                                           <p>Address<span>*</span></p>
-                                          <input type="text" placeholder="Enter Street Address" class="form-control"  name="home_address">
+                                          <input type="text" placeholder="Enter Street Address" class="form-control"  name="home_address" required>
                                           
                                       </div>
                                   </div>
                                   <div class="col-lg-12">
                                       <div class="checkout__input">
                                           <p>Town/City<span>*</span></p>
-                                          <input type="text" placeholder="Enter Town/City" class="form-control" name="city">
+                                          <input type="text" placeholder="Enter Town/City" class="form-control" name="city" required>
                                       </div>
                                   </div>
                                   <div class="col-lg-12">
@@ -163,11 +160,11 @@
       margin-right: 1rem;
   }
   .big-bold-text {
-font-size: 2em; /* Adjust size as needed */
+font-size: 2em; 
 font-weight: bold;
 font-style: italic;
-color: #000000; /* Matches the text-muted class */
-margin-bottom: 1.5rem; /* Matches the mb-4 class */
+color: #000000; 
+margin-bottom: 1.5rem; 
 }
 </style>
 <%-include("../layouts/userFooter.ejs") %>    

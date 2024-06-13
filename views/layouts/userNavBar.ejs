@@ -7,6 +7,7 @@
 
 
 <!-- Header Section Begin -->
+ 
 <header class="header">
   <div class="header__top">
         <div class="container">
@@ -18,18 +19,18 @@
                 </div>
                 <div class="col-lg-6 col-md-5">
                     <div class="header__top__right">
+                    
                      
                         <div class="header__top__links">
                             <% if (user) { %>
                                
-                              <input type="hidden" name="user_id" value=<%= user._id%> >
+                              <input type="hidden" name="user_id" value="<%= user._id %>">
                               <a href="/userProfile?id=<%= user._id %>" class="sign-in-link">
                                 <i class="far fa-user"></i>
                                 <span><%= user.name %>!</span>
                               </a>
                               
-
-                                  <a href="/logoutProfile?id=<%= user._id%>" class="sign-in-link">
+                                  <a href="#" class="sign-in-link logout-link" data-id="<%= user._id %>">
                                      <i class="fas fa-sign-out-alt"></i>
                                     <span>Logout</span>
                                   </a>
@@ -60,12 +61,13 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-3 col-md-3">
-                <!-- <div class="header__logo">
-                    <a href="./index.html"><img src="userAssets/img/logo.png" alt=""></a>
-                </div> -->
+                <div class="header__logo">
+                    <a href="./index.html"><img src="userAssets/img/chronolux icon 2.jpg" alt=""></a>
+                </div>
             </div>
             <div class="col-lg-6 col-md-6">
                 <nav class="header__menu mobile-menu">
+                    
                     <ul>
                         <li class="active"><a href="/home">Home</a></li>
                         <li><a href="/shop">Shop</a></li>
@@ -96,3 +98,36 @@
         <div class="canvas__open"><i class="fa fa-bars"></i></div>
     </div>
 </header> 
+<style>
+    .webicon{
+        position: relative;
+        margin-left: 5px;
+    }
+</style>
+
+<!-- SweetAlert2 Script -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoutLink = document.querySelector('.logout-link');
+        if (logoutLink) {
+            logoutLink.addEventListener('click', function(event) {
+                event.preventDefault();
+                const userId = event.currentTarget.getAttribute('data-id');
+                Swal.fire({
+                    title: 'Are you sure you want to logout?',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Yes, logout!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `/logoutProfile?id=${userId}`;
+                    }
+                });
+            });
+        }
+    });
+</script>

@@ -139,10 +139,6 @@ res.render("page_add_products" , {categories: categories} )
 //.......................................
 const createCatogery=async (req, res) => {
   try {
-  //  const { name,Description,sub_category} =req.body;
-    // const name = req.body.name.trim();
-    // const Description = req.body.Description.trim();
-    // const sub_category = req.body.sub_category.trim();
     const {name , Description,  categ}= req.body;
 
     const existCategory =await Category.find({
@@ -165,11 +161,9 @@ const createCatogery=async (req, res) => {
     
     });
    const categoryData=await catogeries.save();
-   console.log(categoryData)
    res.redirect("/admin/page_Categories")
   }
     
-
   }catch (error) {
     console.log(error.message);
   }
@@ -182,16 +176,15 @@ const catogeryLoad= async (req, res) => {
     res.render('page_categories', { catogeries: categories });
   } catch (error) {
     console.error('Error:', error);
-    // Ha ndle error appropriately
+    
   } 
 };
 
 const editCategoryLoad = async (req, res) => {
   try {
-    const id = req.query.id; // Retrieve _id from query parameters
-    const categoryData = await Category.findById(id); // Use id directly, not {_id: id}
+    const id = req.query.id; 
+    const categoryData = await Category.findById(id); 
     if (categoryData) {
-      console.log("Category found:", categoryData);
       const categories = await Category.find();
       res.render('edit_categories', { category: categoryData });
     } else {
@@ -200,7 +193,7 @@ const editCategoryLoad = async (req, res) => {
  
   } catch (error) {
     console.error('Error:', error);
-    // Handle error appropriately
+    
     res.status(500).send('Internal Server Error');
   }
 }
@@ -237,9 +230,7 @@ const updateCategory = async (req, res) => {
 
 
 const deleteCategory = async (req, res) => {
-  try {
-    
-      
+  try { 
         const id = req.query.id;
         console.log(id)
         await Category.deleteOne({ _id: id });
@@ -251,11 +242,8 @@ const deleteCategory = async (req, res) => {
     }
 }
 
-
 const AddProductTo = async (req, res) => {
-  try {
-    
-    
+  try { 
     const { tax_rate, stock, price, product_name, Full_description, category, sub_category } = req.body;
     const uploadedImageName = req.files.mainimage? req.files.mainimage[0].filename : '';
     const uploadedSub_images1 = req.files.sub_images1? req.files.sub_images1[0].filename : '';
@@ -272,7 +260,7 @@ const AddProductTo = async (req, res) => {
       name: product_name,
       price: price,
       Description: Full_description,
-      category: categoryDoc._id, // Use the ObjectId here
+      category: categoryDoc._id, 
       sub_category: sub_category,
       Stock: stock,
       tax_rate: tax_rate,
@@ -287,16 +275,11 @@ const AddProductTo = async (req, res) => {
   
   } catch (error) {
     console.error('Error:', error);
-    // Handle error appropriately
   } 
 };
 
 
 
-
-
-
-// };
 const loadProductList = async (req, res) => {
   try {
     const products = await Products.find().populate('category');
@@ -304,7 +287,6 @@ const loadProductList = async (req, res) => {
     res.render('product_list', { product: products, categories: categories });
   } catch (error) {
     console.error('Error:', error);
-    // Handle error appropriately
   } 
 };
 
@@ -346,7 +328,7 @@ const updateProduct = async (req, res) => {
     const { tax_rate, stock, price, product_name, Full_description, category, sub_category, product_id } = req.body;
     // Check if product_id is undefined
     if (!product_id) {
-      throw new Error("Product ID is missing in the request body");
+      console.log("Product ID is missing");
     }
     // Handle file uploads
     // const uploadedImageName = req.files.mainimage ? req.files.mainimage[0].filename : '';
@@ -376,16 +358,8 @@ const updateProduct = async (req, res) => {
 
   } catch (error) {
     console.error('Error:', error.message);
-    // Send an appropriate error response to the client
-    res.status(500).send({ error: error.message });
   }
 };
-
-
-
-
-  
-  
 
 
 module.exports = {

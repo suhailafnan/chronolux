@@ -1,4 +1,4 @@
-//sgeneration of  the otp function
+
 const otpGenerator = require('otp-generator');
 const OTP = require('../models/otpModel');
 const User = require('../models/UserModel');
@@ -22,7 +22,7 @@ const generateOtpfun = async (req, res) => {
     const otpPayload = { email, otp };
     const otpBody = await OTP.create(otpPayload);
      return otp
-    // console.log(OTP)
+   
   } catch (error) {
     console.log(error.message);
     return res.status(500).json({ success: false, error: error.message });

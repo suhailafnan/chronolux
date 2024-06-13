@@ -42,39 +42,6 @@ const loadcheckOutPage = async (req, res) => {
   }
   };
 
-
-  // const  addToPlaceOrder = async (req, res) => {
-  //   try {
-  //   console.log("thiings all posted to backend")
-  //     const user= req.session.user;
-  //     const orderData =req.body
-  //     console.log(orderData,user)
-      
-  //      const userId=user._id
-    
-  //      const addressId=orderData.addressId;
-     
-  //      const address = await Address.findOne({ 'userId': userId }); 
-  //      console.log(address)
-    
-
-
-        
-        // const order = new Order({
-        //  name:user.name,
-        //  address:orderData.addressId
-
-        // });
-        // const orderdetails = await Order.save();
-
-
-     
-  //   } catch (error) {
-  //     console.log(error.message);
-  // }
-  // };
-  
-
   const addToPlaceOrder = async (req, res) => {
     try {
       console.log("thiings all posted to backend")

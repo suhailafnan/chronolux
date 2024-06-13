@@ -112,44 +112,7 @@ const securePassword = async (password) => {
 
 
 
-// const changepassword = async (req, res) => {
-//   try {
-//     const { user_id, oldPassword, newPassword, confirmPassword } = req.body;
 
-//     // Fetch the user from the database
-//     const user = await User.findById(user_id);
-//     if (!user) {
-//       return res.status(404).send("User not found");
-//     }
-
-//     // Compare oldPassword with the hashed password stored in the database
-//     const isMatch = await bcrypt.compare(oldPassword, user.password);
-//     if (!isMatch) {
-//       // return res.status(400).send("Old password is incorrect");
-//       req.flash('errormsg','Old password is incorrect')
-
-//       res.redirect('/changePassword')
-//     }
-
-//     // Validate the new password and confirmation
-//     if (newPassword !== confirmPassword) {
-//       return res.status(400).send("New password and confirm password do not match");
-//     }
-
-//     // Hash the new password
-//     const salt = await bcrypt.genSalt(10);
-//     const hashedPassword = await bcrypt.hash(newPassword, salt);
-
-//     // Update the user's password in the database
-//     user.password = hashedPassword;
-//     await user.save();
-
-//     res.send("Password changed successfully");
-//   } catch (error) {
-//     console.log(error.message);
-//     res.status(500).send("Internal Server Error");
-//   }
-// };
 
 const changepassword = async (req, res) => {
   try {
@@ -197,7 +160,7 @@ const   loadUserAdress= async (req, res) => {
       
     const user = req.session.user;
         
-        // const userdata = await User.findOne({_id:user})
+      
         const addressData = await Address.findOne({userId:user})
  
  
@@ -213,10 +176,7 @@ const   loadUserAdress= async (req, res) => {
 
 const   loadAddAddress= async (req, res) => {
   try {
-    console.log("loadingg addd adresss")
-      
       res.render("userAddAddress", { user: req.session.user });
-    
 
   } catch (error) {
     console.log(error.message);
@@ -227,18 +187,11 @@ const   loadAddAddress= async (req, res) => {
 
 const addNewAddress = async (req, res) => {
   try {
-    console.log("helloooo add address");
-
     const userid = req.session.user;
     const { name, city, district, state, country, mobile, pincode, home_address } = req.body;
-
-    console.log("Request Body:", req.body); // Log the request body to verify its content
-
-    // Validate that all required fields are present
     if (!name || !home_address || !city || !district || !state || !country || !mobile || !pincode) {
       return res.status(400).send("All fields are required");
     }
-
     const address = await Address.findOne({ userId: userid });
 
     if (address) {
@@ -273,24 +226,26 @@ const addNewAddress = async (req, res) => {
     }
   } catch (error) {
     console.log(error.message);
-    res.status(500).send("Internal Server Error");
+   
   }
 };
 
 const loadOrderHistory = async (req, res) => {
   try {
     const user = req.session.user;
-    const orders = await Order.find({ userId: user._id })
+    const orders = await Order.find({ userId: user })
       .populate('items.productId')
       .populate('items.categoryId')
       .populate('userId');
 
+    console.log(orders); 
+
     res.render("orderPage", { user, orders });
   } catch (error) {
     console.log(error.message);
-    res.status(500).send('Server Error');
   }
 };
+
 
  
   
