@@ -134,6 +134,7 @@ const insertUser = async (req, res) => {
         console.log("otp is :", otpBody);
         theOtp = otpBody;
       }
+      
     } else {
       res.render("signup", {
         message: "your password dosen't match",
@@ -144,14 +145,7 @@ const insertUser = async (req, res) => {
   }
 };
 
-const loadforgotPassword=async (req, res) => {
-  try {
-    console.log("loadforgotPassword")
-  
-  }catch (error) {
-    console.log(error.message);
-  }
-};
+
 
 const loadResendOtp = async (req, res) => {
   try {
@@ -235,16 +229,37 @@ const failureGoogleLogin = (req, res) => {
   res.send("Error");
 };
 
+// const loadShop = async (req, res) => {
+//   try {
+//     const user =req.session.user
+//     const categories = await Category.find();
+//      const products = await Products.find();
+//     res.render("shop", { catogeries: categories ,products,user});
+//   } catch (error) {
+//     console.log(error.message);
+//   }
+// };
 const loadShop = async (req, res) => {
   try {
-    const user =req.session.user
+    const user = req.session.user;
     const categories = await Category.find();
-     const products = await Products.find();
-    res.render("shop", { catogeries: categories ,products,user});
+    
+    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+    const limit = parseInt(req.query.limit) || 9; // Default to 9 items per page if not provided
+    const skip = (page - 1) * limit;
+
+    const totalProducts = await Products.countDocuments();
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    const products = await Products.find().skip(skip).limit(limit);
+
+    res.render("shop", { categories, products, user, currentPage: page, totalPages });
   } catch (error) {
     console.log(error.message);
+    res.status(500).send('Internal server error');
   }
 };
+
 const userLogout=async (req,res)=>{
   try{
   req.session.destroy();
@@ -299,6 +314,18 @@ const getProducts = async (req, res) => {
 };
 
 
+const search = async (req, res) => {
+  try {
+    const query = req.query.query;
+    const regex = new RegExp(query, 'i');
+
+    const products = await Products.find({ name: regex });
+    res.json(products);
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
 
 
 
@@ -310,7 +337,7 @@ module.exports = {
   loadWebpage,
   // loadOtp,
   userLogout,
-  loadforgotPassword,
+ 
   verifyOtp,
   loadResendOtp,
   loadAuth,
@@ -319,6 +346,7 @@ module.exports = {
   loadShop,
   loadShopDetials,
   loadHomepage ,
-  getProducts
+  getProducts,
+  search
 
 };

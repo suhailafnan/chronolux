@@ -228,19 +228,18 @@ const updateCategory = async (req, res) => {
      }
 }
 
-
 const deleteCategory = async (req, res) => {
-  try { 
-        const id = req.query.id;
-        console.log(id)
-        await Category.deleteOne({ _id: id });
-  
-        res.redirect("/admin/page_Categories")
-    
-       }catch (error) {
-      console.log(error.message);
-    }
-}
+  try {
+    const id = req.query.id;
+    await Category.deleteOne({ _id: id });
+    await Products.deleteMany({category: id });
+
+    res.redirect("/admin/page_Categories");
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Internal server error');
+  }
+};
 
 const AddProductTo = async (req, res) => {
   try { 
@@ -297,8 +296,17 @@ const deleteProduct = async (req, res) => {
       
         const id = req.query.id;
         console.log(id)
-        await Products.deleteOne({ _id: id });
+        const user=req.session.user
+        // orderr pending product should not deleted do that
+        const order= await Orders.findOne({
+          productId:id})
+        if(order){
+          res.send("this product cannot be deleted .it is own pending")
+        }else{
+          await Products.deleteOne({ _id: id });
   
+        }
+       
         res.redirect("/admin/products_list");
     
        }catch (error) {

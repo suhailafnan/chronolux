@@ -158,14 +158,9 @@ const changepassword = async (req, res) => {
 const   loadUserAdress= async (req, res) => {
   try {
       
-    const user = req.session.user;
-        
-      
+        const user = req.session.user;     
         const addressData = await Address.findOne({userId:user})
- 
- 
-
-      res.render("userAddress", { user,addressData});
+        res.render("userAddress", { user,addressData});
     
 
   } catch (error) {
@@ -246,6 +241,79 @@ const loadOrderHistory = async (req, res) => {
   }
 };
 
+const editAddress = async (req, res) => {
+  try {
+    
+    const user = req.session.user; 
+    const addressId = req.query.id;    
+    const addressData = await Address.findOne({ userId: user });
+    const address = addressData.address.find(addr => addr._id.toString() === addressId);
+    // console.log("this is the address we want to edit :=", address);
+    res.render('editAddress', { user, address });
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+const updateAddress = async (req, res) => {
+  try {
+  
+    const user = req.session.user;
+    const addressId = req.body.address_id; 
+
+    const { name, country, state, district, pincode, mobile, home_address, city } = req.body;
+
+    // Find the document that contains the address array
+    const addressData = await Address.findOne({ userId: user });
+
+    // Update the specific address within the array
+    await Address.updateOne(
+      { userId: user, "address._id": addressId },
+      {
+        $set: {
+          "address.$.name": name,
+          "address.$.city": city,
+          "address.$.district": district,
+          "address.$.state": state,
+          "address.$.country": country,
+          "address.$.mobile": mobile,
+          "address.$.pincode": pincode,
+          "address.$.home_address": home_address
+        }
+      }
+    );
+
+    res.redirect(`/Address`);
+  } catch (error) {
+    console.log(error.message);
+    res.redirect(`/userProfile?id=${user._id}`); // Add redirection or error handling as needed
+  }
+};
+
+const deleteAddress = async (req, res) => {
+  try {
+    console.log("helllllll");
+    
+    const user = req.session.user; 
+    const addressId = req.query.id;    
+
+    // Update the specific address within the array
+    await Address.updateOne(
+      { userId: user },
+      {
+        $pull: {
+          address: { _id: addressId }
+        }
+      }
+    );
+    
+    res.redirect(`/Address`);
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
+
+
 
  
   
@@ -260,6 +328,9 @@ module.exports={
     loadUserAdress,
     loadAddAddress,
     addNewAddress,
-    loadOrderHistory
+    loadOrderHistory,
+    editAddress,
+    updateAddress,
+    deleteAddress
 
 }

@@ -1,167 +1,150 @@
 <%-include("../layouts/userNavBar.ejs") %>
-    <div class="container-xl px-4 mt-4">
 
-        <nav class="nav nav-borders">
+<div class="container-xl px-4 mt-4">
 
+    <nav class="nav nav-borders">
+        <a class="nav-link" href="/Profile" target="__blank">Profile</a>
+        <a class="nav-link" href="/Address" target="__blank">Address</a>
+        <a class="nav-link" href="/Wallet" target="__blank">Wallet</a>
+        <a class="nav-link" href="/Offer" target="__blank">Offer</a>
+        <a class="nav-link active ms-0" href="/OrderHistory" target="__blank">Order History</a>
+    </nav>
 
-            <a class="nav-link " href="/Profile"
-                target="__blank">Profile</a>
+    <hr class="mt-0 mb-4">
 
-            <a class="nav-link" href="/Address"
-                target="__blank">Address</a>
-            <a class="nav-link" href="/Wallet"
-                target="__blank">Wallet</a>
-            <a class="nav-link" href="/Offer"
-                target="__blank">Offer</a>
-            <a class="nav-link active ms-0" href="/OrderHistory"
-                target="__blank">Order History</a>
-        </nav>
-        <hr class="mt-0 mb-4">
-        <div class="row">
-            <div class="col-xl-4">
-
-                <div class="card mb-4 mb-xl-0">
-                    <div class="card-header">Profile Picture</div>
-                    <div class="card-body text-center">
-
-                        <img class="img-account-profile rounded-circle mb-2"
-                            src="http://bootdey.com/img/Content/avatar/avatar1.png" alt>
-                            <br>
-                            <br>
-                            <div class="big-bold-text"><%= user.name %></div>
-                        
-
-                       
-                    </div>
+    <div class="row">
+        <div class="col-xl-4">
+            <div class="card mb-4 mb-xl-0">
+                <div class="card-header">Profile Picture</div>
+                <div class="card-body text-center">
+                    <img class="img-account-profile rounded-circle mb-2"
+                        src="http://bootdey.com/img/Content/avatar/avatar1.png" alt>
+                    <br>
+                    <br>
+                    <div class="big-bold-text"><%= user.name %></div>
                 </div>
             </div>
-            <div class="col-xl-8">
-                <div class="card mb-4">
-                    <div class="card-header">Order Details</div>
-                    <div class="card-body">
-                        <div class="row gx-3 mb-3">
-                            <div class="col-md-6">
-                                <input type="hidden" name="user_id" value="<%= user._id %>">
-                            </div>
+        </div>
+
+        <div class="col-xl-8">
+            <div class="card mb-4">
+                <div class="card-header">Order Details</div>
+                <div class="card-body">
+                    <div class="row gx-3 mb-3">
+                        <div class="col-md-6">
+                            <input type="hidden" name="user_id" value="<%= user._id %>">
                         </div>
-    
-                        <% orders.reverse().forEach(order => { %>
-                            <div class="row mb-4">
-                                <div class="col-md-4">
-                                    <% for(let i=0;i<items;i++) %>
-                                    <%{%>
-                                        <img src="/productsImages/<%= order.items[i].productId.mainimage%>" class="img-fluid rounded" alt="Product Image">
-                                    </div>
-                                    <div class="col-md-8">
-                                       
-                                        <h5><strong>Product Name:</strong> <%= order.items[i].productId.name %></h5>
-                                        <p><strong>Quantity:</strong> <%= order.items[i].quantity %></p>
-                                        <p><strong>Shipping Address:</strong> 
-                                            <%= order.address[i].name %>, 
-                                            <%= order.address[i].city %>, 
-                                            <%= order.address[i].state %>, 
-                                            <%= order.address[i].country %>, 
-                                            <%= order.address[i].pincode %>
-                                        </p>
-                                    <% }%>
-                                 
-                                    <p><strong>Amount:</strong> ₹<%= order.totalAmount %></p>
-                                    <p><strong>Date:</strong> <%= new Date(order.currendDate).toLocaleDateString() %></p>
-                                    <p><strong>Order Status:</strong> <%= order.orderStatus %></p>
-                                    <button onclick="window.location.href='/orderDetails/<%= order._id %>'" class="btn btn-info mt-3">View Details</button>
-                                </div>
-                            </div>
-                            <hr>
-                 <% }); %>
-
                     </div>
+
+                    <% orders.reverse().forEach(order => { %>
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <% if (order.items[0] && order.items[0].productId && order.items[0].productId.mainimage) { %>
+                            <img src="/productsImages/<%= order.items[0].productId.mainimage %>"
+                                class="img-fluid rounded" alt="Product Image">
+                            <% } else { %>
+                            <img src="/path/to/default-image.jpg" class="img-fluid rounded" alt="Default Image">
+                            <% } %>
+                        </div>
+                        <div class="col-md-8">
+                            <h5><strong>Product Name:</strong> <%= order.items[0] && order.items[0].productId ? order.items[0].productId.name : 'Unknown Product' %></h5>
+                            <p><strong>Quantity:</strong> <%= order.items[0] ? order.items[0].quantity : 'N/A' %></p>
+                            <p><strong>Shipping Address:</strong> <%= order.address[0] ? order.address[0].name : 'Unknown' %>,
+                                <%= order.address[0] ? order.address[0].city : 'Unknown' %>,
+                                <%= order.address[0] ? order.address[0].state : 'Unknown' %>,
+                                <%= order.address[0] ? order.address[0].country : 'Unknown' %>,
+                                <%= order.address[0] ? order.address[0].pincode : 'Unknown' %></p>
+                            <p><strong>Amount:</strong> ₹<%= order.totalAmount %></p>
+                            <p><strong>Date:</strong> <%= new Date(order.currendDate).toLocaleDateString() %></p>
+                            <p><strong>Order Status:</strong> <%= order.orderStatus %></p>
+                            <button onclick="window.location.href='/orderDetails/<%= order._id %>'"
+                                class="btn btn-info mt-3">View Details</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <% }); %>
                 </div>
             </div>
-            
         </div>
     </div>
-    <style type="text/css">
-           
-    
-        .img-account-profile {
-            height: 10rem;
-        }
+</div>
+<style type="text/css">
+    .img-account-profile {
+        height: 10rem;
+    }
 
-        .rounded-circle {
-            border-radius: 50% !important;
-        }
+    .rounded-circle {
+        border-radius: 50% !important;
+    }
 
-        .card {
-            box-shadow: 0 0.15rem 1.75rem 0 rgb(33 40 50 / 15%);
-        }
+    .card {
+        box-shadow: 0 0.15rem 1.75rem 0 rgb(33 40 50 / 15%);
+    }
 
-        .card .card-header {
-            font-weight: 500;
-        }
+    .card .card-header {
+        font-weight: 500;
+        padding: 1rem 1.35rem;
+        margin-bottom: 0;
+        background-color: rgba(33, 40, 50, 0.03);
+        border-bottom: 1px solid rgba(33, 40, 50, 0.125);
+        border-radius: 0.35rem 0.35rem 0 0;
+    }
 
-        .card-header:first-child {
-            border-radius: 0.35rem 0.35rem 0 0;
-        }
+    .form-control,
+    .dataTable-input {
+        display: block;
+        width: 100%;
+        padding: 0.875rem 1.125rem;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1;
+        color: #69707a;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #c5ccd6;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border-radius: 0.35rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
 
-        .card-header {
-            padding: 1rem 1.35rem;
-            margin-bottom: 0;
-            background-color: rgba(33, 40, 50, 0.03);
-            border-bottom: 1px solid rgba(33, 40, 50, 0.125);
-        }
+    .nav-borders .nav-link.active {
+        color: #0061f2;
+        border-bottom-color: #0061f2;
+    }
 
-        .form-control,
-        .dataTable-input {
-            display: block;
-            width: 100%;
-            padding: 0.875rem 1.125rem;
-            font-size: 0.875rem;
-            font-weight: 400;
-            line-height: 1;
-            color: #69707a;
-            background-color: #fff;
-            background-clip: padding-box;
-            border: 1px solid #c5ccd6;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            border-radius: 0.35rem;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-        }
+    .nav-borders .nav-link {
+        color: #69707a;
+        border-bottom-width: 0.125rem;
+        border-bottom-style: solid;
+        border-bottom-color: transparent;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
 
-        .nav-borders .nav-link.active {
-            color: #0061f2;
-            border-bottom-color: #0061f2;
-        }
+    .big-bold-text {
+        font-size: 2em; /* Adjust size as needed */
+        font-weight: bold;
+        font-style: italic;
+        color: #000000; /* Matches the text-muted class */
+        margin-bottom: 1.5rem; /* Matches the mb-4 class */
+    }
 
-        .nav-borders .nav-link {
-            color: #69707a;
-            border-bottom-width: 0.125rem;
-            border-bottom-style: solid;
-            border-bottom-color: transparent;
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-            padding-left: 0;
-            padding-right: 0;
-            margin-left: 1rem;
-            margin-right: 1rem;
-        }
-        .big-bold-text {
-  font-size: 2em; /* Adjust size as needed */
-  font-weight: bold;
-  font-style: italic;
-  color: #000000; /* Matches the text-muted class */
-  margin-bottom: 1.5rem; /* Matches the mb-4 class */
-}
-    </style>
-    <style>
-        .card-body img {
-            max-width: 100%;
-            height: auto;
-        }
-        .card-body h5, .card-body p {
-            margin-bottom: 10px;
-        }
-    </style>
-    
-    <%-include("../layouts/userFooter.ejs") %>
+    .card-body img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .card-body h5,
+    .card-body p {
+        margin-bottom: 10px;
+    }
+</style>
+
+
+<%-include("../layouts/userFooter.ejs") %>

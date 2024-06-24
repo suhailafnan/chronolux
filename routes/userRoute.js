@@ -7,6 +7,7 @@ const otpController = require('../controller/otpController');
 const cartController = require("../controller/cartController");
 const userProfileController = require("../controller/userProfileController");
 const checkOutController = require("../controller/checkOutController");
+const forgotPasswordController = require("../controller/forgotPasswordController");
 
 const flash=require("express-flash")
 const nocache = require("nocache");
@@ -38,13 +39,15 @@ user_route.post('/register', auth.isLogout, userController.insertUser);
 user_route.get('/login', auth.isLogout, userController.loadLogin);
 user_route.post('/login', auth.isLogout, userController.veriyfyLogin);
 // user_route.get('/otpverify', auth.isLogout, userController.loadOtp);
-user_route.get('/forgotPassword', auth.isLogout, userController.loadforgotPassword);
+// user_route.get('/forgotPassword', auth.isLogout, userController.loadforgotPassword);
 user_route.post('/verify', auth.isLogout, userController.verifyOtp);
 user_route.get('/resendOtp', auth.isLogout, userController.loadResendOtp);
 
 user_route.get('/logoutProfile',  userController.userLogout);
 user_route.get('/shop',userController.loadShop);
 user_route.get('/shop_details',userController.loadShopDetials);
+user_route.get('/shopSort',  userController.getProducts);
+user_route.get('/search',  userController.search);
 // login only routes routes
 user_route.get('/home', auth.isLogin, userController.loadHomepage);
 // user_route.post('/resendOtp', userController.loadResendOtp);
@@ -67,6 +70,10 @@ user_route.get('/failure' , userController.failureGoogleLogin);
 // homepages 
 
 
+// forgot passwords route 
+user_route.get('/forgotPassword', auth.isLogout, forgotPasswordController.loadForgotPassword);
+user_route.post('/forgotEmailSubmit', auth.isLogout, forgotPasswordController.ForgotPassword);
+user_route.post('/resetPasswordOtp', auth.isLogout, forgotPasswordController.verifyOtp);
 
 // user profile routes are here
 user_route.get('/userProfile',userProfileController.loadUserProfile);
@@ -77,10 +84,10 @@ user_route.post('/changePassword', userProfileController.changepassword);
 user_route.get('/Address',userProfileController.loadUserAdress);
 user_route.get('/addAddress',userProfileController.loadAddAddress);
 user_route.post('/addAddress',userProfileController.addNewAddress);
-
+user_route.get('/editaddress',userProfileController.editAddress);
+user_route.post('/updateAddress',userProfileController.updateAddress);
+user_route.get('/deleteAddress',userProfileController.deleteAddress);
 user_route.get('/OrderHistory',userProfileController.loadOrderHistory);
-
-user_route.get('/shopSort',  userController.getProducts);
 
 
 // from here the carts route are set here
