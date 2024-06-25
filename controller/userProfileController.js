@@ -291,10 +291,10 @@ const updateAddress = async (req, res) => {
 
 const deleteAddress = async (req, res) => {
   try {
-    console.log("helllllll");
-    
+   
     const user = req.session.user; 
-    const addressId = req.query.id;    
+    const addressId = req.query.id; 
+       
 
     // Update the specific address within the array
     await Address.updateOne(
@@ -312,12 +312,6 @@ const deleteAddress = async (req, res) => {
   }
 };
 
-
-
-
- 
-  
-
 module.exports={
     loadUserProfile,
     loadEditProfile,
@@ -332,5 +326,4 @@ module.exports={
     editAddress,
     updateAddress,
     deleteAddress
-
 }

@@ -74,6 +74,15 @@ user_route.get('/failure' , userController.failureGoogleLogin);
 user_route.get('/forgotPassword', auth.isLogout, forgotPasswordController.loadForgotPassword);
 user_route.post('/forgotEmailSubmit', auth.isLogout, forgotPasswordController.ForgotPassword);
 user_route.post('/resetPasswordOtp', auth.isLogout, forgotPasswordController.verifyOtp);
+user_route.get('/resetPassword', auth.isLogout, forgotPasswordController.loadResetPassword);
+user_route.post('/updatePassword', auth.isLogout, forgotPasswordController.updatePassword);
+
+
+
+
+
+
+
 
 // user profile routes are here
 user_route.get('/userProfile',userProfileController.loadUserProfile);
