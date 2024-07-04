@@ -68,11 +68,11 @@ const verifyAdminLogin = async (req, res) => {
 
   const deleteUser = async (req, res) => {
     try {
-      console.log("deleeeeteeeeeeeeeedd")
+      
       const id = req.query.id;
       await User.deleteOne({ _id: id });
 
-      res.redirect("/admin/home");
+      res.redirect("/admin/page_users");
     } catch (error) {
       console.log(error.message);
     }
@@ -82,36 +82,35 @@ const verifyAdminLogin = async (req, res) => {
 const blockUser = async (req, res) => {
   try {
     const id = req.query.id;
-    const userData = await User.findByIdAndUpdate(id, { is_blocked: true });
-
+    const userData = await User.findByIdAndUpdate(id, { is_blocked: true }, { new: true });
     if (userData) {
-      console.log("User blocked successfully");
-      res.status(200).send({ message: "User blocked successfully" });
+      
+      res.status(200).send({ success: true, user: userData });
     } else {
-      res.status(404).send({ message: "User not found" });
+      res.status(404).send({ success: false, message: "User not found" });
     }
   } catch (error) {
     console.log(error.message);
-    res.status(500).send({ error: error.message });
+    res.status(500).send({ success: false, error: error.message });
   }
 };
 
 const unblockUser = async (req, res) => {
   try {
     const id = req.query.id;
-    const userData = await User.findByIdAndUpdate(id, { is_blocked: false });
-
+    const userData = await User.findByIdAndUpdate(id, { is_blocked: false }, { new: true });
     if (userData) {
-      console.log("User unblocked successfully");
-      res.status(200).send({ message: "User unblocked successfully" });
+    
+      res.status(200).send({ success: true, user: userData });
     } else {
-      res.status(404).send({ message: "User not found" });
+      res.status(404).send({ success: false, message: "User not found" });
     }
   } catch (error) {
     console.log(error.message);
-    res.status(500).send({ error: error.message });
+    res.status(500).send({ success: false, error: error.message });
   }
 };
+
 
 const loadCategories= async (req, res) => {
   try {

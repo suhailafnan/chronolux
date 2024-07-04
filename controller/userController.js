@@ -12,8 +12,6 @@ const flash = require("connect-flash");
 // for loading the website this method is called
 const loadWebpage = async (req, res) => {
   try {
- 
-   
     res.render('index', { user: req.session.user });
   } catch (error) {
     console.log(error.messsage);
@@ -127,7 +125,6 @@ const insertUser = async (req, res) => {
       const userData = await user.save();
       if (userData) {
         const user=await User.findOne({email})
-        
         const otpBody = await otpController.generateOtpfun(req, res);
         res.render("otpVerification", { email: email,user });
         console.log(userData);
@@ -152,18 +149,19 @@ const loadResendOtp = async (req, res) => {
      
     const email = req.query.email; // Retrieve the email from query parameters
     console.log("Resending OTP for email:", email);
-    const userData = await User.findOne({ email: email });
-    if (userData) {
+    const user = await User.findOne({ email: email });
+    if (user) {
       // Generate a new OTP
       console.log("hello resend otppp")  
-        // const user=await User.findOne({email})
-        // const NewOtpBody = await otpController.generateOtpfun(req, res);
-        // res.render("otpVerification", { email: email,user });
-        // console.log(userData);
-        // // console.log("New  resended OTP is :",NewOtpBody);
-        // theOtp =NewOtpBody;
-      
+      // const user=await User.findOne({email})
+      const otpBody = await otpController.generateOtpfun(req, res);
+      res.render("otpVerification", { email: email,user });
+      console.log(user);
+      console.log("otp is :", otpBody);
+      theOtp = otpBody;
       // Send response indicating success
+      console.log(email)
+      console.log(userData)
       res.status(200).send({ success: true, message: "New OTP has been sent." });
     } else {
       // If user not found, send response indicating failure

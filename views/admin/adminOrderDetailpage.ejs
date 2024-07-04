@@ -1,0 +1,246 @@
+<%- include("../layouts/adminHeader.ejs") %>
+<div class="screen-overlay"></div>
+<%- include("../layouts/adminSideBar.ejs") %>
+
+<main class="main-wrap">
+    <%- include("../layouts/adminNavBar.ejs") %>
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Order Details</h2>
+            </div>
+        </div>
+        <div class="col-xl-12">
+            <div class="card mb-4">
+                <div class="card-header">Order Details Page</div>
+                <div style="background-color: #ffffff; display: flex; align-items: stretch; justify-content: space-around; padding: 20px; flex-wrap: wrap;">
+                    <div class="address-section" style="background-color: #ffffff; padding: 10px; flex: 1; text-align: center;">
+                        <p><strong>Delivery Address</strong></p>
+                        <% order.address.forEach(address => { %>
+                            <address>
+                               <p><strong>Name:</strong> <%= address.name %></p> 
+                               <p><strong>Home Address:</strong> <%= address.home_address %></p>
+                               <p><strong>City:</strong> <%= address.city %></p>
+                               <p><strong>State:</strong> <%= address.state %></p>
+                               <p><strong>Pincode:</strong> <%= address.pincode %></p> 
+                               <p><strong>Country:</strong> <%= address.country %></p> 
+                               <p><strong>Mobile No:</strong> <%= address.mobile %></p> 
+                            </address>
+                        <% }) %>
+                    </div>
+                    <div style="padding: 10px; flex: 1; text-align: center;">
+                        <p><strong>Order Details</strong></p>
+                        <p>Order ID: <%= order.orderId %></p>
+                        <p>Date: <%= new Date(order.currendDate).toDateString() %></p>
+                        <p>Total Amount: <%= order.totalAmount %></p>
+                        <p>Delivery Charge: <%= order.deliveryCharge %></p>
+                    </div>
+                    <div style="background-color: #ffffff; padding: 10px; flex: 1; text-align: center;">
+                        <p><strong>Offer Details</strong></p>
+                        <p>Offer: <%= order.offerDetails %></p>
+                    </div>
+                    <div class="orderStatus">
+                        <p><strong>Order Status:</strong>
+                            <select id="orderStatus" onchange="updateOrderStatus('<%= order.orderId %>', this.value)">
+                                <option value="Shipped" <% if (order.orderStatus === 'Shipped') { %> selected <% } %>>Shipped</option>
+                                <option value="Approved" <% if (order.orderStatus === 'Approved') { %> selected <% } %>>Approved</option>
+                                <option value="Delivered" <% if (order.orderStatus === 'Delivered') { %> selected <% } %>>Delivered</option>
+                                <option value="Cancelled" <% if (order.orderStatus === 'Cancelled') { %> selected <% } %>>Cancelled</option>
+                                <option value="Returned" <% if (order.orderStatus === 'Returned') { %> selected <% } %>>Returned</option>
+                            </select>
+                        </p>
+                    </div>
+                </div>
+                <div class="container mt-4" style="background-color: #eeecec; padding: 20px;">
+                    <p><strong>Ordered Products</strong></p>
+                    <% order.items.forEach(item => { %>
+                        <div class="row border p-3 mb-3 bg-white">
+                            <div class="col-md-3">
+                                <img src="/productsImages/<%= item.productId.mainimage %>" alt="<%= item.productId.name %>" class="img-fluid">
+                            </div>
+                            <div class="col-md-9">
+                                <p><strong>Product Name:</strong> <%= item.productId.name %></p>
+                                <p><strong>Quantity:</strong> <%= item.quantity %></p>
+                                <p><strong>Price:</strong> <%= item.price %></p>
+                            </div>
+                          
+                            
+                            
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </div>
+    </section>
+</main>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    function updateOrderStatus(orderId, status) {
+        console.log("inside the template");
+        console.log(orderId, status);
+        fetch('/admin/updateOrderStatus', {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ orderId: orderId, orderStatus: status })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    title: 'Success!',
+                    text: 'Order status updated successfully',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            } else {
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'Failed to update order status',
+                    icon: 'error',
+                    confirmButtonText: 'OK'
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            Swal.fire({
+                title: 'Error!',
+                text: 'An error occurred while updating order status',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+        });
+    }
+</script>
+
+
+
+<style>
+    .orderStatus {
+    width:180px;
+    height: 50px;
+    background-color: #ffffff;
+    position:absolute;
+    margin-left: 670px;
+    margin-top: 70px;
+    }
+    .btn {
+        display: inline-block;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+    }
+
+    .delete-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .delete-btn:hover {
+        background-color: #da190b;
+    }
+
+    .img-account-profile {
+        height: 10rem;
+    }
+
+    .rounded-circle {
+        border-radius: 50% !important;
+    }
+
+    .card {
+        box-shadow: 0 0.15rem 1.75rem 0 rgb(33 40 50 / 15%);
+    }
+
+    .card .card-header {
+        font-weight: 500;
+    }
+
+    .card-header:first-child {
+        border-radius: 0.35rem 0.35rem 0 0;
+    }
+
+    .card-header {
+        padding: 1rem 1.35rem;
+        margin-bottom: 0;
+        background-color: rgba(33, 40, 50, 0.03);
+        border-bottom: 1px solid rgba(33, 40, 50, 0.125);
+    }
+
+    .form-control, .dataTable-input {
+        display: block;
+        width: 100%;
+        padding: 0.875rem 1.125rem;
+        font-size: 0.875rem;
+        font-weight: 400;
+        line-height: 1;
+        color: #69707a;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #c5ccd6;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        border-radius: 0.35rem;
+        transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    }
+
+    .nav-borders .nav-link.active {
+        color: #0061f2;
+        border-bottom-color: #0061f2;
+    }
+
+    .nav-borders .nav-link {
+        color: #69707a;
+        border-bottom-width: 0.125rem;
+        border-bottom-style: solid;
+        border-bottom-color: transparent;
+        padding-top: 0.5rem;
+        padding-bottom: 0.5rem;
+        padding-left: 0;
+        padding-right: 0;
+        margin-left: 1rem;
+        margin-right: 1rem;
+    }
+
+    .big-bold-text {
+        font-size: 2em;
+        font-weight: bold;
+        font-style: italic;
+        color: #000000;
+        margin-bottom: 1.5rem;
+    }
+
+    .edit-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .edit-btn:hover {
+        background-color: #45a049;
+    }
+
+    .delete-btn {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .delete-btn:hover {
+        background-color: #da190b;
+    }
+
+    .address-section address p {
+        margin: 2px 0; /* Adjust margin to reduce space between lines */
+        line-height: 1.2; /* Adjust line height to further reduce space between lines */
+    }
+</style>
+
+</body></html>

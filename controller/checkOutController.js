@@ -7,6 +7,7 @@ const flash = require("connect-flash");
 const Cart=require("../models/cart"); 
 const Address=require("../models/address"); 
 const Order=require("../models/orderModels"); 
+const crypto = require('crypto');
 
 
 const loadcheckOutPage = async (req, res) => {
@@ -41,48 +42,59 @@ const loadcheckOutPage = async (req, res) => {
       console.log(error.message);
   }
   };
+  
+
+
+
+  const generateRandomId = async () => {
+    try {
+      const randomId = crypto.randomBytes(8).toString('hex');
+      return randomId;
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to generate random ID');
+    }
+  };
+  
+
 
   const addToPlaceOrder = async (req, res) => {
     try {
-      console.log("thiings all posted to backend")
-      const user= req.session.user;
-      const orderData =req.body;
-     
-
-      const paymentMethod =orderData.paymentMethod;
+      console.log("Things all posted to backend");
+      const user = req.session.user;
+      const orderData = req.body;
+  
+      const paymentMethod = orderData.paymentMethod;
       const addressId = orderData.addressId;
       const userid = req.session.user._id;
-      const totalamount = orderData.totalAmount;
-      const addressData = await Address.findOne({ userId: userid ,"address._id":addressId});
-      console.log(addressData)
-      const cart= await Cart.findOne({ userId: userid }).populate(
-        "product.productId"
-      );
- 
+      const totalAmount = orderData.totalAmount;
+      const addressData = await Address.findOne({ userId: userid, "address._id": addressId });
+      console.log(addressData);
+      
+      const cart = await Cart.findOne({ userId: userid }).populate("product.productId");
+  
       let outOfStockProducts = [];
       if (cart) {
         for (const item of cart.product) {
           const product = item.productId;
   
-          if (product.Stock <item.quantity) {
+          if (product.Stock < item.quantity) {
             outOfStockProducts.push(product.name);
           }
         }
       }
+  
       if (outOfStockProducts.length > 0) {
-        res
-          .status(400)
-          .json({
-            success: false,
-            message: "Products is out of Stock, please remove product",
-          });
+        res.status(400).json({
+          success: false,
+          message: "Products are out of stock, please remove product(s)",
+        });
       } else {
         const items = [];
   
         for (const item of cart.product) {
           const oneProduct = await Products.findById(item.productId);
-       
-
+  
           const itemDetails = { 
             productId: item.productId,
             quantity: item.quantity,
@@ -94,29 +106,33 @@ const loadcheckOutPage = async (req, res) => {
   
           oneProduct.Stock -= item.quantity;
           await oneProduct.save();
-  
         }
   
         await Cart.findOneAndUpdate({ userId: userid }, { product: [] });
   
+        const randomId = await generateRandomId();
+  
         const newOrder = new Order({
           userId: userid,
           items: items,
-          totalAmount: totalamount,
-          address:addressData.address,
+          totalAmount: totalAmount,
+          address: addressData.address,
           paymentMethod: paymentMethod,
-         
+          orderId: randomId,
         });
   
-      
         await newOrder.save();
-       
+        console.log(newOrder)
+        
+        
         res.status(200).json({ success: true });
       }
     } catch (error) {
-      console.log(error.message);
-  }
+      console.error(error.message);
+      res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
   };
+  
   
   const orderConfirmation=async(req,res)=>{
     try{
@@ -132,6 +148,6 @@ const loadcheckOutPage = async (req, res) => {
 module.exports={
     loadcheckOutPage,
     addToPlaceOrder,
-    orderConfirmation
+    orderConfirmation,
+   generateRandomId
 }
-

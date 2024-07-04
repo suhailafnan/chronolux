@@ -233,7 +233,7 @@ const loadOrderHistory = async (req, res) => {
       .populate('items.categoryId')
       .populate('userId');
 
-    console.log(orders); 
+
 
     res.render("orderPage", { user, orders });
   } catch (error) {
@@ -312,6 +312,24 @@ const deleteAddress = async (req, res) => {
   }
 };
 
+
+
+const loadOrderDetails = async (req, res) => {
+  try {
+    const user = req.session.user; 
+    const orderId = req.query.orderId; 
+    
+    const order = await Order.findOne({ orderId: orderId })
+                             .populate('items.productId')
+                             .populate('items.categoryId');
+   
+    res.render("orderDetails", { user, order });
+    
+  } catch (error) {
+    console.log(error.message);
+  }
+};
+
 module.exports={
     loadUserProfile,
     loadEditProfile,
@@ -325,5 +343,6 @@ module.exports={
     loadOrderHistory,
     editAddress,
     updateAddress,
-    deleteAddress
+    deleteAddress,
+    loadOrderDetails
 }

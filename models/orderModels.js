@@ -83,11 +83,19 @@ const orderSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    orderId:{
+        type:String,
+        required:true
+
+    },
 
     orderStatus:{
         type:String,
         enum: ['Approved', 'Shipped', 'Cancelled', 'Return','Delivered'],
         default:'Approved',
+     },
+     returnReason:{
+        type:String
      },
     currendDate:{
         type:Date,

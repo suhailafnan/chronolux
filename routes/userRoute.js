@@ -8,6 +8,7 @@ const cartController = require("../controller/cartController");
 const userProfileController = require("../controller/userProfileController");
 const checkOutController = require("../controller/checkOutController");
 const forgotPasswordController = require("../controller/forgotPasswordController");
+const userOrderController = require("../controller/userOrderController");
 
 const flash=require("express-flash")
 const nocache = require("nocache");
@@ -69,7 +70,6 @@ user_route.get('/success' , userController.successGoogleLogin);
 user_route.get('/failure' , userController.failureGoogleLogin);
 // homepages 
 
-
 // forgot passwords route 
 user_route.get('/forgotPassword', auth.isLogout, forgotPasswordController.loadForgotPassword);
 user_route.post('/forgotEmailSubmit', auth.isLogout, forgotPasswordController.ForgotPassword);
@@ -97,7 +97,7 @@ user_route.get('/editaddress',userProfileController.editAddress);
 user_route.post('/updateAddress',userProfileController.updateAddress);
 user_route.get('/deleteAddress',userProfileController.deleteAddress);
 user_route.get('/OrderHistory',userProfileController.loadOrderHistory);
-
+user_route.get('/orderDetails',userProfileController.loadOrderDetails);
 
 // from here the carts route are set here
 user_route.get('/cart',cartController.loadCart);
@@ -113,5 +113,13 @@ user_route.post('/placeOrder',checkOutController.addToPlaceOrder);
 
 
 user_route.get('/orderConfirmation',checkOutController.orderConfirmation);
+
+
+
+// order constroller
+user_route.post('/cancelOrder', userOrderController.cancelOrder);
+user_route.get('/returnOrder', userOrderController. returnOrderLoad);
+user_route.post('/submitReturnReason', userOrderController. returnOrder);
+
 
 module.exports = user_route;

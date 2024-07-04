@@ -27,7 +27,7 @@
         </div>
 
         <div class="col-xl-8">
-            <div class="card mb-4">
+            <div class="card mb-8">
                 <div class="card-header">Order Details</div>
                 <div class="card-body">
                     <div class="row gx-3 mb-3">
@@ -35,33 +35,60 @@
                             <input type="hidden" name="user_id" value="<%= user._id %>">
                         </div>
                     </div>
-
+        
                     <% orders.reverse().forEach(order => { %>
-                    <div class="row mb-4">
-                        <div class="col-md-4">
-                            <% if (order.items[0] && order.items[0].productId && order.items[0].productId.mainimage) { %>
-                            <img src="/productsImages/<%= order.items[0].productId.mainimage %>"
-                                class="img-fluid rounded" alt="Product Image">
-                            <% } else { %>
-                            <img src="/path/to/default-image.jpg" class="img-fluid rounded" alt="Default Image">
-                            <% } %>
+                        <div class="row mb-12">
+                            <div class="col-md-12">
+                                <table class="table product-details-table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Image</th>
+                                            <th scope="col">Name</th>
+                                            <th scope="col">Qty</th>
+                                            <th scope="col">Price of 1 piece</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% order.items.forEach(item => { %>
+                                            <tr>
+                                                <td>
+                                                    <% if (item.productId && item.productId.mainimage) { %>
+                                                        <img src="/productsImages/<%= item.productId.mainimage %>"
+                                                             class="img-fluid rounded product-image" alt="Product Image" style="height: 95px; width: 105px;">
+                                                    <% } else { %>
+                                                        <img src="/path/to/default-image.jpg"
+                                                             class="img-fluid rounded product-image" alt="Default Image">
+                                                    <% } %>
+                                                </td>
+                                                <td><%= item.productId.name %></td>
+                                                <td> <%= item.quantity %></td>
+                                                <td> ₹<%= item.price %></td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <p><strong>Total Amount:</strong> ₹<%= order.totalAmount %></p>
+                                        <% if (order.paymentMethod === "cod") { %>
+                                            <p><strong>Payment Method:</strong> Cash on delivery</p>
+                                        <% } else if (order.paymentMethod === "online") { %>
+                                            <p><strong>Payment Method:</strong> Razorpay</p>
+                                        <% } else { %>
+                                            <p><strong>Payment Method:</strong> Wallet</p>
+                                        <% } %>
+                                        <p><strong>Date:</strong> <%= new Date(order.currendDate).toLocaleDateString() %></p>
+                                    </div>
+                                    <div class="viewBtn">
+                                        <button onclick="window.location.href='/orderDetails?orderId=<%= order.orderId %>'" class="btn btn-info">
+                                            View Details
+                                        </button>
+                                    </div>
+                                </div>
                         </div>
-                        <div class="col-md-8">
-                            <h5><strong>Product Name:</strong> <%= order.items[0] && order.items[0].productId ? order.items[0].productId.name : 'Unknown Product' %></h5>
-                            <p><strong>Quantity:</strong> <%= order.items[0] ? order.items[0].quantity : 'N/A' %></p>
-                            <p><strong>Shipping Address:</strong> <%= order.address[0] ? order.address[0].name : 'Unknown' %>,
-                                <%= order.address[0] ? order.address[0].city : 'Unknown' %>,
-                                <%= order.address[0] ? order.address[0].state : 'Unknown' %>,
-                                <%= order.address[0] ? order.address[0].country : 'Unknown' %>,
-                                <%= order.address[0] ? order.address[0].pincode : 'Unknown' %></p>
-                            <p><strong>Amount:</strong> ₹<%= order.totalAmount %></p>
-                            <p><strong>Date:</strong> <%= new Date(order.currendDate).toLocaleDateString() %></p>
-                            <p><strong>Order Status:</strong> <%= order.orderStatus %></p>
-                            <button onclick="window.location.href='/orderDetails/<%= order._id %>'"
-                                class="btn btn-info mt-3">View Details</button>
-                        </div>
-                    </div>
-                    <hr>
+                        
                     <% }); %>
                 </div>
             </div>
@@ -69,6 +96,26 @@
     </div>
 </div>
 <style type="text/css">
+  .viewBtn {
+    margin-left: 245px;
+    /* position: relative;
+    margin-bottom: 145px; */
+  
+  }
+    .product-details p {
+    margin-bottom: 0.0rem; 
+}
+
+.product-details {
+    flex-grow: 1;
+    margin-left: 1rem; 
+}
+
+.product-qty,
+.product-price {
+    margin-left: 2rem; 
+    align-self: center;
+}
     .img-account-profile {
         height: 10rem;
     }
