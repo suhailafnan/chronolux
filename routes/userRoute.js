@@ -9,6 +9,8 @@ const userProfileController = require("../controller/userProfileController");
 const checkOutController = require("../controller/checkOutController");
 const forgotPasswordController = require("../controller/forgotPasswordController");
 const userOrderController = require("../controller/userOrderController");
+const userWishlistController = require("../controller/userWishlistController");
+const paymentController = require("../controller/paymentController");
 
 const flash=require("express-flash")
 const nocache = require("nocache");
@@ -52,7 +54,6 @@ user_route.get('/search',  userController.search);
 // login only routes routes
 user_route.get('/home', auth.isLogin, userController.loadHomepage);
 // user_route.post('/resendOtp', userController.loadResendOtp);
-
 //google authenticationn
 // Auth 
 user_route.get('/auth/google' , passport.authenticate('google', { scope: 
@@ -69,21 +70,12 @@ user_route.get('/success' , userController.successGoogleLogin);
 // failure 
 user_route.get('/failure' , userController.failureGoogleLogin);
 // homepages 
-
 // forgot passwords route 
 user_route.get('/forgotPassword', auth.isLogout, forgotPasswordController.loadForgotPassword);
 user_route.post('/forgotEmailSubmit', auth.isLogout, forgotPasswordController.ForgotPassword);
 user_route.post('/resetPasswordOtp', auth.isLogout, forgotPasswordController.verifyOtp);
 user_route.get('/resetPassword', auth.isLogout, forgotPasswordController.loadResetPassword);
 user_route.post('/updatePassword', auth.isLogout, forgotPasswordController.updatePassword);
-
-
-
-
-
-
-
-
 // user profile routes are here
 user_route.get('/userProfile',userProfileController.loadUserProfile);
 user_route.get('/EditProfile',userProfileController.loadEditProfile);
@@ -98,28 +90,30 @@ user_route.post('/updateAddress',userProfileController.updateAddress);
 user_route.get('/deleteAddress',userProfileController.deleteAddress);
 user_route.get('/OrderHistory',userProfileController.loadOrderHistory);
 user_route.get('/orderDetails',userProfileController.loadOrderDetails);
-
 // from here the carts route are set here
 user_route.get('/cart',cartController.loadCart);
 user_route.post('/addToCart', auth.isLogin,cartController.addToCart);
 user_route.post('/removeProduct', auth.isLogin,cartController.removeFromCart);
 user_route.post('/update-quantity', auth.isLogin,cartController.updateQuantity);
 user_route.post('/checkQuantity', auth.isLogin,cartController.checkQuantity);
-
-
 // check out page 
 user_route.get('/checkOut',checkOutController.loadcheckOutPage);
 user_route.post('/placeOrder',checkOutController.addToPlaceOrder);
-
-
 user_route.get('/orderConfirmation',checkOutController.orderConfirmation);
-
-
-
 // order constroller
 user_route.post('/cancelOrder', userOrderController.cancelOrder);
 user_route.get('/returnOrder', userOrderController. returnOrderLoad);
 user_route.post('/submitReturnReason', userOrderController. returnOrder);
 
+// wishlist adddinggg
+user_route.post('/addToWishlist', userWishlistController.addToWishlist);
+user_route.get('/wishlist', userWishlistController.loadWishlist);
+user_route.post('/removeFromWishlist', userWishlistController.removeFromWishlist);
+
+// paypal route
+user_route.get('/onlinePayment', paymentController.renderBuyPage);
+user_route.post('/payMoney', paymentController.payProduct);
+user_route.get('/paymentSuccess', paymentController.successPage);
+user_route.get('/paymentCancel', paymentController.cancelPage);
 
 module.exports = user_route;

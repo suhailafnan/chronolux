@@ -90,8 +90,15 @@
                                         </div>
                                     </div> -->
                                
-                                    <a onclick="addToCart('<%= products._id %>')" class="primary-btn add-to-cart-btn">+ Add To Cart</a>
-                                    <a href="#" onclick="addToCart('<%= products._id %>')" class="primary-btn buy-now-btn">Buy Now</a>
+                                  
+                                    <%if(products.Stock<=0){  %>
+                                                  
+                                        <a ><span style="color: red;">OUT OF STOCK</span></a>
+
+                                    <%}else { %>
+                                        <a onclick="addToCart('<%= products._id %>')" class="primary-btn add-to-cart-btn">+ Add To Cart</a>
+                                        <a href="#" onclick="addToCart('<%= products._id %>')" class="primary-btn buy-now-btn">Buy Now</a>
+                                        <% } %>
 
                                 </div>
                                 <div class="product__details__btns__option">

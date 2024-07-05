@@ -154,14 +154,31 @@
                                                     <img src="/productsImages/<%= product.mainimage %>" style="max-width: 250px; max-height: 250px;">
                                                 </a>
                                                 <ul class="product__hover">
-                                                    <li><a href="#"><img src="userAssets/img/icon/heart.png" alt=""></a></li>
-                                                    <li><a href="#"><img src="userAssets/img/icon/compare.png" alt=""> <span>Compare</span></a></li>
-                                                    <li><a href="#"><img src="userAssets/img/icon/search.png" alt=""></a></li>
+                                                    <div class="product-action-vertical">
+														<% if (user) { %>
+                                                          
+
+                                                             <li><a onclick="addToWishlist('<%= product._id  %>')"><img src="userAssets/img/icon/heart.png" alt=""></a></li> 
+														<% } else { %>
+															<!-- <a href="/login" class="btn-product-icon btn-wishlist btn-expandable" style="color: red;"><span>Login</span></a> -->
+                                                            <li><a href="/login" ><img src="userAssets/img/icon/heart.png" alt=""></a></li>
+														<% } %>
+													</div>
+                                                    <!-- <li><a href="#"><img src="userAssets/img/icon/heart.png" alt=""></a></li> -->
+                                                    <!-- <li><a href="#"><img src="userAssets/img/icon/compare.png" alt=""> <span>Compare</span></a></li>
+                                                    <li><a href="#"><img src="userAssets/img/icon/search.png" alt=""></a></li> -->
                                                 </ul>
                                             </div>
                                             <div class="product__item__text">
                                                 <h6><%= product.name %></h6>
-                                                <a onclick="addToCart('<%= product._id %>')" class="add-cart">+ Add To Cart</a>
+                                               
+                                                <%if(product.Stock<=0){  %>
+                                                  
+                                                    <a ><span style="color: red;">OUT OF STOCK</span></a>
+    
+                                                <%}else { %>
+                                                    <a onclick="addToCart('<%= product._id %>')" class="add-cart">+ Add To Cart</a>
+                                                    <% } %>
                                                 <h5>₹<%= product.price %></h5>
                                             </div>
                                         </div>
@@ -192,6 +209,46 @@
     <!-- Shop Section End -->
 
     <script>
+       function addToWishlist(productId){
+		console.log("hello")
+		fetch(`/addToWishlist?productId=${productId}`,
+        {method : 'POST'})
+		.then(response=> response.json())
+		.then(data=>{
+			if(data.success){
+				Swal.fire({
+                        icon: 'success',
+                        title: 'Success!',
+                        text: "product Added to Wishlist Successfully",
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    // .then(() => {
+                    //     window.location.reload();
+                    // })
+                    ;
+			}else{
+				Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: data.error || 'Failed to add product to Wishlist.',
+                        showConfirmButton: false,
+                        timer: 1500
+                    });
+			}
+		})
+		.catch(error => {
+                console.error('Error:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: 'An error occurred while adding product to Wishlist.',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            });
+	}
+
         function addToCart(ProductId) {
             const quantity = 1;
             fetch(`/addToCart?ProductId=${ProductId}`, { method: 'POST' })

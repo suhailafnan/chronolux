@@ -240,6 +240,41 @@ const deleteCategory = async (req, res) => {
   }
 };
 
+// const AddProductTo = async (req, res) => {
+//   try { 
+//     const { tax_rate, stock, price, product_name, Full_description, category, sub_category } = req.body;
+//     const uploadedImageName = req.files.mainimage? req.files.mainimage[0].filename : '';
+//     const uploadedSub_images1 = req.files.sub_images1? req.files.sub_images1[0].filename : '';
+//     const uploadedSub_images2= req.files.sub_images2? req.files.sub_images2[0].filename : '';
+
+   
+    
+//     const categoryDoc = await Category.findOne({ name: category });
+//     if (!categoryDoc) {
+//       return res.status(400).send('Category not found');
+//     }
+
+//     const products = new Products({
+//       name: product_name,
+//       price: price,
+//       Description: Full_description,
+//       category: categoryDoc._id, 
+//       sub_category: sub_category,
+//       Stock: stock,
+//       tax_rate: tax_rate,
+//       mainimage: uploadedImageName,
+//       sub_images1: uploadedSub_images1,
+//       sub_images2: uploadedSub_images2
+//     });
+
+//     const productsData = await products.save();
+//     console.log(`product is ${productsData}`);
+//     res.redirect("/admin/products_list");
+  
+//   } catch (error) {
+//     console.error('Error:', error);
+//   } 
+// };
 const AddProductTo = async (req, res) => {
   try { 
     const { tax_rate, stock, price, product_name, Full_description, category, sub_category } = req.body;
@@ -253,19 +288,25 @@ const AddProductTo = async (req, res) => {
     if (!categoryDoc) {
       return res.status(400).send('Category not found');
     }
-
-    const products = new Products({
-      name: product_name,
-      price: price,
-      Description: Full_description,
-      category: categoryDoc._id, 
-      sub_category: sub_category,
-      Stock: stock,
-      tax_rate: tax_rate,
-      mainimage: uploadedImageName,
-      sub_images1: uploadedSub_images1,
-      sub_images2: uploadedSub_images2
-    });
+    if(price > 0){
+      const products = new Products({
+        name: product_name,
+        price: price,
+        Description: Full_description,
+        category: categoryDoc._id, 
+        sub_category: sub_category,
+        Stock: stock,
+        tax_rate: tax_rate,
+        mainimage: uploadedImageName,
+        sub_images1: uploadedSub_images1,
+        sub_images2: uploadedSub_images2
+      });
+      // res.status(200).send({ success: true, message: "product added succsessfully"});
+    }else{
+      console.log("price should be greater than 0")
+      // res.status(200).send({ success: false, message: "price should be greater than 0"});
+    }
+  
 
     const productsData = await products.save();
     console.log(`product is ${productsData}`);
@@ -275,6 +316,7 @@ const AddProductTo = async (req, res) => {
     console.error('Error:', error);
   } 
 };
+
 
 
 
@@ -329,6 +371,45 @@ const editProductLoad = async (req, res) => {
   }
 }
  
+// const updateProduct = async (req, res) => {
+//   try {
+//     // Destructure the required fields from req.body
+//     const { tax_rate, stock, price, product_name, Full_description, category, sub_category, product_id } = req.body;
+//     // Check if product_id is undefined
+//     if (!product_id) {
+//       console.log("Product ID is missing");
+//     }
+//     // Handle file uploads
+//     // const uploadedImageName = req.files.mainimage ? req.files.mainimage[0].filename : '';
+//     // const uploadedSub_images1 = req.files.sub_images1 ? req.files.sub_images1[0].filename : '';
+//     // const uploadedSub_images2 = req.files.sub_images2 ? req.files.sub_images2[0].filename : '';
+//     // Update the product
+   
+//     const updateProducts = await Products.findByIdAndUpdate(
+//       product_id,  // Use the product_id directly
+//       {
+//         $set: {
+//           name: product_name,
+//           price: price,
+//           Description: Full_description,
+//           category: category, // Assuming category is already an ObjectId
+//           sub_category: sub_category,
+//           Stock: stock,
+//           tax_rate: tax_rate,
+//           // mainimage: uploadedImageName,
+//           // sub_images1: uploadedSub_images1,
+//           // sub_images2: uploadedSub_images2
+//         }
+//       },
+//       { new: true } // Return the updated document
+//     );
+
+//     res.redirect("/admin/products_list");
+
+//   } catch (error) {
+//     console.error('Error:', error.message);
+//   }
+// };
 const updateProduct = async (req, res) => {
   try {
     // Destructure the required fields from req.body
@@ -342,29 +423,38 @@ const updateProduct = async (req, res) => {
     // const uploadedSub_images1 = req.files.sub_images1 ? req.files.sub_images1[0].filename : '';
     // const uploadedSub_images2 = req.files.sub_images2 ? req.files.sub_images2[0].filename : '';
     // Update the product
-    const updateProducts = await Products.findByIdAndUpdate(
-      product_id,  // Use the product_id directly
-      {
-        $set: {
-          name: product_name,
-          price: price,
-          Description: Full_description,
-          category: category, // Assuming category is already an ObjectId
-          sub_category: sub_category,
-          Stock: stock,
-          tax_rate: tax_rate,
-          // mainimage: uploadedImageName,
-          // sub_images1: uploadedSub_images1,
-          // sub_images2: uploadedSub_images2
-        }
-      },
-      { new: true } // Return the updated document
-    );
+   
+if(price > 0){
+  const updateProducts = await Products.findByIdAndUpdate(
+    product_id,  // Use the product_id directly
+    {
+      $set: {
+        name: product_name,
+        price: price,
+        Description: Full_description,
+        category: category, // Assuming category is already an ObjectId
+        sub_category: sub_category,
+        Stock: stock,
+        tax_rate: tax_rate,
+        // mainimage: uploadedImageName,
+        // sub_images1: uploadedSub_images1,
+        // sub_images2: uploadedSub_images2
+      }
+    },
+    { new: true } // Return the updated document
+  );   
+  // res.status(200).send({ success: true, message: "product updated succsessfully"});
+}else{
+  console.log("price should be greater than 0")
+  // res.status(200).send({ success: false, message: "price should be greater than 0"});
+}
+  
 
     res.redirect("/admin/products_list");
 
   } catch (error) {
     console.error('Error:', error.message);
+ 
   }
 };
 
