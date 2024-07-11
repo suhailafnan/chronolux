@@ -12,7 +12,7 @@
                         <p>Edit  category</p>
                     </div>
                     <div>
-                        <input type="text" placeholder="Search Categories" class="form-control bg-white" />
+                        <input type="text" placeholder="Search Categories" class="form-control bg-white" required/>
                     </div>
                 </div>
                 <div class="card">
@@ -24,27 +24,21 @@
                                     <div class="mb-4">
                                         <label for="product_name" class="form-label" >Name</label>
                                         <input type="text" placeholder="Type here" class="form-control" 
-                                        id="product_name" name="name" value="<%= category.name%>" />
+                                        id="product_name" name="name" value="<%= category.name%>" required />
                                        
                                     </div>
                                     
-                                    <div class="mb-4">
-                                        <label class="form-label">sub categery</label>
-                                        <select class="form-select" name="categ">
-                                            <option value="Luxury" <%= category.categ === "Luxury" ? "selected" : "" %>>Luxury</option>
-                                            <option value="Normal" <%= category.categ === "Normal" ? "selected" : "" %>>Normal</option>
-                                        </select>
-                                    </div>
+                                  
                                     
                                    
                                     <div class="mb-4">
                                         <label class="form-label">Description</label>
-                                        <textarea class="form-control" name="Description"><%= category.Description %></textarea>
+                                        <textarea class="form-control" name="Description" required><%= category.Description %></textarea>
                                     </div>
                                     
                                     <div class="d-grid">
                                       
-                                        <button class="btn btn-primary" type="submit">Update category</button>
+                                        <button class="btn btn-primary" type="submit" >Update category</button>
                                     </div>
                                     <div style="color: rgb(0, 132, 247);">
                                         <% if (messages.error) { %>

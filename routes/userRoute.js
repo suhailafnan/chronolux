@@ -11,6 +11,7 @@ const forgotPasswordController = require("../controller/forgotPasswordController
 const userOrderController = require("../controller/userOrderController");
 const userWishlistController = require("../controller/userWishlistController");
 const paymentController = require("../controller/paymentController");
+const onlinePaymentController= require("../controller/onlinePaymentController");
 
 const flash=require("express-flash")
 const nocache = require("nocache");
@@ -100,6 +101,7 @@ user_route.post('/checkQuantity', auth.isLogin,cartController.checkQuantity);
 user_route.get('/checkOut',checkOutController.loadcheckOutPage);
 user_route.post('/placeOrder',checkOutController.addToPlaceOrder);
 user_route.get('/orderConfirmation',checkOutController.orderConfirmation);
+
 // order constroller
 user_route.post('/cancelOrder', userOrderController.cancelOrder);
 user_route.get('/returnOrder', userOrderController. returnOrderLoad);
@@ -116,4 +118,8 @@ user_route.post('/payMoney', paymentController.payProduct);
 user_route.get('/paymentSuccess', paymentController.successPage);
 user_route.get('/paymentCancel', paymentController.cancelPage);
 
+
+
+ user_route.post('/razorpay',onlinePaymentController.openRazorpay);
+// user_route.get('/onlinePayment',onlinePaymentController.onlineorderConfirmation);
 module.exports = user_route;

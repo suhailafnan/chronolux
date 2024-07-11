@@ -179,7 +179,12 @@
                                                 <%}else { %>
                                                     <a onclick="addToCart('<%= product._id %>')" class="add-cart">+ Add To Cart</a>
                                                     <% } %>
-                                                <h5>₹<%= product.price %></h5>
+                                                    <h5>₹<%= product.finalPrice %></h5>
+                                                    <% if (product.productDiscountPercentage > 0) { %>
+                                                        <span style="color: red;"><%= product.productDiscountPercentage %>% off</span>
+                                                        <h4 style="text-decoration: line-through;">₹<%= product.price %></h4>
+                                                      <% } %>
+                                                    
                                             </div>
                                         </div>
                                     </div>

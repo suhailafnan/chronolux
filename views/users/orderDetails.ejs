@@ -109,24 +109,30 @@
                             </div>
                         </div>
                     <%}%>
-                 <div class="cancelReturned">
-                    <% if (order.orderStatus == "Approved") { %>
-                        <div class="cancel">
-                            <button class="btn btn-danger" onclick="CancelOrder('<%= order.orderId %>')">Cancel</button>
-                        </div>
-                    <% } else if (order.orderStatus == "Shipped") { %>
-                        <div class="cancel">
-                            <button class="btn btn-danger" onclick="CancelOrder('<%= order.orderId %>' )">Cancel</button>
-                        </div>
-                    <% } else if (order.orderStatus == "Delivered") { %>
-                        <div class="returned">
-                            <a href="/returnOrder?orderId=<%= order.orderId %>"> <button class="btn btn-danger" >Return</button></a>
-                        </div>
-                    <% } %>
-                    
-                     
-                 </div>      
+                    <div class="cancelReturned">
+                        <% if (order.orderStatus == "Approved") { %>
+                            <div class="cancel">
+                                <button class="btn btn-danger" onclick="CancelOrder('<%= order.orderId %>')">Cancel</button>
+                            </div>
+                        <% } else if (order.orderStatus == "Shipped") { %>
+                            <div class="cancel">
+                                <button class="btn btn-danger" onclick="CancelOrder('<%= order.orderId %>' )">Cancel</button>
+                            </div>
+                        <% } else if (order.orderStatus == "Delivered") { %>
+                            <div class="returned">
+                                <a href="/returnOrder?orderId=<%= order.orderId %>">
+                                    <button class="btn btn-danger">Return</button>
+                                </a>
+                            </div>
+                            <div class="invoice">
+                                <button class="btn btn-primary" onclick="downloadInvoice('<%= order.orderId %>')">Download Invoice</button>
+                            </div>
+                        <% } %>
+                        
+                        
                     </div>
+                       
+                    
                 <div class="container mt-4" style="background-color: #eeecec; padding: 20px;">
                     <p><strong>Ordered Products</strong></p>
                     <% order.items.forEach(item => { %>
@@ -148,6 +154,12 @@
         </div>
     </div>
 </div>
+<script>
+    function downloadInvoice(orderId) {
+        window.location.href = '/downloadInvoice?orderId=' + orderId;
+    }
+    </script>
+    
 <script>
  
  function returnOrder(orderId) {

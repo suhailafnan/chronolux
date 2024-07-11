@@ -26,31 +26,31 @@
                             <form id="productForm" action="add_product" method="post" enctype="multipart/form-data">
                                 <div class="mb-4">
                                     <label for="product_name" class="form-label">Product title</label>
-                                    <input type="text" placeholder="Type here" class="form-control" id="product_name" name="product_name" />
+                                    <input type="text" placeholder="Type here" class="form-control" id="product_name" name="product_name" required/>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Full description</label>
-                                    <textarea placeholder="Type here" class="form-control" rows="4" name="Full_description"></textarea>
+                                    <textarea placeholder="Type here" class="form-control" rows="4" name="Full_description" required></textarea>
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-4">
                                         <div class="mb-4">
                                             <label class="form-label">Regular price</label>
                                             <div class="row gx-2">
-                                                <input placeholder="$" type="text" class="form-control" name="price" />
+                                                <input placeholder="$" type="text" class="form-control" name="price" required/>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-lg-4">
                                         <div class="mb-4">
                                             <label class="form-label">Stock</label>
-                                            <input placeholder="" type="text" class="form-control" name="stock" />
+                                            <input placeholder="" type="text" class="form-control" name="stock"required />
                                         </div>
                                     </div>
                                 </div>
                                 <div class="mb-4">
                                     <label class="form-label">Tax rate</label>
-                                    <input type="text" placeholder="%" class="form-control" id="tax_rate" name="tax_rate" />
+                                    <input type="text" placeholder="%" class="form-control" id="tax_rate" name="tax_rate" required />
                                 </div>
                                 <div class="card mb-4">
                                     <div class="card-body">
@@ -67,13 +67,13 @@
                                                     <% } %>
                                                 </select>
                                             </div>
-                                            <div class="col-sm-6 mb-3">
+                                            <!-- <div class="col-sm-6 mb-3">
                                                 <label class="form-label">Sub-category</label>
                                                 <select class="form-select" name="sub_category">
                                                     <option>Luxury</option>
                                                     <option>Normal</option>
                                                 </select>
-                                            </div>
+                                            </div> -->
                                         </div>
                                     </div>
                                 </div>
@@ -82,7 +82,7 @@
                                         <h4>Photo 1</h4>
                                         <div class="input-upload">
                                             <img id="previewMainImage" src="/adminAssets/imgs/theme/upload.svg" alt="" class="img-fluid" />
-                                            <input class="form-control" type="file" name="mainimage" onchange="previewImage(this, 'previewMainImage')" />
+                                            <input class="form-control" type="file" name="mainimage" onchange="previewImage(this, 'previewMainImage')"  required/>
                                             <button type="button" class="btn btn-danger mt-2" onclick="removeImage('previewMainImage', this)">Delete</button>
                                         </div>
                                     </div>
@@ -90,7 +90,7 @@
                                         <h4>Photo 2</h4>
                                         <div class="input-upload">
                                             <img id="previewSubImages1" src="/adminAssets/imgs/theme/upload.svg" alt="" class="img-fluid" />
-                                            <input class="form-control" type="file" name="sub_images1" onchange="previewImage(this, 'previewSubImages1')" />
+                                            <input class="form-control" type="file" name="sub_images1" onchange="previewImage(this, 'previewSubImages1')"  required/>
                                             <button type="button" class="btn btn-danger mt-2" onclick="removeImage('previewSubImages1', this)">Delete</button>
                                         </div>
                                     </div>
@@ -98,7 +98,7 @@
                                         <h4>Photo 3</h4>
                                         <div class="input-upload">
                                             <img id="previewSubImages2" src="/adminAssets/imgs/theme/upload.svg" alt="" class="img-fluid" />
-                                            <input class="form-control" type="file" name="sub_images2" onchange="previewImage(this, 'previewSubImages2')" />
+                                            <input class="form-control" type="file" name="sub_images2" onchange="previewImage(this, 'previewSubImages2')" required/>
                                             <button type="button" class="btn btn-danger mt-2" onclick="removeImage('previewSubImages2', this)">Delete</button>
                                         </div>
                                     </div>

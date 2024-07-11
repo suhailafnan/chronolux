@@ -111,7 +111,7 @@
                                 <span class="checkmark"></span>
                             </label>
                         </div>
-                        <button type="button" class="site-btn" onclick="placeOrder()">PLACE ORDER</button>
+                        <button type="button" class="site-btn" onclick="checkout()">PLACE ORDER</button>
                     </div>
                 </div>
             </div>
@@ -178,12 +178,71 @@
         background: #0056b3;
     }
 </style>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <%- include("../layouts/userFooter.ejs") %>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
+ <script>
+    function checkout(){
+       
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+
+
+        if(selectedPaymentMethod.value==="cod"){
+            placeOrder()
+        }else if(selectedPaymentMethod.value=="online"){
+            console.log("jfhasd")
+            razopay()
+        }
+    }
+  function razopay(){
+    console.log("jfhasd")
+    const totalAmount = '<%= totalamount %>';
+    let totalAmountInPaise = totalAmount * 100;
+
+
+fetch('/razorpay', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ totalAmountInPaise })
+})
+    .then(res => res.json())
+    .then(data => {
+        if (data.succes) {
+            
+            let options = {
+                "key": `${data.key_id}`,
+                "amount":` ${data.amount}`,
+                "currency": "INR",
+                "name": "Chrono",
+                // "order_id":` ${data.orderid}`,
+                "handler": function (response) {
+                   
+                    placeOrder()
+                },
+                "profile": {
+                    "name": `${data.name}`,
+                    "email": `${data.email}`
+                }
+            }
+
+            let razorpayObject = new Razorpay(options);
+            razorpayObject.on('payment.failed', (response) => {
+
+             console.log("failed")
+             
+            })
+            razorpayObject.open();
+
+        }
+    })
+}
+  
 function placeOrder() {
+    console.log("jdshfijhkgdsf")
     const selectedAddress = document.querySelector('input[name="selectAddress"]:checked');
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
     
@@ -244,5 +303,78 @@ function placeOrder() {
         });
     });
 }
-</script>
+</script> 
+<!-- <script>
+    function placeOrder() {
+        const selectedAddress = document.querySelector('input[name="selectAddress"]:checked');
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+        
+        if (!selectedAddress || !selectedPaymentMethod) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Warning',
+                text: 'Please select an address and a payment method.',
+                showConfirmButton: true
+            });
+            return;
+        }
+    
+        const totalAmount = '<%= totalamount %>';
+        const cartDetails = '<%= JSON.stringify(cartdata) %>';
+    
+        const orderData = {
+            addressId: selectedAddress.value,
+            paymentMethod: selectedPaymentMethod.value,
+            totalAmount: totalAmount,
+            cartDetails: cartDetails
+        };
+    
+        let route = '/placeOrder'; 
+       
+        if (selectedPaymentMethod.value === 'online') {
+            console.log("hhhh")
+            route = '/onlinePayment';
+        } else if (selectedPaymentMethod.value === 'wallet') {
+            route = '/walletPayment';
+        }
+    
+        fetch(route, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(orderData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Placed',
+                    text: 'Your order has been placed successfully!',
+                    showConfirmButton: true
+                }).then(() => {
+                    window.location.href = '/orderConfirmation';
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message,
+                    showConfirmButton: true
+                });
+            }
+        })
+        .catch(error => {
+            console.log('Fetch error', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred while placing your order. Please try again.',
+                showConfirmButton: true
+            });
+        });
+    }
+    </script> -->
+    
 <%-include("../layouts/userFooter.ejs") %> 

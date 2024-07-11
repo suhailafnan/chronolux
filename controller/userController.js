@@ -8,7 +8,8 @@ const otpGenerator = require("otp-generator");
 const OTP = require("../models/otpModel");
 const otpController = require("../controller/otpController");
 const flash = require("connect-flash");
-
+const productOffer=require("../models/offerModel")
+const categoryOffer=require("../models/categoryOffer")
 // for loading the website this method is called
 const loadWebpage = async (req, res) => {
   try {
@@ -226,30 +227,93 @@ const successGoogleLogin = async (req, res) => {
 const failureGoogleLogin = (req, res) => {
   res.send("Error");
 };
-
+// 
 // const loadShop = async (req, res) => {
 //   try {
-//     const user =req.session.user
+//     const user = req.session.user;
 //     const categories = await Category.find();
-//      const products = await Products.find();
-//     res.render("shop", { catogeries: categories ,products,user});
+//     const page = parseInt(req.query.page) || 1; 
+//     const limit = parseInt(req.query.limit) || 9; 
+//     const skip = (page - 1) * limit;
+
+   
+//     const products = await Products.find().skip(skip).limit(limit);
+//     const activeOffers = await productOffer.find({ is_active: true });
+//     const activeCategoryOffers = await categoryOffer.find({ is_active: true });
+
+//     for (let product of products) {
+//       const offer = activeOffers.find(o => o.productId.toString() === product._id.toString());
+//       if (offer) {
+//         product.finalPrice = product.price - (product.price * (offer.discount / 100));
+//         product.productDiscountPercentage = offer.discount;
+//       } else {
+//         product.finalPrice = product.price;
+//         product.productDiscountPercentage = 0;
+//       }
+//       await product.save();
+//     }
+
+//     const totalProducts = await Products.countDocuments();
+//     const totalPages = Math.ceil(totalProducts / limit);
+
+//     res.render("shop", { categories, products, user, currentPage: page, totalPages });
 //   } catch (error) {
 //     console.log(error.message);
+//     res.status(500).send('Internal server error');
 //   }
 // };
+
 const loadShop = async (req, res) => {
   try {
     const user = req.session.user;
     const categories = await Category.find();
-    
-    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
-    const limit = parseInt(req.query.limit) || 9; // Default to 9 items per page if not provided
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 9;
     const skip = (page - 1) * limit;
+
+    const products = await Products.find().skip(skip).limit(limit);
+    const activeProductOffers = await productOffer.find({ is_active: true });
+    const activeCategoryOffers = await categoryOffer.find({ is_active: true });
+
+    for (let product of products) {
+      const productOffer = activeProductOffers.find(o => o.productId.toString() === product._id.toString());
+      const categoryOffer = activeCategoryOffers.find(o => o.categoryId.toString() === product.category.toString());
+
+      let finalPrice = product.price;
+      let productDiscountPercentage = 0;
+      let categoryDiscountPercentage = 0;
+
+      if (productOffer && categoryOffer) {
+        const productDiscount = productOffer.discount;
+        const categoryDiscount = categoryOffer.discount;
+          
+        if (productDiscount >= categoryDiscount) {
+          finalPrice -= Math.ceil(finalPrice * (productDiscount / 100));
+          productDiscountPercentage = productDiscount;
+        } else {
+          finalPrice -= Math.ceil(finalPrice * (categoryDiscount / 100));
+          categoryDiscountPercentage = categoryDiscount;
+        }
+      } else if (productOffer) {
+        const productDiscount = productOffer.discount;
+        finalPrice -= Math.ceil(finalPrice * (productDiscount / 100));
+        productDiscountPercentage = productDiscount;
+      } else if (categoryOffer) {
+        const categoryDiscount = categoryOffer.discount;
+        finalPrice -= Math.ceil(finalPrice * (categoryDiscount / 100));
+        categoryDiscountPercentage = categoryDiscount;
+      }
+
+      product.finalPrice = finalPrice;
+      product.productDiscountPercentage = productDiscountPercentage;
+      product.categoryDiscountPercentage = categoryDiscountPercentage;
+      
+      await product.save();
+    }
 
     const totalProducts = await Products.countDocuments();
     const totalPages = Math.ceil(totalProducts / limit);
-
-    const products = await Products.find().skip(skip).limit(limit);
 
     res.render("shop", { categories, products, user, currentPage: page, totalPages });
   } catch (error) {
@@ -257,6 +321,8 @@ const loadShop = async (req, res) => {
     res.status(500).send('Internal server error');
   }
 };
+
+
 
 const userLogout=async (req,res)=>{
   try{
@@ -302,9 +368,14 @@ const getProducts = async (req, res) => {
           break;
   }
   try {
+    const page = parseInt(req.query.page) || 1; 
+    const limit = parseInt(req.query.limit) || 9; 
+    const skip = (page - 1) * limit;
       const products = await Products.find().sort(sortCriteria);
       const categories = await Category.find();
-      res.render('shop', { products: products, catogeries :categories,user:req.session.user});
+      const totalProducts = await Products.countDocuments();
+      const totalPages = Math.ceil(totalProducts / limit);
+      res.render('shop', { products: products, categories :categories,currentPage: page,user:req.session.user , totalPages });
   } catch (err) {
       console.error(err);
       res.status(500).send('Server Error');

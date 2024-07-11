@@ -10,10 +10,10 @@ const categorySchema = new mongoose.Schema({
         required:true
 
      },
-     categ:{
-        type:String,
-        required:true
-     },
+   //   categ:{
+   //      type:String,
+   //      required:true
+   //   },
      is_listed:{
         type:Boolean,
         default:true

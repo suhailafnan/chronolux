@@ -42,7 +42,6 @@
                                     <% } %>
                                     <button class="btn btn-delete btn-danger" onclick="confirmDelete('<%= users[i]._id %>')">Delete</button>
                                 </td>
-                                
                             </tr>
                         <% } %>
                     <% } else { %>
@@ -53,13 +52,35 @@
                 </tbody>
             </table>
         </div>
+        <div class="card-footer">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentPage - 1 %>">Previous</a>
+                        </li>
+                    <% } %>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                            <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                        </li>
+                    <% } %>
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentPage + 1 %>">Next</a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        </div>
     </section>
 </main>
+
 <style>
     .action-buttons button {
-    width: 100px; 
-    margin-right: 5px; 
-}
+        width: 100px; 
+        margin-right: 5px; 
+    }
 
     .table {
         border: 1px solid #dee2e6;
@@ -125,5 +146,6 @@
 <script src="/adminAssets/js/blockUn.js" type="text/javascript"></script>
 <!-- SweetAlert JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+
 </body>
 </html>

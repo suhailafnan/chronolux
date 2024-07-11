@@ -29,7 +29,8 @@
     "otp-generator": "^4.0.1",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0",
-    "paypal-rest-sdk": "^1.8.1"
+    "paypal-rest-sdk": "^1.8.1",
+    "razorpay": "^2.9.4"
   },
   "devDependencies": {
     "@types/nodemailer": "^6.4.14"

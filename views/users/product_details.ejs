@@ -78,7 +78,11 @@
                                 <div class="rating">
                                     <!-- Your rating display code here -->
                                 </div>
-                                <h3> ₹<%= products.price %></h3>
+                               
+                                <h3> ₹<%= products.finalPrice %></h3> <% if (products.productDiscountPercentage > 0) { %>
+                                    <span style="color: red;"><%= products.productDiscountPercentage %>% off</span>
+                                    <h4 style="text-decoration: line-through;">₹<%= products.price %></h4>
+                                  <% } %>
                                 <p><%= products.Description %></p>
                                 <div class="product__details__option">
                                     <!-- Your product options here -->

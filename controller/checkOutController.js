@@ -24,8 +24,8 @@ const loadcheckOutPage = async (req, res) => {
       let totalamount = 0;
       cartdata.product.forEach((item) => {
         const { productId, quantity } = item;
-        if (productId && productId.price) {
-            const subtotal = productId.price * quantity;
+        if (productId && productId.finalPrice) {
+            const subtotal = productId.finalPrice * quantity;
             totalamount += subtotal;
           
         }
@@ -58,9 +58,10 @@ const loadcheckOutPage = async (req, res) => {
   
 
 
+
   const addToPlaceOrder = async (req, res) => {
     try {
-      console.log("Things all posted to backend");
+     
       const user = req.session.user;
       const orderData = req.body;
   
@@ -69,7 +70,7 @@ const loadcheckOutPage = async (req, res) => {
       const userid = req.session.user._id;
       const totalAmount = orderData.totalAmount;
       const addressData = await Address.findOne({ userId: userid, "address._id": addressId });
-      console.log(addressData);
+     
       
       const cart = await Cart.findOne({ userId: userid }).populate("product.productId");
   
@@ -99,7 +100,7 @@ const loadcheckOutPage = async (req, res) => {
             productId: item.productId,
             quantity: item.quantity,
             categoryId: oneProduct.category,
-            price: oneProduct.price,
+            price: oneProduct.finalPrice,
           };
   
           items.push(itemDetails);
@@ -122,7 +123,7 @@ const loadcheckOutPage = async (req, res) => {
         });
   
         await newOrder.save();
-        console.log(newOrder)
+       
         
         
         res.status(200).json({ success: true });
@@ -144,6 +145,7 @@ const loadcheckOutPage = async (req, res) => {
       console.log(error.message);
   }
   };
+
 
 module.exports={
     loadcheckOutPage,

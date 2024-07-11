@@ -56,15 +56,26 @@ const verifyAdminLogin = async (req, res) => {
   
  
    
-  const loadUsers= async (req, res) => {
+  const loadUsers = async (req, res) => {
     try {
-      const userData = await User.find({is_admin: 0 });
-      res.render("page_users",{ users: userData })
-
-    }catch (error) {
+      const page = parseInt(req.query.page) || 1;
+      const limit = 5; 
+      const skip = (page - 1) * limit; 
+  
+      const totalUsers = await User.countDocuments({ is_admin: 0 });
+      const users = await User.find({ is_admin: 0 }).skip(skip).limit(limit);
+      const totalPages = Math.ceil(totalUsers / limit);
+  
+      res.render("pageUsers", {
+        users: users,
+        currentPage: page,
+        totalPages: totalPages,
+      });
+    } catch (error) {
       console.log(error.message);
     }
-  }
+  };
+  
 
   const deleteUser = async (req, res) => {
     try {
@@ -111,373 +122,15 @@ const unblockUser = async (req, res) => {
   }
 };
 
-
-const loadCategories= async (req, res) => {
-  try {
-    const catogeries=await Category.find()
-    res.render("page_categories",{catogeries})
-
-  }catch (error) {
-    console.log(error.message);
-  }
-}
-
-
-const loadAddProduct= async (req, res) => {
-  try {
-const categories = await Category.find();
-
-res.render("page_add_products" , {categories: categories} )
-
-  }catch (error) {
-    console.log(error.message);
-  }
-}
-
-
-//.......................................
-const createCatogery=async (req, res) => {
-  try {
-    const {name , Description,  categ}= req.body;
-
-    const existCategory =await Category.find({
-      $and: [
-        {name:name}, 
-        {categ:categ } 
-      ]
-    });
-    if(existCategory.length > 0) {
-      console.log("existing foundd");
-       res.redirect('/admin/page_Categories')
-      
-    }else{
-
-    
-    const catogeries = new Category({
-      name: req.body.name,
-      Description:req.body.Description,
-      categ:req.body.categ 
-    
-    });
-   const categoryData=await catogeries.save();
-   res.redirect("/admin/page_Categories")
-  }
-    
-  }catch (error) {
-    console.log(error.message);
-  }
-} 
-
-
-const catogeryLoad= async (req, res) => {
-  try {
-    const categories = await Category.find();
-    res.render('page_categories', { catogeries: categories });
-  } catch (error) {
-    console.error('Error:', error);
-    
-  } 
-};
-
-const editCategoryLoad = async (req, res) => {
-  try {
-    const id = req.query.id; 
-    const categoryData = await Category.findById(id); 
-    if (categoryData) {
-      const categories = await Category.find();
-      res.render('edit_categories', { category: categoryData });
-    } else {
-      console.log("Category not found");
-    }
- 
-  } catch (error) {
-    console.error('Error:', error);
-    
-    res.status(500).send('Internal Server Error');
-  }
-}
-
-const updateCategory = async (req, res) => {
-  try {
-    const {name , Description,  categ ,category_id}= req.body;
-
-   
-    const exist =await Category.find({
-      $and: [
-        {name:name}, 
-        {categ:categ } 
-      ]
-    });
-    if(exist.length > 0) {
-      console.log("existing foundd , the category has alredy been declared ");
-       res.redirect('/admin/page_Categories')
-      
-    }else{
-
-      const Updatecat=await Category.findByIdAndUpdate
-      ({_id:category_id},
-        {$set:{name: name,
-               Description:Description, 
-               categ:categ}})
-      res.redirect("/admin/page_Categories")
-    }
-
-      }catch (error) {
-       console.log(error.message);
-     }
-}
-
-const deleteCategory = async (req, res) => {
-  try {
-    const id = req.query.id;
-    await Category.deleteOne({ _id: id });
-    await Products.deleteMany({category: id });
-
-    res.redirect("/admin/page_Categories");
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Internal server error');
-  }
-};
-
-// const AddProductTo = async (req, res) => {
-//   try { 
-//     const { tax_rate, stock, price, product_name, Full_description, category, sub_category } = req.body;
-//     const uploadedImageName = req.files.mainimage? req.files.mainimage[0].filename : '';
-//     const uploadedSub_images1 = req.files.sub_images1? req.files.sub_images1[0].filename : '';
-//     const uploadedSub_images2= req.files.sub_images2? req.files.sub_images2[0].filename : '';
-
-   
-    
-//     const categoryDoc = await Category.findOne({ name: category });
-//     if (!categoryDoc) {
-//       return res.status(400).send('Category not found');
-//     }
-
-//     const products = new Products({
-//       name: product_name,
-//       price: price,
-//       Description: Full_description,
-//       category: categoryDoc._id, 
-//       sub_category: sub_category,
-//       Stock: stock,
-//       tax_rate: tax_rate,
-//       mainimage: uploadedImageName,
-//       sub_images1: uploadedSub_images1,
-//       sub_images2: uploadedSub_images2
-//     });
-
-//     const productsData = await products.save();
-//     console.log(`product is ${productsData}`);
-//     res.redirect("/admin/products_list");
-  
-//   } catch (error) {
-//     console.error('Error:', error);
-//   } 
-// };
-const AddProductTo = async (req, res) => {
-  try { 
-    const { tax_rate, stock, price, product_name, Full_description, category, sub_category } = req.body;
-    const uploadedImageName = req.files.mainimage? req.files.mainimage[0].filename : '';
-    const uploadedSub_images1 = req.files.sub_images1? req.files.sub_images1[0].filename : '';
-    const uploadedSub_images2= req.files.sub_images2? req.files.sub_images2[0].filename : '';
-
-   
-    
-    const categoryDoc = await Category.findOne({ name: category });
-    if (!categoryDoc) {
-      return res.status(400).send('Category not found');
-    }
-    if(price > 0){
-      const products = new Products({
-        name: product_name,
-        price: price,
-        Description: Full_description,
-        category: categoryDoc._id, 
-        sub_category: sub_category,
-        Stock: stock,
-        tax_rate: tax_rate,
-        mainimage: uploadedImageName,
-        sub_images1: uploadedSub_images1,
-        sub_images2: uploadedSub_images2
-      });
-      // res.status(200).send({ success: true, message: "product added succsessfully"});
-    }else{
-      console.log("price should be greater than 0")
-      // res.status(200).send({ success: false, message: "price should be greater than 0"});
-    }
-  
-
-    const productsData = await products.save();
-    console.log(`product is ${productsData}`);
-    res.redirect("/admin/products_list");
-  
-  } catch (error) {
-    console.error('Error:', error);
-  } 
-};
-
-
-
-
-const loadProductList = async (req, res) => {
-  try {
-    const products = await Products.find().populate('category');
-    const categories = await Category.find();
-    res.render('product_list', { product: products, categories: categories });
-  } catch (error) {
-    console.error('Error:', error);
-  } 
-};
-
-
-const deleteProduct = async (req, res) => {
-  try {
-    
-      
-        const id = req.query.id;
-        console.log(id)
-        const user=req.session.user
-        // orderr pending product should not deleted do that
-        const order= await Orders.findOne({
-          productId:id})
-        if(order){
-          res.send("this product cannot be deleted .it is own pending")
-        }else{
-          await Products.deleteOne({ _id: id });
-  
-        }
-       
-        res.redirect("/admin/products_list");
-    
-       }catch (error) {
-      console.log(error.message);
-    }
-}
-const editProductLoad = async (req, res) => {
-  try {
-    const id = req.query.id;
-    const ProductData = await Products.findById(id).populate('category');
-    const categorydata = await Category.find();
-    if (ProductData) {
-      console.log("Products found:", ProductData);
-      res.render('edit_product', { Product: ProductData, categorydata });
-    } else {
-      console.log("Products not found");
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('Internal Server Error');
-  }
-}
- 
-// const updateProduct = async (req, res) => {
-//   try {
-//     // Destructure the required fields from req.body
-//     const { tax_rate, stock, price, product_name, Full_description, category, sub_category, product_id } = req.body;
-//     // Check if product_id is undefined
-//     if (!product_id) {
-//       console.log("Product ID is missing");
-//     }
-//     // Handle file uploads
-//     // const uploadedImageName = req.files.mainimage ? req.files.mainimage[0].filename : '';
-//     // const uploadedSub_images1 = req.files.sub_images1 ? req.files.sub_images1[0].filename : '';
-//     // const uploadedSub_images2 = req.files.sub_images2 ? req.files.sub_images2[0].filename : '';
-//     // Update the product
-   
-//     const updateProducts = await Products.findByIdAndUpdate(
-//       product_id,  // Use the product_id directly
-//       {
-//         $set: {
-//           name: product_name,
-//           price: price,
-//           Description: Full_description,
-//           category: category, // Assuming category is already an ObjectId
-//           sub_category: sub_category,
-//           Stock: stock,
-//           tax_rate: tax_rate,
-//           // mainimage: uploadedImageName,
-//           // sub_images1: uploadedSub_images1,
-//           // sub_images2: uploadedSub_images2
-//         }
-//       },
-//       { new: true } // Return the updated document
-//     );
-
-//     res.redirect("/admin/products_list");
-
-//   } catch (error) {
-//     console.error('Error:', error.message);
-//   }
-// };
-const updateProduct = async (req, res) => {
-  try {
-    // Destructure the required fields from req.body
-    const { tax_rate, stock, price, product_name, Full_description, category, sub_category, product_id } = req.body;
-    // Check if product_id is undefined
-    if (!product_id) {
-      console.log("Product ID is missing");
-    }
-    // Handle file uploads
-    // const uploadedImageName = req.files.mainimage ? req.files.mainimage[0].filename : '';
-    // const uploadedSub_images1 = req.files.sub_images1 ? req.files.sub_images1[0].filename : '';
-    // const uploadedSub_images2 = req.files.sub_images2 ? req.files.sub_images2[0].filename : '';
-    // Update the product
-   
-if(price > 0){
-  const updateProducts = await Products.findByIdAndUpdate(
-    product_id,  // Use the product_id directly
-    {
-      $set: {
-        name: product_name,
-        price: price,
-        Description: Full_description,
-        category: category, // Assuming category is already an ObjectId
-        sub_category: sub_category,
-        Stock: stock,
-        tax_rate: tax_rate,
-        // mainimage: uploadedImageName,
-        // sub_images1: uploadedSub_images1,
-        // sub_images2: uploadedSub_images2
-      }
-    },
-    { new: true } // Return the updated document
-  );   
-  // res.status(200).send({ success: true, message: "product updated succsessfully"});
-}else{
-  console.log("price should be greater than 0")
-  // res.status(200).send({ success: false, message: "price should be greater than 0"});
-}
-  
-
-    res.redirect("/admin/products_list");
-
-  } catch (error) {
-    console.error('Error:', error.message);
- 
-  }
-};
-
-
 module.exports = {
     adminLoadLogin,
     verifyAdminLogin,
     loadAdminHome,
-    loadCategories,
     loadUsers,
     deleteUser,
     blockUser,
     unblockUser,
-    loadAddProduct,
-    createCatogery,
-    catogeryLoad,
-    AddProductTo,
-    editCategoryLoad,
-    updateCategory,
-    deleteCategory,
-    loadProductList,
-    deleteProduct,
-    editProductLoad,
-     updateProduct
+
+ 
 
 }

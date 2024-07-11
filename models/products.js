@@ -9,6 +9,15 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    productDiscountPercentage:{
+        type: Number
+    },
+    categoryDiscountPercentage:{
+        type: Number
+    },
+    finalPrice:{
+        type: Number
+    },
     Description: {
         type: String,
         required: true
@@ -26,10 +35,10 @@ const productSchema = new mongoose.Schema({
         ref: 'category',
         required: true
     },
-    sub_category: {
-        type: String,
-        required: true
-    },
+    // sub_category: {
+    //     type: String,
+    //     required: true
+    // },
     mainimage: {
         type: String,
         required: true

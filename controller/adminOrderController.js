@@ -7,16 +7,29 @@ const Products = require('../models/products');
 
 const loadorderDetails = async (req, res) => {
     try {
+        const page = parseInt(req.query.page) || 1; 
+        const limit = 5; 
+        const skip = (page - 1) * limit; 
+
+        const totalOrders = await Order.countDocuments();
         const orders = await Order.find()
+            .skip(skip)
+            .limit(limit)
             .populate('userId')
             .populate('items.productId')
             .populate('items.categoryId');
+        const totalPages = Math.ceil(totalOrders / limit);
 
-        res.render('orderpage', { orders });
+        res.render('orderPage', {
+            orders: orders,
+            currentPage: page,
+            totalPages: totalPages,
+        });
     } catch (error) {
         console.log(error.message);
     }
 };
+
 
 const loadorderViewPage = async (req, res) => {
     try {

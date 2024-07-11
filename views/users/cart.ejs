@@ -29,14 +29,14 @@
                                         </div>
                                         <div class="product__cart__item__text">
                                             <h6><%= item.productId.name %></h6>
-                                            <h5 id="price_<%= item.productId.id %>">₹<%= item.productId.price %></h5>
+                                            <h5 id="price_<%= item.productId.id %>">₹<%= item.productId.finalPrice %></h5>
                                         </div>
                                     </td>
                                     <td class="quantity__item">
                                         <div class="quantity">
                                             <!-- <div class="pro-qty-2">
                                             
-                                                <input type="text" value="<%= item.quantity %>" data-price="<%= item.productId.price %>" class="quantity-input">
+                                                <input type="text" value="<%= item.quantity %>" data-price="<%= item.productId.finalPrice%>" class="quantity-input">
                                                
                                             </div>
                                         </div> -->
@@ -46,13 +46,13 @@
                                                         
                                                         <button class="decrement-btn" onclick="decrementQuantity('<%= item.productId._id %>')">-</button>
                                                         <input type="text" id="quantity_product" value="<%= item.quantity %>" min="1" max="<%= item.productId.Stock %>"
-                                                         data-price="<%= item.productId.price%>" data-product-id="<%= item.productId._id %>" readonly style="width: 30px;">
+                                                         data-price="<%= item.productId.finalPrice%>" data-product-id="<%= item.productId._id %>" readonly style="width: 30px;">
                                                         <button class="increment-btn" onclick="incrementQuantity('<%= item.productId._id %>')">+</button>
                                                     </div> 
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="cart__price"  data-product-id="<%= item.productId._id %>" ><span class="total-price" > ₹<%= item.productId.price * item.quantity %></span></td> 
+                                        <td class="cart__price"  data-product-id="<%= item.productId._id %>" ><span class="total-price" > ₹<%= item.productId.finalPrice * item.quantity %></span></td> 
                                        
                                         
                                     <td class="cart__close">
