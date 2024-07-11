@@ -122,9 +122,7 @@ const loadAddProduct= async (req, res) => {
    
   const updateProduct = async (req, res) => {
     try {
-      const { tax_rate, stock, price, product_name, Full_description, category, 
-        // sub_category, 
-        product_id } = req.body;
+      const { tax_rate, stock, price, product_name, Full_description, category, product_id } = req.body;
   
       if (!product_id) {
         console.log("Product ID is missing");
@@ -151,7 +149,7 @@ const loadAddProduct= async (req, res) => {
               price: price,
               Description: Full_description,
               category: category,
-              // sub_category: sub_category,
+              
               Stock: stock,
               tax_rate: tax_rate,
               mainimage: uploadedImageName,

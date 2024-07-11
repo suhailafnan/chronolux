@@ -1,38 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChronoLux Dashboard</title>
-    <style>
-        .btn-red {
-            background-color: #ff4c4c;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-    </style>
-    <script>
-        function deleteImage(imgId) {
-            var img = document.getElementById(imgId);
-            if (img) {
-                img.src = '';  // Clear the image source
-                img.style.display = 'none';  // Optionally hide the image element
-            }
-        }
-    </script>
-      <link href="/node_modules/cropperjs/dist/cropper.min.css" rel="stylesheet">
-</head>
-<body>
-<%-include("../layouts/adminHeader.ejs") %>
+<%- include("../layouts/adminHeader.ejs") %>
 <div class="screen-overlay"></div>
-<%-include("../layouts/adminSideBar.ejs") %>
+<%- include("../layouts/adminSideBar.ejs") %>
 
 <main class="main-wrap">
-    <%-include("../layouts/adminNavBar.ejs") %>
+    <%- include("../layouts/adminNavBar.ejs") %>
+    
+
+
 
     <section class="content-main">
         <div >
@@ -94,13 +68,7 @@
                                                 <% }) %>
                                             </select>
                                         </div>
-                                        <!-- <div class="col-sm-6 mb-3">
-                                            <label class="form-label">Sub-category</label>
-                                            <select class="form-select" name="sub_category">
-                                                <option value="Luxury" <%= Product.sub_category === "Luxury" ? "selected" : "" %>>Luxury</option>
-                                                <option value="Normal" <%= Product.sub_category === "Normal" ? "selected" : "" %>>Normal</option>
-                                            </select>
-                                        </div> -->
+                                       
                                     </div>
                                 </div>
                             </div>
@@ -149,10 +117,10 @@
     </div>
     </section>
 </main>
+
 <!-- Cropping Modal -->
-<!-- Cropping Modal -->
-<div id="cropImageModal" class="modal" tabindex="-1" role="dialog">
-    <div class="modal-dialog modal-lg" role="document">
+<div id="cropperModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Crop Image</h5>
@@ -162,7 +130,7 @@
             </div>
             <div class="modal-body">
                 <div class="img-container">
-                    <img id="cropImage" src="" alt="Image for cropping">
+                    <img id="cropperImage" src="" alt="Image for cropping">
                 </div>
             </div>
             <div class="modal-footer">
@@ -172,50 +140,17 @@
         </div>
     </div>
 </div>
-
-<script>
-    let cropper;
-    let currentImgId;
-
-    function triggerFileInput(inputId) {
-        document.getElementById(inputId).click();
+<style>
+    .btn-red {
+        background-color: #ff4c4c;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
     }
-
-    function previewImage(input, imgId) {
-        if (input.files && input.files[0]) {
-            var reader = new FileReader();
-            reader.onload = function(e) {
-                currentImgId = imgId;
-                document.getElementById('cropImage').src = e.target.result;
-                $('#cropImageModal').modal('show');
-                if (cropper) {
-                    cropper.destroy();
-                }
-                cropper = new Cropper(document.getElementById('cropImage'), {
-                    aspectRatio: 1,
-                    viewMode: 1,
-                    minContainerWidth: 500,
-                    minContainerHeight: 400,
-                });
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    document.getElementById('cropButton').addEventListener('click', function() {
-        if (cropper) {
-            var canvas = cropper.getCroppedCanvas({
-                width: 500,
-                height: 500,
-            });
-            document.getElementById(currentImgId).src = canvas.toDataURL();
-            document.getElementById(currentImgId).style.display = 'block';
-            var inputId = currentImgId.replace('preview', '');
-            document.getElementById(inputId).value = canvas.toDataURL(); // Update hidden input with base64 data
-            $('#cropImageModal').modal('hide');
-        }
-    });
-</script>
+</style>
 
 <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
 <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
@@ -223,45 +158,68 @@
 <script src="/adminAssets/js/vendors/perfect-scrollbar.js"></script>
 <script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
 <!-- crop script  -->
+<script src="https://unpkg.com/cropperjs"></script>
 <script src="/node_modules/cropperjs/dist/cropper.min.js"></script>
 <!-- Main Script -->
 <script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <script>
+  
+  var cropper;
+    var currentInput;
+    var currentPreview;
+
+    // Handle file input change for main image
     function previewImage(input, imgId) {
+        currentInput = input;
+        currentPreview = imgId;
         if (input.files && input.files[0]) {
             var reader = new FileReader();
-
             reader.onload = function(e) {
-                document.getElementById(imgId).src = e.target.result;
-                document.getElementById(imgId).style.display = 'block';
+                $('#cropperImage').attr('src', e.target.result);
+                $('#cropperModal').modal('show');
             }
-
             reader.readAsDataURL(input.files[0]);
         }
     }
 
-    function deleteImage(imgId) {
-        var img = document.getElementById(imgId);
-        if (img) {
-            img.src = '';  // Clear the image source
-            img.style.display = 'none';  // Optionally hide the image element
-        }
-    }
+    $('#cropperModal').on('shown.bs.modal', function () {
+        cropper = new Cropper(document.getElementById('cropperImage'), {
+            aspectRatio: 1,
+            viewMode: 3,
+        });
+    }).on('hidden.bs.modal', function () {
+        cropper.destroy();
+        cropper = null;
+    });
+
+    $('#cropButton').click(function() {
+        var canvas = cropper.getCroppedCanvas({
+            width: 400,
+            height: 400,
+        });
+
+        canvas.toBlob(function(blob) {
+            var url = URL.createObjectURL(blob);
+            $('#' + currentPreview).attr('src', url);
+
+            var file = new File([blob], currentInput.files[0].name, { type: blob.type });
+            var dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            currentInput.files = dataTransfer.files;
+
+            $('#cropperModal').modal('hide');
+        });
+    });
+
+  
 </script>
 <script>
     function triggerFileInput(inputId) {
         document.getElementById(inputId).click();
     }
 
-    // function previewImage(input, imageId) {
-    //     const file = input.files[0];
-    //     const reader = new FileReader();
-    //     reader.onload = function(e) {
-    //         document.getElementById(imageId).src = e.target.result;
-    //     }
-    //     reader.readAsDataURL(file);
-    // }
+ 
 </script>
 
 </body>
