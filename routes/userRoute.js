@@ -12,6 +12,7 @@ const userOrderController = require("../controller/userOrderController");
 const userWishlistController = require("../controller/userWishlistController");
 const paymentController = require("../controller/paymentController");
 const onlinePaymentController= require("../controller/onlinePaymentController");
+const userWalletController = require("../controller/userWalletController");
 
 const flash=require("express-flash")
 const nocache = require("nocache");
@@ -118,8 +119,14 @@ user_route.post('/payMoney', paymentController.payProduct);
 user_route.get('/paymentSuccess', paymentController.successPage);
 user_route.get('/paymentCancel', paymentController.cancelPage);
 
+// wallet croutes
 
+user_route.get('/Wallet', userWalletController.loadWallet);
 
  user_route.post('/razorpay',onlinePaymentController.openRazorpay);
+ user_route.post('/razorpayyy',onlinePaymentController.openRazorpayWallet);
+ user_route.post('/addToWallet', userWalletController.addToWallet);
+
+ user_route.post('/withdrawMoney', userWalletController. withdrawMoney);
 // user_route.get('/onlinePayment',onlinePaymentController.onlineorderConfirmation);
 module.exports = user_route;
