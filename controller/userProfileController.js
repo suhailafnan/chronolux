@@ -228,18 +228,29 @@ const addNewAddress = async (req, res) => {
 const loadOrderHistory = async (req, res) => {
   try {
     const user = req.session.user;
+    const perPage = 4;
+    const page = parseInt(req.query.page) || 1;
+
     const orders = await Order.find({ userId: user })
       .populate('items.productId')
       .populate('items.categoryId')
-      .populate('userId');
+      .populate('userId')
+      .skip((perPage * page) - perPage)
+      .limit(perPage);
 
+    const count = await Order.countDocuments({ userId: user });
 
-
-    res.render("orderPage", { user, orders });
+    res.render("orderPage", {
+      user,
+      orders,
+      current: page,
+      pages: Math.ceil(count / perPage)
+    });
   } catch (error) {
     console.log(error.message);
   }
 };
+
 
 const editAddress = async (req, res) => {
   try {

@@ -30,7 +30,7 @@ const openRazorpay = async (req, res) => {
 
       instance.orders.create(options, (err, order) => {
         if (!err) {
-            console.log("errrrr")
+            
           res.send({
             succes: true,
             msg: "ORDER created",
@@ -73,8 +73,8 @@ const openRazorpay = async (req, res) => {
                     email: users.email,
                 });
             } else {
-                console.error("Error creating order:", err);
-                res.status(500).send({ success: false, msg: "Failed to create order" });
+                console.error("Error adding to the wallet:", err);
+                res.status(500).send({ success: false, msg: "Failed to add to the wallet" });
             }
         });
     } catch (error) {

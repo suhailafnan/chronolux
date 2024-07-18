@@ -1,35 +1,30 @@
 const mongoose = require('mongoose');
 
 const walletSchema = mongoose.Schema({
-
-    UserId:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'User',
-        required:true
+    UserId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
     },
-
-    balance:{
-        type:Number
+    balance: {
+        type: Number
     },
-
-    history:[{
-
-        amount:{
-            type:Number
+    history: [{
+        amount: {
+            type: Number
         },
-        transactionType:{
-            type:String
+        transactionType: {
+            enum: ["credited", "withdraw", "Ordered","razorpay","return","cancel"],
+            type: String
         },
-        date:{
-            type:Date,
-            default:Date.now
+        date: {
+            type: Date,
+            default: Date.now
         },
-        previousBalance:{
-            type:Number
+        previousBalance: {
+            type: Number
         }
-
     }]
+});
 
-})
-
-module.exports = mongoose.model('wallet',walletSchema)
+module.exports = mongoose.model('Wallet', walletSchema);

@@ -57,11 +57,9 @@ const loadcheckOutPage = async (req, res) => {
   };
   
 
-
-
+  
   const addToPlaceOrder = async (req, res) => {
     try {
-     
       const user = req.session.user;
       const orderData = req.body;
   
@@ -69,71 +67,81 @@ const loadcheckOutPage = async (req, res) => {
       const addressId = orderData.addressId;
       const userid = req.session.user._id;
       const totalAmount = orderData.totalAmount;
+  
       const addressData = await Address.findOne({ userId: userid, "address._id": addressId });
-     
-      
+      if (!addressData) {
+        return res.status(404).json({ success: false, message: 'Address not found' });
+      }
+  
+      // Filter the selected address
+      const selectedAddress = addressData.address.find(addr => addr._id.toString() === addressId);
+      if (!selectedAddress) {
+        return res.status(404).json({ success: false, message: 'Selected address not found' });
+      }
+  
       const cart = await Cart.findOne({ userId: userid }).populate("product.productId");
+      if (!cart) {
+        return res.status(404).json({ success: false, message: 'Cart not found' });
+      }
   
       let outOfStockProducts = [];
-      if (cart) {
-        for (const item of cart.product) {
-          const product = item.productId;
+      for (const item of cart.product) {
+        const product = item.productId;
   
-          if (product.Stock < item.quantity) {
-            outOfStockProducts.push(product.name);
-          }
+        if (product.Stock < item.quantity) {
+          outOfStockProducts.push(product.name);
         }
       }
   
       if (outOfStockProducts.length > 0) {
-        res.status(400).json({
+        return res.status(400).json({
           success: false,
           message: "Products are out of stock, please remove product(s)",
+          outOfStockProducts
         });
-      } else {
-        const items = [];
+      }
   
-        for (const item of cart.product) {
-          const oneProduct = await Products.findById(item.productId);
-  
-          const itemDetails = { 
-            productId: item.productId,
-            quantity: item.quantity,
-            categoryId: oneProduct.category,
-            price: oneProduct.finalPrice,
-          };
-  
-          items.push(itemDetails);
-  
-          oneProduct.Stock -= item.quantity;
-          await oneProduct.save();
+      const items = [];
+      for (const item of cart.product) {
+        const oneProduct = await Products.findById(item.productId);
+        if (!oneProduct) {
+          continue;
         }
   
-        await Cart.findOneAndUpdate({ userId: userid }, { product: [] });
+        const itemDetails = { 
+          productId: item.productId,
+          quantity: item.quantity,
+          categoryId: oneProduct.category,
+          price: oneProduct.finalPrice,
+        };
   
-        const randomId = await generateRandomId();
+        items.push(itemDetails);
   
-        const newOrder = new Order({
-          userId: userid,
-          items: items,
-          totalAmount: totalAmount,
-          address: addressData.address,
-          paymentMethod: paymentMethod,
-          orderId: randomId,
-        });
-  
-        await newOrder.save();
-       
-        
-        
-        res.status(200).json({ success: true });
+        oneProduct.Stock -= item.quantity;
+        await oneProduct.save();
       }
+  
+      await Cart.findOneAndUpdate({ userId: userid }, { product: [] });
+  
+      const randomId = await generateRandomId();
+  
+      const newOrder = new Order({
+        userId: userid,
+        items: items,
+        totalAmount: totalAmount,
+        address: selectedAddress, // Save only the selected address
+        paymentMethod: paymentMethod,
+        orderId: randomId,
+      });
+  
+      await newOrder.save();
+  
+      res.status(200).json({ success: true });
     } catch (error) {
       console.error(error.message);
       res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
   };
-  
   
   const orderConfirmation=async(req,res)=>{
     try{

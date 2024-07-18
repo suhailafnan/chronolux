@@ -87,9 +87,36 @@
                                         </button>
                                     </div>
                                 </div>
+                            </div>
                         </div>
-                        
                     <% }); %>
+                    <nav aria-label="Page navigation example">
+                        <ul class="pagination justify-content-center">
+                            <% if (current > 1) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="/OrderHistory?page=<%= current - 1 %>">Previous</a>
+                                </li>
+                            <% } else { %>
+                                <li class="page-item disabled">
+                                    <a class="page-link">Previous</a>
+                                </li>
+                            <% } %>
+                            <% for (let i = 1; i <= pages; i++) { %>
+                                <li class="page-item <%= current === i ? 'active' : '' %>">
+                                    <a class="page-link" href="/OrderHistory?page=<%= i %>"><%= i %></a>
+                                </li>
+                            <% } %>
+                            <% if (current < pages) { %>
+                                <li class="page-item">
+                                    <a class="page-link" href="/OrderHistory?page=<%= current + 1 %>">Next</a>
+                                </li>
+                            <% } else { %>
+                                <li class="page-item disabled">
+                                    <a class="page-link">Next</a>
+                                </li>
+                            <% } %>
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
@@ -192,6 +219,5 @@
         margin-bottom: 10px;
     }
 </style>
-
 
 <%-include("../layouts/userFooter.ejs") %>

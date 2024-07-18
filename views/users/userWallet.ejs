@@ -40,14 +40,21 @@
                             <div class="expiry">
                                 <h4><strong>12/24</strong></h4>
                             </div>
-                            <div class="balan">
-                                <h5 style="color: white;"><strong>balance: ₹ <%=wallet.balance%></strong></h5>
-                            </div>
+                            <%if(wallet){%>
+                                <div class="balan">
+                                    <h5 style="color: white;"><strong>balance: ₹ <%=wallet.balance%></strong></h5>
+                                </div>
+                            <%}else{%>
+                                <div class="balan">
+                                    <h5 style="color: white;"><strong>balance: ₹ 0</strong></h5>
+                                </div>
+                                <%}%>
+                           
                         </div>
                         <div class="balance">
                             <button style="background: #186632;" data-bs-toggle="modal" data-bs-target="#addMoneyModal">Add
                                 money</button>
-                            <a href="link2.html"><button style="background: #136cc0;">Transactions </button></a>
+                            <a href="viewTransaction"><button style="background: #136cc0;">Transactions </button></a>
                             <button style="background: #6d2626;" data-bs-toggle="modal"
                                 data-bs-target="#withdrawMoneyModal">Withdraw</button>
                         </div>
@@ -222,48 +229,6 @@ function razopay(amount) {
     });
 }
 
-
-// function razopay(amount) {
-//     let totalAmountInPaise = amount * 100;
-//     fetch(`/razorpayyy?amount=${totalAmountInPaise}`, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({ totalAmountInPaise })
-//     })
-//     .then(res => res.json())
-//     .then(data => {
-//         if (data.success) {
-//             let options = {
-//                 "key": data.key_id,
-//                 "amount": data.amount,
-//                 "currency": "INR",
-//                 "name": "ChronoLux",
-//                 "handler": function (response) {
-//                     // Handle the successful payment response here
-//                     console.log(response);
-//                 },
-//                 "prefill": {
-//                     "name": data.name,
-//                     "email": data.email
-//                 }
-//             };
-
-//             let razorpayObject = new Razorpay(options);
-//             razorpayObject.on('payment.failed', function (response) {
-//                 console.log("Payment failed", response);
-//             });
-//             razorpayObject.open();
-            
-//         } else {
-//             console.error("Error:", data.msg);
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error:', error);
-//     });
-// }
 
 </script>
 <%- include("../layouts/userFooter.ejs") %>

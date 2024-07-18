@@ -194,9 +194,89 @@
         }else if(selectedPaymentMethod.value=="online"){
            
             razopay()
+        }else if(selectedPaymentMethod.value=="wallet"){
+                wallet()
         }
     }
+
+    function  wallet(){
+        const selectedAddress = document.querySelector('input[name="selectAddress"]:checked');
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+        const totalAmount = '<%= totalamount %>';
+        const cartDetails = ' <%= JSON.stringify(cartdata) %>';
+    if (!selectedAddress || !selectedPaymentMethod) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: 'Please select an address and a payment method.',
+            showConfirmButton: true
+        });
+        return;
+    }
+   
+    const walletData = {
+        addressId: selectedAddress.value,
+        paymentMethod: selectedPaymentMethod.value,
+        totalAmount: totalAmount,
+        cartDetails: cartDetails
+    };
+      
+    fetch('/placeOrderWithWallet', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(walletData)
+       
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'success',
+                title: 'Order Placed',
+                text: 'Your order has been placed successfully!',
+                showConfirmButton: true
+            }).then(() => {
+                window.location.href = '/walletOrderConfirmation';
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message,
+                showConfirmButton: true
+            });
+        }
+    })
+    .catch(error => {
+        console.log('Fetch error', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while placing your order. Please try again.',
+            showConfirmButton: true
+        });
+    });
+}
+
+     
+   
+
   function razopay(){
+    const selectedAddress = document.querySelector('input[name="selectAddress"]:checked');
+    const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+    
+    if (!selectedAddress || !selectedPaymentMethod) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: 'Please select an address and a payment method.',
+            showConfirmButton: true
+        });
+        return;
+    }
+
     const totalAmount = '<%= totalamount %>';
     let totalAmountInPaise = totalAmount * 100;
 

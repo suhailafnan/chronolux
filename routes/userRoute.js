@@ -128,5 +128,11 @@ user_route.get('/Wallet', userWalletController.loadWallet);
  user_route.post('/addToWallet', userWalletController.addToWallet);
 
  user_route.post('/withdrawMoney', userWalletController. withdrawMoney);
+
+ user_route.get('/viewTransaction', userWalletController.viewTransaction);
 // user_route.get('/onlinePayment',onlinePaymentController.onlineorderConfirmation);
+
+user_route.post('/placeOrderWithWallet', userWalletController. placeOrderWithWallet);
+
+user_route.get('/walletOrderConfirmation', userWalletController.walletOrderConfirmation);
 module.exports = user_route;
