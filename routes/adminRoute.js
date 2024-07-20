@@ -79,4 +79,7 @@ admin_route.get('/adminCouponPage', couponController.loadAdminCouponPage);
 admin_route.post('/addCoupon', couponController.addCoupon);
 
 admin_route.post('/deleteCoupon', couponController.deleteCoupon);
+
+admin_route.get('/editCoupon', couponController.loadEditCouponPage);
+admin_route.post('/editCoupon', couponController.editCouponPage);
 module.exports = admin_route;

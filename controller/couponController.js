@@ -92,9 +92,49 @@ const  deleteCoupon = async (req, res) => {
     }
 };
 
+const loadEditCouponPage = async (req, res) => {
+    try {
+        const couponId = req.query.couponId;
+        const coupon = await Coupon.findById(couponId);
+   
+        res.render("editCouponPage", { coupon });
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: 'Failed to load the couponEdit page.' });
+    }
+};
+
+const editCouponPage = async (req, res) => {
+    try {
+        const { couponId, couponName, minimum, description, expiry, discount, status } = req.body;
+
+      
+        const coupon = await Coupon.findByIdAndUpdate(couponId, {
+            couponName,
+            minimum,
+            description,
+            expiry: new Date(expiry),
+            discount,
+            is_active: status === 'true'
+        }, { new: true });
+
+        if (coupon) {
+            res.redirect("/admin/adminCouponPage")
+        } else {
+            res.json({ success: false, message: 'Coupon not found.' });
+        }
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: 'Failed to update the coupon.' });
+    }
+};
+
+
 module.exports = {
     loadAdminCouponPage,
     addCoupon,
     generateRandomCouponCode,
-    deleteCoupon
+    deleteCoupon,
+    loadEditCouponPage,
+    editCouponPage
 };

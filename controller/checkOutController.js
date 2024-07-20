@@ -9,7 +9,7 @@ const Address=require("../models/address");
 const Order=require("../models/orderModels"); 
 const crypto = require('crypto');
 const Wallet= require("../models/walletModel");
-
+const Coupon =require("../models/couponModel")
 const loadcheckOutPage = async (req, res) => {
     try {
       const user= req.session.user;
@@ -209,29 +209,102 @@ const loadcheckOutPage = async (req, res) => {
     }
 };
 
-  
-const orderConfirmation = async (req, res) => {
-  try {
-      const user = req.session.user;
-      const orderId = req.query.orderId; 
-      const order = await Order.findById(orderId).populate('items.productId');
 
-      if (!order) {
-          return res.status(404).render('errorPage', { message: 'Order not found' });
-      }
+// const giveCoupon = async (userId, totalAmount, orderId) => {
+//     try {
+//         const user = await User.findById(userId);
+//         const order = await Order.findById(orderId);
+//         const coupons = await Coupon.find({ is_active: true });
 
-      res.render('orderConfirmation', { user, order });
-  } catch (error) {
-      console.log(error.message);
-      res.status(500).render('errorPage', { message: 'Internal Server Error' });
-  }
+//         let addedCoupons = [];
+//         for (const coupon of coupons) {
+//             if (totalAmount >= coupon.minimum) {
+//                 const couponExists = user.coupons.some(item => item.equals(coupon._id));
+
+//                 if (!couponExists) {
+//                     await User.findByIdAndUpdate(
+//                         { _id: userId },
+//                         { $push: { coupons: coupon._id } }
+//                     );
+//                     addedCoupons.push(coupon);
+//                 }
+//             }
+//         }
+
+//         return addedCoupons;
+//     } catch (error) {
+//         console.log(error);
+//         throw error; 
+//     }
+// };
+
+// const orderConfirmation = async (req, res) => {
+//     try {
+//         const user = req.session.user;
+//         const userId = req.session.user._id;
+//         const orderId = req.query.orderId;
+//         const order = await Order.findById(orderId).populate('items.productId');
+
+//         if (!order) {
+//             return res.status(404).render('errorPage', { message: 'Order not found' });
+//         }
+
+//         const addedCoupons = await giveCoupon(userId, order.totalAmount, orderId);
+//         res.render('orderConfirmation', { user, order, addedCoupons });
+//     } catch (error) {
+//         console.log(error.message);
+//         res.status(500).render('errorPage', { message: 'Internal Server Error' });
+//     }
+// };
+
+// ########this will  check that is that coupon given or not but the hting in the up will check like that 
+const giveCoupon = async (userId, totalAmount, orderId) => {
+    try {
+        const user = await User.findById(userId);
+        const coupons = await Coupon.find({ is_active: true });
+
+        let addedCoupons = [];
+        for (const coupon of coupons) {
+            if (totalAmount >= coupon.minimum) {
+                await User.findByIdAndUpdate(
+                    { _id: userId },
+                    { $push: { coupons: coupon._id } }
+                );
+                addedCoupons.push(coupon);
+            }
+        }
+
+        return addedCoupons;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
 };
 
+const orderConfirmation = async (req, res) => {
+    try {
+        const user = req.session.user;
+        const userId = req.session.user._id;
+        const orderId = req.query.orderId;
+        const order = await Order.findById(orderId).populate('items.productId');
+
+        if (!order) {
+            return res.status(404).render('errorPage', { message: 'Order not found' });
+        }
+
+        const addedCoupons = await giveCoupon(userId, order.totalAmount, orderId);
+        res.render('orderConfirmation', { user, order, addedCoupons });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).render('errorPage', { message: 'Internal Server Error' });
+    }
+};
 
 
 module.exports={
     loadcheckOutPage,
     addToPlaceOrder,
     orderConfirmation,
-   generateRandomId
+   generateRandomId,
+   giveCoupon 
 }

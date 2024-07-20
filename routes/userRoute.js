@@ -13,10 +13,14 @@ const userWishlistController = require("../controller/userWishlistController");
 const paymentController = require("../controller/paymentController");
 const onlinePaymentController= require("../controller/onlinePaymentController");
 const userWalletController = require("../controller/userWalletController");
-
+const userCouponController = require("../controller/userCouponController")
 const flash=require("express-flash")
 const nocache = require("nocache");
 const auth = require("../middleware/auth");
+
+
+
+
 user_route.use(nocache());
 const passport = require('passport'); 
 require('../passport');
@@ -138,4 +142,8 @@ user_route.post('/placeOrderWithWallet', userWalletController. placeOrderWithWal
 user_route.get('/walletOrderConfirmation', userWalletController.walletOrderConfirmation);
 
 
+
+// userCouponController
+
+user_route.get('/Coupon',userCouponController.loadCoupon);
 module.exports = user_route;
