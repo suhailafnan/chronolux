@@ -33,7 +33,12 @@ const userSchema = new mongoose.Schema({
         },
         referedCode:{
           type:String
-        }
+        },
+        coupons: [{
+          type: mongoose.Schema.Types.ObjectId,
+          ref: 'Coupon'
+      }]
+  
   
   },{
     timestamps:true

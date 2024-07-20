@@ -11,6 +11,7 @@ const adminOrderController = require("../controller/adminOrderController")
 const offerController = require("../controller/offerController")
 const categoryController = require("../controller/categoryController")
 const productController = require("../controller/productController")
+const couponController = require("../controller/couponController")
 admin_route.use(session({
     secret: 'your-secret-key',
     resave: false,
@@ -69,7 +70,13 @@ admin_route.get('/CategoryOffer', offerController.loadCategoryOfferPage);
 admin_route.get('/addcategoryOfferPage', offerController.loadCategoryOfferAddingPage);
 admin_route.post('/addCategoryOffer', offerController.addCategoryOffer);
 admin_route.get('/deleteCategoryOffer', offerController.deleteCategoryOffer);
-
 admin_route.get('/deleteProductOffer', offerController.deleteProductOffer);
 
+
+// couponnnsssssssss
+
+admin_route.get('/adminCouponPage', couponController.loadAdminCouponPage);
+admin_route.post('/addCoupon', couponController.addCoupon);
+
+admin_route.post('/deleteCoupon', couponController.deleteCoupon);
 module.exports = admin_route;
