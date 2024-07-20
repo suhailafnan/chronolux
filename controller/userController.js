@@ -10,6 +10,8 @@ const otpController = require("../controller/otpController");
 const flash = require("connect-flash");
 const productOffer=require("../models/offerModel")
 const categoryOffer=require("../models/categoryOffer")
+const crypto = require('crypto');
+const Wallet= require("../models/walletModel");
 // for loading the website this method is called
 const loadWebpage = async (req, res) => {
   try {
@@ -18,6 +20,18 @@ const loadWebpage = async (req, res) => {
     console.log(error.messsage);
   }
 };
+
+
+const generateRandomId = () => {
+  const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+  let randomId = '';
+  for (let i = 0; i < 6; i++) {
+      const randomIndex = crypto.randomBytes(1)[0] % alphabet.length;
+      randomId += alphabet[randomIndex];
+  }
+  return randomId;
+};
+
 
 
 const loadHomepage = async (req, res) => {
@@ -30,17 +44,6 @@ const loadHomepage = async (req, res) => {
     console.log(error.message);
   }
 };
-
-
-// for loading the register this method is called
-const loadRegister = async (req, res) => {
-  try {
-    res.render("signup");
-  } catch (error) {
-    console.log(error.messsage);
-  }
-};
-
 // for loading the sign in page
 const loadLogin = async (req, res) => {
   try {
@@ -49,6 +52,23 @@ const loadLogin = async (req, res) => {
     console.log(error.messsage);
   }
 };
+
+// for loading the register this method is called
+const loadRegister = async (req, res) => {
+  try {
+    const referedCode = req.query.referenceCode;
+    req.session.referedCode = referedCode;
+    if (referedCode) {
+      console.log("referenceCode is::::::::::::::::", referedCode);
+    } else {
+      console.log("Error in getting referenceCode");
+    }
+    res.render("signup");
+  } catch (error) {
+    console.log(error.messsage);
+  }
+};
+
 
 
 const veriyfyLogin = async (req, res) => {
@@ -106,24 +126,45 @@ const securePassword = async (password) => {
 let theOtp = "";
 const insertUser = async (req, res) => {
   try {
-    //  and when inserting the otp willl go to the mail
-    const { name, email, password } = req.body;
-    // checks wheater this user exists
+    
+    const { name, email, password, re_pass } = req.body;
+    const referedCode = req.session.referedCode;
+    
+    if (referedCode ) {
+      console.log("referenceCode is::::::::::::::::", referedCode);
+    } else {
+      console.log("Error in getting referedCode");
+    }
+    
+    // Check whether this user exists
     const existUser = await User.findOne({ email });
     if (existUser) {
       res.render("signup", { message: "User already exists" });
       return;
     }
-    if (req.body.password === req.body.re_pass) {
-      const spassword = await securePassword(req.body.password);
+    
+    if (password === re_pass) {
+      const randomReferenceCode = await generateRandomId();
+      const spassword = await securePassword(password);
+      
       const user = new User({
-        name: req.body.name,
-        email: req.body.email,
+        name,
+        email,
         password: spassword,
         is_admin: 0,
         is_verified: 0,
+        referenceCode: randomReferenceCode
       });
+      
+      // Add referedCode if referenceCode is present
+      if (referedCode) {
+        console.log("asdkjfhiawjdghhhhhhshhkhhjfhsdkghsfkghkdf")
+        user.referedCode = referedCode;
+      }
+      
       const userData = await user.save();
+
+
       if (userData) {
         const user=await User.findOne({email})
         const otpBody = await otpController.generateOtpfun(req, res);
@@ -227,41 +268,6 @@ const successGoogleLogin = async (req, res) => {
 const failureGoogleLogin = (req, res) => {
   res.send("Error");
 };
-// 
-// const loadShop = async (req, res) => {
-//   try {
-//     const user = req.session.user;
-//     const categories = await Category.find();
-//     const page = parseInt(req.query.page) || 1; 
-//     const limit = parseInt(req.query.limit) || 9; 
-//     const skip = (page - 1) * limit;
-
-   
-//     const products = await Products.find().skip(skip).limit(limit);
-//     const activeOffers = await productOffer.find({ is_active: true });
-//     const activeCategoryOffers = await categoryOffer.find({ is_active: true });
-
-//     for (let product of products) {
-//       const offer = activeOffers.find(o => o.productId.toString() === product._id.toString());
-//       if (offer) {
-//         product.finalPrice = product.price - (product.price * (offer.discount / 100));
-//         product.productDiscountPercentage = offer.discount;
-//       } else {
-//         product.finalPrice = product.price;
-//         product.productDiscountPercentage = 0;
-//       }
-//       await product.save();
-//     }
-
-//     const totalProducts = await Products.countDocuments();
-//     const totalPages = Math.ceil(totalProducts / limit);
-
-//     res.render("shop", { categories, products, user, currentPage: page, totalPages });
-//   } catch (error) {
-//     console.log(error.message);
-//     res.status(500).send('Internal server error');
-//   }
-// };
 
 const loadShop = async (req, res) => {
   try {
@@ -401,6 +407,7 @@ const search = async (req, res) => {
 module.exports = {
   loadRegister,
   loadLogin,
+  generateRandomId,
   veriyfyLogin,
   insertUser,
   loadWebpage,

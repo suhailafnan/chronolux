@@ -1,3 +1,4 @@
+
 <%- include("../layouts/userNavBar.ejs") %>
 
 <style>
@@ -47,6 +48,28 @@
     .payment-success-container span {
         font-size: 2rem;
     }
+
+    .order-details {
+        margin-top: 20px;
+        font-size: 1.2rem;
+        color: #555;
+    }
+
+    .order-details h3 {
+        display: inline;
+        font-size: 1.2rem;
+        margin: 0;
+        font-weight: normal;
+    }
+
+    .order-details h3 span {
+        font-weight: bold;
+        color: #000;
+    }
+
+    .order-details p {
+        margin: 5px 0;
+    }
 </style>
 
 <div class="container text-center mt-5 payment-success-container">
@@ -54,6 +77,14 @@
     <h2>Your payment has been processed successfully</h2>
     <h2>Your order is now being prepared</h2>
     <h1>Thank You <span>😊</span></h1>
+
+    <div class="order-details">
+        <p><h3>Order Type: <strong><%= order.paymentMethod %></strong></h3></p>
+        <p><h3>Order Date: <strong><%= new Date(order.createdAt).toLocaleDateString() %></strong></h3></p>
+        <p><h3>Order Time: <strong><%= new Date(order.createdAt).toLocaleTimeString() %></strong></h3></p>
+        <p><h3>Total Amount: <strong>₹ <%= order.totalAmount %></strong></h3></p>
+    </div>
+
     <div class="mt-4">
         <button onclick="window.location.href='/OrderHistory'" class="btn btn-primary">Show Order</button>
         <button onclick="window.location.href='/home'" class="btn btn-secondary">Home</button>

@@ -41,6 +41,7 @@ user_route.set("views", "./views/users/");
 user_route.get('/', auth.isLogout, userController.loadWebpage);
 user_route.get('/register', auth.isLogout, userController.loadRegister);
 user_route.post('/register', auth.isLogout, userController.insertUser);
+// user_route.get('/register', auth.isLogout, userController.insertUser);
 user_route.get('/login', auth.isLogout, userController.loadLogin);
 user_route.post('/login', auth.isLogout, userController.veriyfyLogin);
 // user_route.get('/otpverify', auth.isLogout, userController.loadOtp);
@@ -135,4 +136,6 @@ user_route.get('/Wallet', userWalletController.loadWallet);
 user_route.post('/placeOrderWithWallet', userWalletController. placeOrderWithWallet);
 
 user_route.get('/walletOrderConfirmation', userWalletController.walletOrderConfirmation);
+
+
 module.exports = user_route;

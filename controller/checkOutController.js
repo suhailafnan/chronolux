@@ -8,7 +8,7 @@ const Cart=require("../models/cart");
 const Address=require("../models/address"); 
 const Order=require("../models/orderModels"); 
 const crypto = require('crypto');
-
+const Wallet= require("../models/walletModel");
 
 const loadcheckOutPage = async (req, res) => {
     try {
@@ -57,102 +57,176 @@ const loadcheckOutPage = async (req, res) => {
   };
   
 
-  
   const addToPlaceOrder = async (req, res) => {
     try {
-      const user = req.session.user;
-      const orderData = req.body;
-  
-      const paymentMethod = orderData.paymentMethod;
-      const addressId = orderData.addressId;
-      const userid = req.session.user._id;
-      const totalAmount = orderData.totalAmount;
-  
-      const addressData = await Address.findOne({ userId: userid, "address._id": addressId });
-      if (!addressData) {
-        return res.status(404).json({ success: false, message: 'Address not found' });
-      }
-  
-      // Filter the selected address
-      const selectedAddress = addressData.address.find(addr => addr._id.toString() === addressId);
-      if (!selectedAddress) {
-        return res.status(404).json({ success: false, message: 'Selected address not found' });
-      }
-  
-      const cart = await Cart.findOne({ userId: userid }).populate("product.productId");
-      if (!cart) {
-        return res.status(404).json({ success: false, message: 'Cart not found' });
-      }
-  
-      let outOfStockProducts = [];
-      for (const item of cart.product) {
-        const product = item.productId;
-  
-        if (product.Stock < item.quantity) {
-          outOfStockProducts.push(product.name);
+        const user = req.session.user;
+        const orderData = req.body;
+
+        const paymentMethod = orderData.paymentMethod;
+        const addressId = orderData.addressId;
+        const userid = req.session.user._id;
+        const totalAmount = orderData.totalAmount;
+
+        const addressData = await Address.findOne({ userId: userid, "address._id": addressId });
+        if (!addressData) {
+            return res.status(404).json({ success: false, message: 'Address not found' });
         }
-      }
+
+        const selectedAddress = addressData.address.find(addr => addr._id.toString() === addressId);
+        if (!selectedAddress) {
+            return res.status(404).json({ success: false, message: 'Selected address not found' });
+        }
+
+        const cart = await Cart.findOne({ userId: userid }).populate("product.productId");
+        if (!cart) {
+            return res.status(404).json({ success: false, message: 'Cart not found' });
+        }
+
+        let outOfStockProducts = [];
+        for (const item of cart.product) {
+            const product = item.productId;
+
+            if (product.Stock < item.quantity) {
+                outOfStockProducts.push(product.name);
+            }
+        }
+
+        if (outOfStockProducts.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Products are out of stock, please remove products",
+                outOfStockProducts
+            });
+        }
+
+      
   
-      if (outOfStockProducts.length > 0) {
-        return res.status(400).json({
-          success: false,
-          message: "Products are out of stock, please remove product(s)",
-          outOfStockProducts
+
+        const existingOrders = await Order.findOne({ userId: userid });
+        let isFirstOrder = false;
+        let referedCode = null;
+
+        if (!existingOrders) {
+            isFirstOrder = true;
+            referedCode = user.referedCode; 
+            
+            if (referedCode) {
+               
+                const referedUser = await User.findOne({ referenceCode: referedCode });
+                if (referedUser) {
+                    const referedUserId = referedUser._id;
+                    let referedUserWallet = await Wallet.findOne({ UserId: referedUserId });
+                    if (!referedUserWallet) {
+                        referedUserWallet = new Wallet({
+                            UserId: referedUserId,
+                            balance: 50,
+                            history: [{
+                                amount: 50,
+                                transactionType: "Referal bonus",
+                                previousBalance: 0
+                            }]
+                        });
+                    } else {
+                        referedUserWallet.balance += 50;
+                        referedUserWallet.history.push({
+                            amount: 50,
+                            transactionType: "Referal bonus",
+                            previousBalance: referedUserWallet.balance - 50
+                        });
+                    }
+                    await referedUserWallet.save();
+                 
+
+                    let currentUserWallet = await Wallet.findOne({ UserId: userid });
+                    if (!currentUserWallet) {
+                        currentUserWallet = new Wallet({
+                            UserId: userid,
+                            balance: 30,
+                            history: [{
+                                amount: 30,
+                                transactionType: "First order bonus",
+                                previousBalance: 0
+                            }]
+                        });
+                    } else {
+                        currentUserWallet.balance += 30;
+                        currentUserWallet.history.push({
+                            amount: 30,
+                            transactionType: "First order bonus" ,
+                            previousBalance: currentUserWallet.balance - 30
+                        });
+                    }
+                    await currentUserWallet.save();
+                
+                }
+            }
+        }
+
+
+        const items = [];
+        for (const item of cart.product) {
+            const oneProduct = await Products.findById(item.productId);
+            if (!oneProduct) {
+                continue;
+            }
+
+            const itemDetails = { 
+                productId: item.productId,
+                quantity: item.quantity,
+                categoryId: oneProduct.category,
+                price: oneProduct.finalPrice,
+            };
+
+            items.push(itemDetails);
+
+            oneProduct.Stock -= item.quantity;
+            await oneProduct.save();
+        }
+
+        await Cart.findOneAndUpdate({ userId: userid }, { product: [] });
+
+
+     
+        const randomId = await generateRandomId();
+
+        const newOrder = new Order({
+            userId: userid,
+            items: items,
+            totalAmount: totalAmount,
+            address: selectedAddress, 
+            paymentMethod: paymentMethod,
+            orderId: randomId,
+            createdAt: new Date() 
         });
-      }
-  
-      const items = [];
-      for (const item of cart.product) {
-        const oneProduct = await Products.findById(item.productId);
-        if (!oneProduct) {
-          continue;
-        }
-  
-        const itemDetails = { 
-          productId: item.productId,
-          quantity: item.quantity,
-          categoryId: oneProduct.category,
-          price: oneProduct.finalPrice,
-        };
-  
-        items.push(itemDetails);
-  
-        oneProduct.Stock -= item.quantity;
-        await oneProduct.save();
-      }
-  
-      await Cart.findOneAndUpdate({ userId: userid }, { product: [] });
-  
-      const randomId = await generateRandomId();
-  
-      const newOrder = new Order({
-        userId: userid,
-        items: items,
-        totalAmount: totalAmount,
-        address: selectedAddress, // Save only the selected address
-        paymentMethod: paymentMethod,
-        orderId: randomId,
-      });
-  
-      await newOrder.save();
-  
-      res.status(200).json({ success: true });
+
+        await newOrder.save();
+
+      
+        res.status(200).json({ success: true, orderId: newOrder._id });
     } catch (error) {
-      console.error(error.message);
-      res.status(500).json({ success: false, message: 'Internal Server Error' });
+        console.error(error.message);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
-  };
+};
+
   
-  const orderConfirmation=async(req,res)=>{
-    try{
+const orderConfirmation = async (req, res) => {
+  try {
+      const user = req.session.user;
+      const orderId = req.query.orderId; 
+      const order = await Order.findById(orderId).populate('items.productId');
 
-      const user=req.session.user
-      res.render('orderConfirmation',{user})
+      if (!order) {
+          return res.status(404).render('errorPage', { message: 'Order not found' });
+      }
 
-    } catch (error) {
+      res.render('orderConfirmation', { user, order });
+  } catch (error) {
       console.log(error.message);
+      res.status(500).render('errorPage', { message: 'Internal Server Error' });
   }
-  };
+};
+
 
 
 module.exports={

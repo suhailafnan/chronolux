@@ -222,42 +222,42 @@
     };
       
     fetch('/placeOrderWithWallet', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(walletData)
-       
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Order Placed',
-                text: 'Your order has been placed successfully!',
-                showConfirmButton: true
-            }).then(() => {
-                window.location.href = '/walletOrderConfirmation';
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.message,
-                showConfirmButton: true
-            });
-        }
-    })
-    .catch(error => {
-        console.log('Fetch error', error);
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(walletData)
+})
+.then(response => response.json())
+.then(data => {
+    if (data.success) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Order Placed',
+            text: 'Your order has been placed successfully!',
+            showConfirmButton: true
+        }).then(() => {
+            window.location.href = `/walletOrderConfirmation?orderId=${data.orderId}`;
+        });
+    } else {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'An error occurred while placing your order. Please try again.',
+            text: data.message,
             showConfirmButton: true
         });
+    }
+})
+.catch(error => {
+    console.log('Fetch error', error);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while placing your order. Please try again.',
+        showConfirmButton: true
     });
+});
+
 }
 
      
@@ -344,43 +344,44 @@ function placeOrder() {
         totalAmount: totalAmount,
         cartDetails: cartDetails
     };
-
     fetch('/placeOrder', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(orderData)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            Swal.fire({
-                icon: 'success',
-                title: 'Order Placed',
-                text: 'Your order has been placed successfully!',
-                showConfirmButton: true
-            }).then(() => {
-                window.location.href = '/orderConfirmation';
-            });
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: data.message,
-                showConfirmButton: true
-            });
-        }
-    })
-    .catch(error => {
-        console.log('Fetch error', error);
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(orderData)
+})
+.then(response => response.json())
+.then(data => {
+    if (data.success) {
+        Swal.fire({
+            icon: 'success',
+            title: 'Order Placed',
+            text: 'Your order has been placed successfully!',
+            showConfirmButton: true
+        }).then(() => {
+            window.location.href = `/orderConfirmation?orderId=${data.orderId}`;
+        });
+    } else {
         Swal.fire({
             icon: 'error',
             title: 'Error',
-            text: 'An error occurred while placing your order. Please try again.',
+            text: data.message,
             showConfirmButton: true
         });
+    }
+})
+.catch(error => {
+    console.log('Fetch error', error);
+    Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while placing your order. Please try again.',
+        showConfirmButton: true
     });
+});
+
+  
 }
 </script>     
 <%-include("../layouts/userFooter.ejs") %> 

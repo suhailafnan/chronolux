@@ -100,7 +100,10 @@ const orderSchema = new mongoose.Schema({
     currendDate:{
         type:Date,
         default: ()=> Date.now(),
-    },
+    },createdAt:{
+        type:Date
+        
+    }
 
 })
 
