@@ -146,4 +146,7 @@ user_route.get('/walletOrderConfirmation', userWalletController.walletOrderConfi
 // userCouponController
 
 user_route.get('/Coupon',userCouponController.loadCoupon);
+user_route.post('/applyCoupon', checkOutController.applyCoupon);
+
 module.exports = user_route;
+

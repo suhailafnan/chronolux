@@ -10,39 +10,62 @@ const Order=require("../models/orderModels");
 const crypto = require('crypto');
 const Wallet= require("../models/walletModel");
 const Coupon =require("../models/couponModel")
+// const loadcheckOutPage = async (req, res) => {
+//     try {
+//       const user= req.session.user;
+//       const addressdata = await Address.findOne({ userId: user });
+  
+//       const cartdata = await Cart.findOne({ userId: user }).populate(
+//         "product.productId"
+//       );
+    
+//       let totalamount = 0;
+//       cartdata.product.forEach((item) => {
+//         const { productId, quantity } = item;
+//         if (productId && productId.finalPrice) {
+//             const subtotal = productId.finalPrice * quantity;
+//             totalamount += subtotal;
+          
+//         }
+//       });
+  
+//       res.render("checkOut", {
+//         addressdata,
+//         totalamount,
+//         user, 
+//         cartdata
+        
+//       });
+//     } catch (error) {
+//       console.log(error.message);
+//   }
+//   };
 const loadcheckOutPage = async (req, res) => {
     try {
-      const user= req.session.user;
-      const addressdata = await Address.findOne({ userId: user });
-  
-      const cartdata = await Cart.findOne({ userId: user }).populate(
-        "product.productId"
-      );
-  
-     
-  
-      let totalamount = 0;
-      cartdata.product.forEach((item) => {
-        const { productId, quantity } = item;
-        if (productId && productId.finalPrice) {
-            const subtotal = productId.finalPrice * quantity;
-            totalamount += subtotal;
-          
-        }
-      });
-  
-      res.render("checkOut", {
-        addressdata,
-        totalamount,
-        user, 
-        cartdata
-        
-      });
+        const user = req.session.user;
+        const addressdata = await Address.findOne({ userId: user });
+        const cartdata = await Cart.findOne({ userId: user }).populate('product.productId');
+    
+        let totalamount = 0;
+        cartdata.product.forEach((item) => {
+            const { productId, quantity } = item;
+            if (productId && productId.finalPrice) {
+                const subtotal = productId.finalPrice * quantity;
+                totalamount += subtotal;
+            }
+        });
+    
+        res.render('checkOut', {
+            addressdata,
+            totalamount,
+            user, 
+            cartdata
+        });
     } catch (error) {
-      console.log(error.message);
-  }
-  };
-  
+        console.log(error.message);
+    }
+};
+
 
 
 
@@ -55,19 +78,62 @@ const loadcheckOutPage = async (req, res) => {
       throw new Error('Failed to generate random ID');
     }
   };
-  
 
-  const addToPlaceOrder = async (req, res) => {
+
+  const applyCoupon = async (req, res) => {
+    try {
+       
+        const couponCode=req.query.couponCode
+        console.log('Coupon code received:', couponCode); 
+        
+        const userId = req.session.user._id;
+        const coupon = await Coupon.findOne({ couponCode: couponCode, is_active: true });
+        console.log('Coupon found:', coupon); 
+
+        if (!coupon) {
+            return res.status(400).json({ success: false, message: 'Invalid or expired coupon code.' });
+        }
+
+        // Fetch the user's cart details
+        const cart = await Cart.findOne({ userId }).populate('product.productId');
+
+        let totalAmount = 0;
+        cart.product.forEach((item) => {
+            const { productId, quantity } = item;
+            if (productId && productId.finalPrice) {
+                const subtotal = productId.finalPrice * quantity;
+                totalAmount += subtotal;
+            }
+        });
+
+        // Calculate the discount
+        const discountAmount = (totalAmount * coupon.discount) / 100;
+        const newTotalAmount = totalAmount - discountAmount;
+
+        res.json({
+            success: true,
+            discountAmount,
+            discountPercentage: coupon.discount,
+            newTotalAmount
+        });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+const addToPlaceOrder = async (req, res) => {
     try {
         const user = req.session.user;
         const orderData = req.body;
 
         const paymentMethod = orderData.paymentMethod;
         const addressId = orderData.addressId;
-        const userid = req.session.user._id;
+        const userId = req.session.user._id;
         const totalAmount = orderData.totalAmount;
+        const appliedCouponCode = orderData.couponCode;  // Get the applied coupon code from the request data
 
-        const addressData = await Address.findOne({ userId: userid, "address._id": addressId });
+        const addressData = await Address.findOne({ userId, "address._id": addressId });
         if (!addressData) {
             return res.status(404).json({ success: false, message: 'Address not found' });
         }
@@ -77,7 +143,7 @@ const loadcheckOutPage = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Selected address not found' });
         }
 
-        const cart = await Cart.findOne({ userId: userid }).populate("product.productId");
+        const cart = await Cart.findOne({ userId }).populate("product.productId");
         if (!cart) {
             return res.status(404).json({ success: false, message: 'Cart not found' });
         }
@@ -85,7 +151,6 @@ const loadcheckOutPage = async (req, res) => {
         let outOfStockProducts = [];
         for (const item of cart.product) {
             const product = item.productId;
-
             if (product.Stock < item.quantity) {
                 outOfStockProducts.push(product.name);
             }
@@ -99,19 +164,14 @@ const loadcheckOutPage = async (req, res) => {
             });
         }
 
-      
-  
-
-        const existingOrders = await Order.findOne({ userId: userid });
+        const existingOrders = await Order.findOne({ userId });
         let isFirstOrder = false;
         let referedCode = null;
 
         if (!existingOrders) {
             isFirstOrder = true;
-            referedCode = user.referedCode; 
-            
+            referedCode = user.referedCode;
             if (referedCode) {
-               
                 const referedUser = await User.findOne({ referenceCode: referedCode });
                 if (referedUser) {
                     const referedUserId = referedUser._id;
@@ -122,7 +182,7 @@ const loadcheckOutPage = async (req, res) => {
                             balance: 50,
                             history: [{
                                 amount: 50,
-                                transactionType: "Referal bonus",
+                                transactionType: "Referral bonus",
                                 previousBalance: 0
                             }]
                         });
@@ -130,17 +190,16 @@ const loadcheckOutPage = async (req, res) => {
                         referedUserWallet.balance += 50;
                         referedUserWallet.history.push({
                             amount: 50,
-                            transactionType: "Referal bonus",
+                            transactionType: "Referral bonus",
                             previousBalance: referedUserWallet.balance - 50
                         });
                     }
                     await referedUserWallet.save();
-                 
 
-                    let currentUserWallet = await Wallet.findOne({ UserId: userid });
+                    let currentUserWallet = await Wallet.findOne({ UserId: userId });
                     if (!currentUserWallet) {
                         currentUserWallet = new Wallet({
-                            UserId: userid,
+                            UserId: userId,
                             balance: 30,
                             history: [{
                                 amount: 30,
@@ -152,16 +211,14 @@ const loadcheckOutPage = async (req, res) => {
                         currentUserWallet.balance += 30;
                         currentUserWallet.history.push({
                             amount: 30,
-                            transactionType: "First order bonus" ,
+                            transactionType: "First order bonus",
                             previousBalance: currentUserWallet.balance - 30
                         });
                     }
                     await currentUserWallet.save();
-                
                 }
             }
         }
-
 
         const items = [];
         for (const item of cart.product) {
@@ -183,31 +240,42 @@ const loadcheckOutPage = async (req, res) => {
             await oneProduct.save();
         }
 
-        await Cart.findOneAndUpdate({ userId: userid }, { product: [] });
+        await Cart.findOneAndUpdate({ userId }, { product: [] });
 
-
-     
         const randomId = await generateRandomId();
 
         const newOrder = new Order({
-            userId: userid,
-            items: items,
-            totalAmount: totalAmount,
-            address: selectedAddress, 
-            paymentMethod: paymentMethod,
+            userId,
+            items,
+            totalAmount,
+            address: selectedAddress,
+            paymentMethod,
             orderId: randomId,
-            createdAt: new Date() 
+            createdAt: new Date()
         });
 
         await newOrder.save();
 
-      
+        if (appliedCouponCode) {
+            const appliedCoupon = await Coupon.findOne({ couponCode: appliedCouponCode, is_active: true });
+            if (appliedCoupon) {
+              
+                await User.findByIdAndUpdate(
+                    userId,
+                    { $pull: { coupons: appliedCoupon._id } }
+                );
+            }
+        }
+
         res.status(200).json({ success: true, orderId: newOrder._id });
     } catch (error) {
         console.error(error.message);
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
+
+
+
 
 
 // const giveCoupon = async (userId, totalAmount, orderId) => {
@@ -306,5 +374,6 @@ module.exports={
     addToPlaceOrder,
     orderConfirmation,
    generateRandomId,
-   giveCoupon 
+   giveCoupon,
+   applyCoupon
 }
