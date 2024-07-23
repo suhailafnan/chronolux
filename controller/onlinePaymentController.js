@@ -83,8 +83,6 @@ const openRazorpay = async (req, res) => {
     }
 };
 
-
-
   module.exports={
     
     openRazorpay,

@@ -14,7 +14,7 @@ const walletSchema = mongoose.Schema({
             type: Number
         },
         transactionType: {
-            enum: ["credited", "withdraw", "Ordered","razorpay","return","cancel","Referal","Referal bonus","First order bonus"],
+            enum: ["credited", "withdraw", "Ordered","razorpay","return","cancel","Referal","Referal bonus","First order bonus","Referral bonus"],
             type: String
         },
         date: {

@@ -137,9 +137,11 @@ user_route.get('/Wallet', userWalletController.loadWallet);
  user_route.get('/viewTransaction', userWalletController.viewTransaction);
 // user_route.get('/onlinePayment',onlinePaymentController.onlineorderConfirmation);
 
-user_route.post('/placeOrderWithWallet', userWalletController. placeOrderWithWallet);
+// user_route.post('/placeOrderWithWallet', userWalletController. placeOrderWithWallet);
 
-user_route.get('/walletOrderConfirmation', userWalletController.walletOrderConfirmation);
+// user_route.get('/walletOrderConfirmation', userWalletController.walletOrderConfirmation);
+user_route.post('/placeOrderWithWallet', checkOutController. placeOrderWithWallet);
+user_route.get('/walletOrderConfirmation',checkOutController.walletOrderConfirmation);
 
 
 

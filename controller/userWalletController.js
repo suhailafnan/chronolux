@@ -106,71 +106,247 @@ const viewTransaction = async (req, res) => {
   }
 };
 
+// const placeOrderWithWallet = async (req, res) => {
+//   try {
+//     const { addressId, paymentMethod, totalAmount, cartDetails } = req.body;
+//     const user = req.session.user;
+//     const userid = req.session.user._id;
+    
+
+    
+//     // const appliedCouponCode = orderData.couponCode;  
+
+//     const wallet = await Wallet.findOne({ UserId: user._id });
+//     if (!wallet) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Wallet not found" });
+//     }
+
+//     const cart = await Cart.findOne({ userId: user._id }).populate(
+//       "product.productId"
+//     );
+//     if (!cart) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Cart not found" });
+//     }
+
+//     if (totalAmount > wallet.balance) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Insufficient balance in wallet!" });
+//     }
+
+//     const addressData = await Address.findOne({
+//       userId: user._id,
+//       "address._id": addressId,
+//     });
+//     if (!addressData) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Address not found" });
+//     }
+
+//     const selectedAddress = addressData.address.find(
+//       (addr) => addr._id.toString() === addressId
+//     );
+
+//     if (!selectedAddress) {
+//       return res
+//         .status(404)
+//         .json({ success: false, message: "Selected address not found" });
+//     }
+
+//     let outOfStockProducts = [];
+//     for (const item of cart.product) {
+//       const product = item.productId;
+//       if (product.Stock < item.quantity) {
+//         outOfStockProducts.push(product.name);
+//       }
+//     }
+
+//     if (outOfStockProducts.length > 0) {
+//       return res.status(400).json({
+//         success: false,
+//         message: "Products are out of stock, please remove product(s)",
+//         outOfStockProducts,
+//       });
+//     }
+  
+//     const existingOrders = await Order.findOne({ userId: userid });
+//     let isFirstOrder = false;
+//     let referedCode = null;
+
+//     if (!existingOrders) {
+//       isFirstOrder = true;
+//       referedCode = user.referedCode;
+
+//       if (referedCode) {
+//         const referedUser = await User.findOne({ referenceCode: referedCode });
+//         if (referedUser) {
+//           const referedUserId = referedUser._id;
+//           let referedUserWallet = await Wallet.findOne({
+//             UserId: referedUserId,
+//           });
+//           if (!referedUserWallet) {
+//             referedUserWallet = new Wallet({
+//               UserId: referedUserId,
+//               balance: 50,
+//               history: [
+//                 {
+//                   amount: 50,
+//                   transactionType: "Referal bonus",
+//                   previousBalance: 0,
+//                 },
+//               ],
+//             });
+//           } else {
+//             referedUserWallet.balance += 50;
+//             referedUserWallet.history.push({
+//               amount: 50,
+//               transactionType: "Referal bonus",
+//               previousBalance: referedUserWallet.balance - 50,
+//             });
+//           }
+//           await referedUserWallet.save();
+        
+
+//           let currentUserWallet = await Wallet.findOne({ UserId: userid });
+//           if (!currentUserWallet) {
+//             currentUserWallet = new Wallet({
+//               UserId: userid,
+//               balance: 30,
+//               history: [
+//                 {
+//                   amount: 30,
+//                   transactionType: "First order bonus",
+//                   previousBalance: 0,
+//                 },
+//               ],
+//             });
+//           } else {
+//             currentUserWallet.balance += 30;
+//             currentUserWallet.history.push({
+//               amount: 30,
+//               transactionType: "First order bonus",
+//               previousBalance: currentUserWallet.balance - 30,
+//             });
+//           }
+//           await currentUserWallet.save();
+         
+//         }
+//       }
+//     }
+
+//     const previousBalance = wallet.balance;
+//     wallet.balance -= totalAmount;
+//     wallet.history.push({
+//       amount: totalAmount,
+//       transactionType: "Ordered",
+//       previousBalance: previousBalance,
+//     });
+//     await wallet.save();
+
+//     const items = [];
+//     for (const item of cart.product) {
+//       const oneProduct = await Products.findById(item.productId);
+//       if (!oneProduct) {
+//         continue;
+//       }
+
+//       const itemDetails = {
+//         productId: item.productId,
+//         quantity: item.quantity,
+//         categoryId: oneProduct.category,
+//         price: oneProduct.finalPrice,
+//       };
+
+//       items.push(itemDetails);
+
+//       oneProduct.Stock -= item.quantity;
+//       await oneProduct.save();
+//     }
+
+//     await Cart.findOneAndUpdate({ userId: user._id }, { product: [] });
+
+//     const randomId = await generateRandomId();
+
+//     const newOrder = new Order({
+//       userId: user._id,
+//       items: items,
+//       totalAmount: totalAmount,
+     
+//       address: selectedAddress,
+//       paymentMethod: paymentMethod,
+//       orderId: randomId,
+//       createdAt: new Date(),
+//     });
+
+//     await newOrder.save();
+
+   
+
+  
+//     res
+//       .status(200)
+//       .json({
+//         success: true,
+//         orderId: newOrder._id,
+//         message: "Order placed successfully!",
+//       });
+//   } catch (error) {
+//     console.error("Error placing order with wallet:", error);
+//     res
+//       .status(500)
+//       .json({
+//         success: false,
+//         message: "An error occurred while placing the order.",
+//       });
+//   }
+// };
+
 const placeOrderWithWallet = async (req, res) => {
   try {
-    const { addressId, paymentMethod, totalAmount, cartDetails } = req.body;
+    const { addressId, paymentMethod, totalAmount, cartDetails, couponCode } = req.body;
     const user = req.session.user;
-    const userid = req.session.user._id;
+    const userId = user._id;
 
-    const wallet = await Wallet.findOne({ UserId: user._id });
+    // ###################################Fetch the user's wallet and cart###################################
+    const wallet = await Wallet.findOne({ UserId: userId });
     if (!wallet) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Wallet not found" });
+      return res.status(404).json({ success: false, message: "Wallet not found" });
     }
 
-    const cart = await Cart.findOne({ userId: user._id }).populate(
-      "product.productId"
-    );
+    const cart = await Cart.findOne({ userId }).populate("product.productId");
     if (!cart) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Cart not found" });
+      return res.status(404).json({ success: false, message: "Cart not found" });
     }
 
+    // ###################################Check if the wallet has sufficient balance###################################
     if (totalAmount > wallet.balance) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Insufficient balance in wallet!" });
+      return res.status(400).json({ success: false, message: "Insufficient balance in wallet!" });
     }
 
-    const addressData = await Address.findOne({
-      userId: user._id,
-      "address._id": addressId,
-    });
+    //################################### Fetch the selected address###################################
+    const addressData = await Address.findOne({ userId, "address._id": addressId });
     if (!addressData) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Address not found" });
+      return res.status(404).json({ success: false, message: "Address not found" });
     }
 
-    const selectedAddress = addressData.address.find(
-      (addr) => addr._id.toString() === addressId
-    );
-
+    const selectedAddress = addressData.address.find(addr => addr._id.toString() === addressId);
     if (!selectedAddress) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Selected address not found" });
+      return res.status(404).json({ success: false, message: "Selected address not found" });
     }
 
-    let outOfStockProducts = [];
-    for (const item of cart.product) {
-      const product = item.productId;
-      if (product.Stock < item.quantity) {
-        outOfStockProducts.push(product.name);
-      }
-    }
-
+    // ###################################Check for out-of-stock products###################################
+    const outOfStockProducts = cart.product.filter(item => item.productId.Stock < item.quantity).map(item => item.productId.name);
     if (outOfStockProducts.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "Products are out of stock, please remove product(s)",
-        outOfStockProducts,
-      });
+      return res.status(400).json({ success: false, message: "Products are out of stock, please remove product(s)", outOfStockProducts });
     }
-  
-    const existingOrders = await Order.findOne({ userId: userid });
+
+    // ############Handle first order and referral bonus###################################
+    const existingOrders = await Order.findOne({ userId });
     let isFirstOrder = false;
     let referedCode = null;
 
@@ -179,134 +355,116 @@ const placeOrderWithWallet = async (req, res) => {
       referedCode = user.referedCode;
 
       if (referedCode) {
-        const referedUser = await User.findOne({ referenceCode: referedCode });
-        if (referedUser) {
-          const referedUserId = referedUser._id;
-          let referedUserWallet = await Wallet.findOne({
-            UserId: referedUserId,
-          });
-          if (!referedUserWallet) {
-            referedUserWallet = new Wallet({
-              UserId: referedUserId,
-              balance: 50,
-              history: [
-                {
-                  amount: 50,
-                  transactionType: "Referal bonus",
-                  previousBalance: 0,
-                },
-              ],
-            });
+        const referredUser = await User.findOne({ referenceCode: referedCode });
+        if (referredUser) {
+          const referredUserId = referredUser._id;
+          let referredUserWallet = await Wallet.findOne({ UserId: referredUserId });
+          if (!referredUserWallet) {
+            referredUserWallet = new Wallet({ UserId: referredUserId, balance: 50, history: [{ amount: 50, transactionType: "Referral bonus", previousBalance: 0 }] });
           } else {
-            referedUserWallet.balance += 50;
-            referedUserWallet.history.push({
-              amount: 50,
-              transactionType: "Referal bonus",
-              previousBalance: referedUserWallet.balance - 50,
-            });
+            referredUserWallet.balance += 50;
+            referredUserWallet.history.push({ amount: 50, transactionType: "Referral bonus", previousBalance: referredUserWallet.balance - 50 });
           }
-          await referedUserWallet.save();
-        
-
-          let currentUserWallet = await Wallet.findOne({ UserId: userid });
+          await referredUserWallet.save();
+          
+          let currentUserWallet = await Wallet.findOne({ UserId: userId });
           if (!currentUserWallet) {
-            currentUserWallet = new Wallet({
-              UserId: userid,
-              balance: 30,
-              history: [
-                {
-                  amount: 30,
-                  transactionType: "First order bonus",
-                  previousBalance: 0,
-                },
-              ],
-            });
+            currentUserWallet = new Wallet({ UserId: userId, balance: 30, history: [{ amount: 30, transactionType: "First order bonus", previousBalance: 0 }] });
           } else {
             currentUserWallet.balance += 30;
-            currentUserWallet.history.push({
-              amount: 30,
-              transactionType: "First order bonus",
-              previousBalance: currentUserWallet.balance - 30,
-            });
+            currentUserWallet.history.push({ amount: 30, transactionType: "First order bonus", previousBalance: currentUserWallet.balance - 30 });
           }
           await currentUserWallet.save();
-         
         }
       }
     }
 
+    // Update wallet balance
     const previousBalance = wallet.balance;
     wallet.balance -= totalAmount;
-    wallet.history.push({
-      amount: totalAmount,
-      transactionType: "Ordered",
-      previousBalance: previousBalance,
-    });
+    wallet.history.push({ amount: totalAmount, transactionType: "Ordered", previousBalance });
     await wallet.save();
 
+    // Process cart items
     const items = [];
     for (const item of cart.product) {
-      const oneProduct = await Products.findById(item.productId);
-      if (!oneProduct) {
-        continue;
-      }
+      const product = await Products.findById(item.productId);
+      if (!product) continue;
 
-      const itemDetails = {
-        productId: item.productId,
-        quantity: item.quantity,
-        categoryId: oneProduct.category,
-        price: oneProduct.finalPrice,
-      };
+      items.push({ productId: item.productId, quantity: item.quantity, categoryId: product.category, price: product.finalPrice });
 
-      items.push(itemDetails);
-
-      oneProduct.Stock -= item.quantity;
-      await oneProduct.save();
+      product.Stock -= item.quantity;
+      await product.save();
     }
 
-    await Cart.findOneAndUpdate({ userId: user._id }, { product: [] });
+    // Clear the cart
+    await Cart.findOneAndUpdate({ userId }, { product: [] });
 
+    // Create a new order
     const randomId = await generateRandomId();
-
     const newOrder = new Order({
-      userId: user._id,
-      items: items,
-      totalAmount: totalAmount,
+      userId,
+      items,
+      totalAmount,
+      discountAmount: req.body.discountAmount || 0,
       address: selectedAddress,
-      paymentMethod: paymentMethod,
+      paymentMethod,
       orderId: randomId,
       createdAt: new Date(),
     });
 
     await newOrder.save();
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        orderId: newOrder._id,
-        message: "Order placed successfully!",
-      });
+    // Handle coupon code
+    if (couponCode) {
+      const appliedCoupon = await Coupon.findOne({ couponCode, is_active: true });
+      if (appliedCoupon) {
+        await User.findByIdAndUpdate(userId, { $pull: { coupons: appliedCoupon._id } });
+      }
+    }
+
+    res.status(200).json({ success: true, orderId: newOrder._id, message: "Order placed successfully!" });
   } catch (error) {
     console.error("Error placing order with wallet:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "An error occurred while placing the order.",
-      });
+    res.status(500).json({ success: false, message: "An error occurred while placing the order." });
+  }
+};
+
+const giveCoupon = async (userId, totalAmount, orderId) => {
+  try {
+      const user = await User.findById(userId);
+      const coupons = await Coupon.find({ is_active: true });
+
+      let addedCoupons = [];
+      for (const coupon of coupons) {
+          if (totalAmount >= coupon.minimum) {
+              await User.findByIdAndUpdate(
+                  { _id: userId },
+                  { $push: { coupons: coupon._id } }
+              );
+              addedCoupons.push(coupon);
+          }
+      }
+
+      return addedCoupons;
+  } catch (error) {
+      console.log(error);
+      throw error;
   }
 };
 
 const walletOrderConfirmation = async (req, res) => {
   try {
     const user = req.session.user;
+    const userId = req.session.user._id;
     const orderId = req.query.orderId;
-    const order = await Order.findById(orderId).populate("items.productId");
+    const order = await Order.findById(orderId).populate('items.productId');
 
     if (!order) {
-      console.log("order not found");
-    }
+      return res.status(404).render('errorPage', { message: 'Order not found' });
+  }
+  
+  const addedCoupons = await giveCoupon(userId, order.totalAmount, orderId);
 
     res.render("walletOrderConfirmation", { user, order });
   } catch (error) {
@@ -319,6 +477,10 @@ const walletOrderConfirmation = async (req, res) => {
   }
 };
 
+
+
+
+
 module.exports = {
   loadWallet,
   addToWallet,
@@ -326,4 +488,5 @@ module.exports = {
   viewTransaction,
   placeOrderWithWallet,
   walletOrderConfirmation,
+  giveCoupon
 };

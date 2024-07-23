@@ -183,7 +183,11 @@
                                                     <% if (product.productDiscountPercentage > 0) { %>
                                                         <span style="color: red;"><%= product.productDiscountPercentage %>% off</span>
                                                         <h4 style="text-decoration: line-through;">₹<%= product.price %></h4>
-                                                      <% } %>
+                                                      <% } else if(product.categoryDiscountPercentage){%>
+                                                        <span style="color: red;"><%= product.categoryDiscountPercentage %>% off</span>
+                                                        <h4 style="text-decoration: line-through;">₹<%= product.price %></h4>
+                                                        <% } %>
+                                                     
                                                     
                                             </div>
                                         </div>

@@ -12,6 +12,8 @@ const offerController = require("../controller/offerController")
 const categoryController = require("../controller/categoryController")
 const productController = require("../controller/productController")
 const couponController = require("../controller/couponController")
+
+const adminSalesReportController = require("../controller/adminSalesReportController")
 admin_route.use(session({
     secret: 'your-secret-key',
     resave: false,
@@ -82,4 +84,8 @@ admin_route.post('/deleteCoupon', couponController.deleteCoupon);
 
 admin_route.get('/editCoupon', couponController.loadEditCouponPage);
 admin_route.post('/editCoupon', couponController.editCouponPage);
+
+
+// sales reportsss
+admin_route.get('/salesReport', adminSalesReportController.loadSalesReport);
 module.exports = admin_route;

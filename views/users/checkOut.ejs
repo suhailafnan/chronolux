@@ -271,6 +271,7 @@
         const totalAmount = document.getElementById('totalAmount').innerText;
         const cartDetails = ' <%= JSON.stringify(cartdata) %>';
         const couponCode = document.getElementById('couponCode').value;
+        const discountAmount = document.getElementById('discountAmount').innerText; 
     if (!selectedAddress || !selectedPaymentMethod) {
         Swal.fire({
             icon: 'warning',
@@ -281,21 +282,16 @@
         return;
     }
    
-    if(couponCode){
-        const walletData = {
+    const walletData = {
         addressId: selectedAddress.value,
         paymentMethod: selectedPaymentMethod.value,
         totalAmount: totalAmount,
-        cartDetails: cartDetails,
-        couponCode:couponCode
-    }; 
-    }else{
-        const walletData = {
-        addressId: selectedAddress.value,
-        paymentMethod: selectedPaymentMethod.value,
-        totalAmount: totalAmount,
+        discountAmount: discountAmount, 
         cartDetails: cartDetails
-    }; 
+    };
+
+    if (couponCode) {
+        walletData.couponCode = couponCode;
     }
    
       
@@ -315,6 +311,7 @@
             text: 'Your order has been placed successfully!',
             showConfirmButton: true
         }).then(() => {
+            console.log(data)
             window.location.href = `/walletOrderConfirmation?orderId=${data.orderId}`;
         });
     } else {
@@ -398,71 +395,6 @@ fetch('/razorpay', {
         }
     })
 }
-// function razorpay() {
-//     const selectedAddress = document.querySelector('input[name="selectAddress"]:checked');
-//     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
-//     const totalAmount = document.getElementById('totalAmount').innerText;
-    
-//     if (!selectedAddress || !selectedPaymentMethod) {
-//         Swal.fire({
-//             icon: 'warning',
-//             title: 'Warning',
-//             text: 'Please select an address and a payment method.',
-//             showConfirmButton: true
-//         });
-//         return;
-//     }
-
-//     let totalAmountInPaise = parseFloat(totalAmount) * 100;
-
-//     fetch('/razorpay', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({ totalAmountInPaise })
-//     })
-//     .then(res => res.json())
-//     .then(data => {
-//         if (data.success) {
-//             let options = {
-//                 "key": data.key_id,
-//                 "amount": data.amount,
-//                 "currency": "INR",
-//                 "name": "Chrono",
-//                 "handler": function (response) {
-//                     placeOrder();
-//                 },
-//                 "prefill": {
-//                     "name": data.name,
-//                     "email": data.email
-//                 }
-//             };
-
-//             let razorpayObject = new Razorpay(options);
-//             razorpayObject.on('payment.failed', function (response) {
-//                 console.log("Payment failed: ", response);
-//             });
-//             razorpayObject.open();
-//         } else {
-//             Swal.fire({
-//                 icon: 'error',
-//                 title: 'Error',
-//                 text: 'Failed to create Razorpay order. Please try again.',
-//                 showConfirmButton: true
-//             });
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error creating Razorpay order:', error);
-//         Swal.fire({
-//             icon: 'error',
-//             title: 'Error',
-//             text: 'An error occurred while creating Razorpay order. Please try again.',
-//             showConfirmButton: true
-//         });
-//     });
-// }
 
 
 function placeOrder() {
@@ -470,6 +402,7 @@ function placeOrder() {
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
     const totalAmount = document.getElementById('totalAmount').innerText;
     const couponCode = document.getElementById('couponCode').value;
+    const discountAmount = document.getElementById('discountAmount').innerText; 
 
     if (!selectedAddress || !selectedPaymentMethod) {
         Swal.fire({
@@ -486,6 +419,7 @@ function placeOrder() {
         addressId: selectedAddress.value,
         paymentMethod: selectedPaymentMethod.value,
         totalAmount: totalAmount,
+        discountAmount: discountAmount, 
         cartDetails: cartDetails
     };
 
@@ -530,6 +464,7 @@ function placeOrder() {
         });
     });
 }
+
 
 </script>     
 <%-include("../layouts/userFooter.ejs") %> 
