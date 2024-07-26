@@ -24,6 +24,7 @@ const loadorderDetails = async (req, res) => {
             orders: orders,
             currentPage: page,
             totalPages: totalPages,
+            adminId:req.session.user_id
         });
     } catch (error) {
         console.log(error.message);
@@ -38,7 +39,7 @@ const loadorderViewPage = async (req, res) => {
             .populate('userId') 
             .populate('items.productId') 
             .populate('items.categoryId'); 
-        res.render('adminOrderDetailpage', { order });
+        res.render('adminOrderDetailpage', { order,  adminId:req.session.user_id });
     } catch (error) {
         console.log(error.message);
     }

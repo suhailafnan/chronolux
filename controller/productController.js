@@ -9,7 +9,7 @@ const bcrypt = require("bcrypt");
 const loadAddProduct = async (req, res) => {
     try {
         const categories = await Category.find();
-        res.render("page_add_products", { categories: categories, errors: [] });
+        res.render("page_add_products", { categories: categories, errors: [] ,  adminId:req.session.user_id});
     } catch (error) {
         console.log(error.message);
     }
@@ -93,6 +93,7 @@ const loadProductList = async (req, res) => {
       totalPages: totalPages,
       message: message,
       messageType: messageType,
+      adminId:req.session.user_id
     });
   } catch (error) {
     console.error('Error:', error);
@@ -123,7 +124,7 @@ const loadProductList = async (req, res) => {
       const categorydata = await Category.find();
       if (ProductData) {
      
-        res.render('edit_product', { Product: ProductData, categorydata });
+        res.render('edit_product', { Product: ProductData, categorydata ,  adminId:req.session.user_id});
       } else {
         console.log("Products not found");
       }

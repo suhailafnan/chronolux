@@ -124,59 +124,69 @@ const securePassword = async (password) => {
 // for inserting user to database this method is called
 
 let theOtp = "";
+
 const insertUser = async (req, res) => {
   try {
-    
     const { name, email, password, re_pass } = req.body;
     const referedCode = req.session.referedCode;
-    
-    if (referedCode ) {
+
+    if (referedCode) {
       console.log("referenceCode is::::::::::::::::", referedCode);
     } else {
       console.log("Error in getting referedCode");
     }
-    
+    if (!name.trim()) {
+      res.render("signup", { message: "Name is required" });
+      return;
+    }
+
     // Check whether this user exists
     const existUser = await User.findOne({ email });
     if (existUser) {
       res.render("signup", { message: "User already exists" });
       return;
     }
-    
+
+    // Define the password criteria
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
+
+    if (!passwordRegex.test(password)) {
+      res.render("signup", { message: "Password must be at least 6 characters long, contain one uppercase letter, one number, and one special character." });
+      return;
+    }
+
     if (password === re_pass) {
       const randomReferenceCode = await generateRandomId();
       const spassword = await securePassword(password);
-      
+
       const user = new User({
         name,
         email,
         password: spassword,
         is_admin: 0,
         is_verified: 0,
-        referenceCode: randomReferenceCode
+        referenceCode: randomReferenceCode,
       });
-      
+
       // Add referedCode if referenceCode is present
       if (referedCode) {
-        console.log("asdkjfhiawjdghhhhhhshhkhhjfhsdkghsfkghkdf")
+        console.log("asdkjfhiawjdghhhhhhshhkhhjfhsdkghsfkghkdf");
         user.referedCode = referedCode;
       }
-      
+
       const userData = await user.save();
 
-
       if (userData) {
-        const user=await User.findOne({email})
+        const user = await User.findOne({ email });
         const otpBody = await otpController.generateOtpfun(req, res);
-        res.render("otpVerification", { email: email,user });
+        res.render("otpVerification", { email: email, user });
         console.log(userData);
         console.log("otp is :", otpBody);
         theOtp = otpBody;
       }
-      
     } else {
       res.render("signup", {
-        message: "your password dosen't match",
+        message: "Your password doesn't match",
       });
     }
   } catch (error) {
@@ -411,6 +421,15 @@ const search = async (req, res) => {
 };
 
 
+const blocked= async (req, res) => {
+  try {
+  // console.log("fasdouhgf9u")
+    // res.json(products);
+    res.render('blockedPage')
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 
 
 module.exports = {
@@ -432,6 +451,7 @@ module.exports = {
   loadShopDetials,
   loadHomepage ,
   getProducts,
-  search
+  search,
+  blocked
 
 };

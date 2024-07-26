@@ -157,10 +157,12 @@ const changepassword = async (req, res) => {
 
 const   loadUserAdress= async (req, res) => {
   try {
-      
+        const message = req.query.message || null;
+        const messageType = req.query.messageType || null;
+    
         const user = req.session.user;     
         const addressData = await Address.findOne({userId:user})
-        res.render("userAddress", { user,addressData});
+        res.render("userAddress", { user,addressData,message,messageType});
     
 
   } catch (error) {
@@ -171,7 +173,9 @@ const   loadUserAdress= async (req, res) => {
 
 const   loadAddAddress= async (req, res) => {
   try {
-      res.render("userAddAddress", { user: req.session.user });
+    const message = req.query.message || null;
+    const messageType = req.query.messageType || null;
+      res.render("userAddAddress", { user: req.session.user,message,messageType });
 
   } catch (error) {
     console.log(error.message);
@@ -184,46 +188,60 @@ const addNewAddress = async (req, res) => {
   try {
     const userid = req.session.user;
     const { name, city, district, state, country, mobile, pincode, home_address } = req.body;
-    if (!name || !home_address || !city || !district || !state || !country || !mobile || !pincode) {
-      return res.status(400).send("All fields are required");
-    }
-    const address = await Address.findOne({ userId: userid });
+    let errors = [];
 
+    if (!name.trim()) {
+      errors.push("Name is required.");
+    }
+    if (!city.trim()) {
+      errors.push("City is required.");
+    }
+    if (!district.trim()) {
+      errors.push("District is required.");
+    }
+    if (!state.trim()) {
+      errors.push("State is required.");
+    }
+    if (!country.trim()) {
+      errors.push("Country is required.");
+    }
+    if (!home_address.trim()) {
+      errors.push("Home address is required.");
+    }
+    if (!/^\d{10}$/.test(mobile)) {
+      errors.push("Mobile number should be exactly 10 digits.");
+    }
+    if (!/^\d{6}$/.test(pincode)) {
+      errors.push("Pincode should be exactly 6 digits.");
+    }
+
+    if (errors.length > 0) {
+      return res.redirect(`/addAddress?message=${encodeURIComponent(errors.join(', '))}&messageType=error`);
+    }
+
+    const address = await Address.findOne({ userId: userid });
     if (address) {
       address.address.push({
-        name: name,
-        home_address: home_address,
-        city: city,
-        district: district,
-        state: state,
-        country: country,
-        mobile: mobile,
-        pincode: pincode
+        name, home_address, city, district, state, country, mobile, pincode
       });
       await address.save();
-      res.redirect('/Address');
+      res.redirect('/Address?message=Address added successfully&messageType=success');
     } else {
       const newAddress = new Address({
         userId: userid,
         address: [{
-          name: name,
-          home_address: home_address,
-          city: city,
-          district: district,
-          state: state,
-          country: country,
-          mobile: mobile,
-          pincode: pincode
+          name, home_address, city, district, state, country, mobile, pincode
         }]
       });
       await newAddress.save();
-      res.redirect('/Address');
+      res.redirect('/Address?message=Address added successfully&messageType=success');
     }
   } catch (error) {
     console.log(error.message);
-   
+    res.redirect('/addAddress?message=An error occurred&messageType=error');
   }
 };
+
 
 const loadOrderHistory = async (req, res) => {
   try {
@@ -254,13 +272,14 @@ const loadOrderHistory = async (req, res) => {
 
 const editAddress = async (req, res) => {
   try {
-    
+    const message = req.query.message || null;
+    const messageType = req.query.messageType || null;
     const user = req.session.user; 
     const addressId = req.query.id;    
     const addressData = await Address.findOne({ userId: user });
     const address = addressData.address.find(addr => addr._id.toString() === addressId);
-    // console.log("this is the address we want to edit :=", address);
-    res.render('editAddress', { user, address });
+
+    res.render('editAddress', { user, address , message, messageType });
   } catch (error) {
     console.log(error.message);
   }
@@ -272,7 +291,36 @@ const updateAddress = async (req, res) => {
     const addressId = req.body.address_id; 
 
     const { name, country, state, district, pincode, mobile, home_address, city } = req.body;
+    let errors = [];
 
+    if (!name.trim()) {
+      errors.push("Name is required.");
+    }
+    if (!city.trim()) {
+      errors.push("City is required.");
+    }
+    if (!district.trim()) {
+      errors.push("District is required.");
+    }
+    if (!state.trim()) {
+      errors.push("State is required.");
+    }
+    if (!country.trim()) {
+      errors.push("Country is required.");
+    }
+    if (!home_address.trim()) {
+      errors.push("Home address is required.");
+    }
+    if (!/^\d{10}$/.test(mobile)) {
+      errors.push("Mobile number should be exactly 10 digits.");
+    }
+    if (!/^\d{6}$/.test(pincode)) {
+      errors.push("Pincode should be exactly 6 digits.");
+    }
+
+    if (errors.length > 0) {
+      return res.redirect(`/Address?message=${encodeURIComponent(errors.join(', '))}&messageType=error`);
+    }
     // Find the document that contains the address array
     const addressData = await Address.findOne({ userId: user });
 
@@ -292,11 +340,11 @@ const updateAddress = async (req, res) => {
         }
       }
     );
-
-    res.redirect(`/Address`);
+    res.redirect('/Address?message=Address edited successfully&messageType=success');
+    
   } catch (error) {
     console.log(error.message);
-    res.redirect(`/userProfile?id=${user._id}`); // Add redirection or error handling as needed
+    res.redirect(`/userProfile?id=${user._id}`); 
   }
 };
 

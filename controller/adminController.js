@@ -15,45 +15,46 @@ const adminLoadLogin=async (req,res)=>{
 
 const verifyAdminLogin = async (req, res) => {
    
-    try {
-      const email = req.body.email;
-      const password = req.body.password;
-  
-      const userData = await User.findOne({ email: email });
-  
-      if (userData) {
-      
-        const passwordMatch = await bcrypt.compare(password, userData.password);
-        if (passwordMatch) {
-          if (userData.is_admin===0) {
-            res.render("adminLogin", { message: "please verify your mail" });
-          } else {
-            req.session.user_id = userData._id;
-            res.redirect("/admin/home");
-          }
+  try {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    const adminData = await User.findOne({ email: email });
+
+    if (adminData) {
+    
+      const passwordMatch = await bcrypt.compare(password, adminData.password);
+      if (passwordMatch) {
+        if (adminData.is_admin===0) {
+          res.render("adminLogin", { message: "please verify your mail" });
         } else {
-          res.render("adminLogin", {
-            message: "Email or password incorrect",
-          });
+          req.session.user_id = adminData._id;
+          res.redirect("/admin/home");
         }
       } else {
-        res.render("adminLogin", { message: "Email or password incorrect" });
+        res.render("adminLogin", {
+          message: "Email or password incorrect",
+        });
       }
-    } catch (error) {
-      console.log(error.message);
+    } else {
+      res.render("adminLogin", { message: "Email or password incorrect" });
     }
-  };
+  } catch (error) {
+    console.log(error.message);
+  }
+};
 
-  const loadAdminHome = async (req, res) => {
-    try {
-      const userData = await User.findById({ _id: req.session.user_id });
-      res.render("adminIndex", { admin: userData });
-    } catch (error) {
-      console.log(error.message);
-    }
+const loadAdminHome = async (req, res) => {
+  try {
+    const adminData = await User.findById({ _id: req.session.user_id });
+    const adminId=req.session.user_id
+    
+    res.render("adminIndex", { admin: adminData ,adminId});
+  } catch (error) {
+    console.log(error.message);
+  }
 
-  };
-  
+};
  
    
   const loadUsers = async (req, res) => {
@@ -65,11 +66,11 @@ const verifyAdminLogin = async (req, res) => {
       const totalUsers = await User.countDocuments({ is_admin: 0 });
       const users = await User.find({ is_admin: 0 }).skip(skip).limit(limit);
       const totalPages = Math.ceil(totalUsers / limit);
-  
       res.render("pageUsers", {
         users: users,
         currentPage: page,
         totalPages: totalPages,
+        adminId:req.session.user_id
       });
     } catch (error) {
       console.log(error.message);
@@ -122,6 +123,16 @@ const unblockUser = async (req, res) => {
   }
 };
 
+const adminLogout=async (req,res)=>{
+  try{
+  req.session.destroy();
+  console.log("hello")
+  res.redirect("http://localhost:8000/admin")
+  
+  }catch (error) {
+    console.log(error.message);
+  }
+}
 module.exports = {
     adminLoadLogin,
     verifyAdminLogin,
@@ -130,6 +141,7 @@ module.exports = {
     deleteUser,
     blockUser,
     unblockUser,
+    adminLogout
 
  
 

@@ -23,7 +23,8 @@ const loadAdminCouponPage = async (req, res) => {
         res.render("couponList", {
             coupons,
             current: page,
-            pages: Math.ceil(totalCoupons / perPage)
+            pages: Math.ceil(totalCoupons / perPage),
+            adminId:req.session.user_id
         });
     } catch (error) {
         console.log(error);
@@ -97,7 +98,7 @@ const loadEditCouponPage = async (req, res) => {
         const couponId = req.query.couponId;
         const coupon = await Coupon.findById(couponId);
    
-        res.render("editCouponPage", { coupon });
+        res.render("editCouponPage", { coupon ,  adminId:req.session.user_id});
     } catch (error) {
         console.log(error.message);
         res.json({ success: false, message: 'Failed to load the couponEdit page.' });

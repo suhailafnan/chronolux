@@ -53,13 +53,13 @@ user_route.post('/login', auth.isLogout, userController.veriyfyLogin);
 user_route.post('/verify', auth.isLogout, userController.verifyOtp);
 user_route.get('/resendOtp', auth.isLogout, userController.loadResendOtp);
 
-user_route.get('/logoutProfile',  userController.userLogout);
-user_route.get('/shop',userController.loadShop);
-user_route.get('/shop_details',userController.loadShopDetials);
-user_route.get('/shopSort',  userController.getProducts);
-user_route.get('/search',  userController.search);
+user_route.get('/logoutProfile', auth.isLogin,auth.isUnblocked, userController.userLogout);
+user_route.get('/shop',auth.isLogin,auth.isUnblocked,userController.loadShop);
+user_route.get('/shop_details',auth.isLogin,auth.isUnblocked,userController.loadShopDetials);
+user_route.get('/shopSort',  auth.isLogin,auth.isUnblocked,userController.getProducts);
+user_route.get('/search', auth.isLogin,auth.isUnblocked, userController.search);
 // login only routes routes
-user_route.get('/home', auth.isLogin, userController.loadHomepage);
+user_route.get('/home', auth.isLogin,auth.isUnblocked, userController.loadHomepage);
 // user_route.post('/resendOtp', userController.loadResendOtp);
 //google authenticationn
 // Auth 
@@ -77,78 +77,77 @@ user_route.get('/success' , userController.successGoogleLogin);
 // failure 
 user_route.get('/failure' , userController.failureGoogleLogin);
 // homepages 
+user_route.get('/blocked' ,userController.blocked);
 // forgot passwords route 
-user_route.get('/forgotPassword', auth.isLogout, forgotPasswordController.loadForgotPassword);
-user_route.post('/forgotEmailSubmit', auth.isLogout, forgotPasswordController.ForgotPassword);
-user_route.post('/resetPasswordOtp', auth.isLogout, forgotPasswordController.verifyOtp);
-user_route.get('/resetPassword', auth.isLogout, forgotPasswordController.loadResetPassword);
-user_route.post('/updatePassword', auth.isLogout, forgotPasswordController.updatePassword);
+user_route.get('/forgotPassword', auth.isLogout,auth.isUnblocked, forgotPasswordController.loadForgotPassword);
+user_route.post('/forgotEmailSubmit', auth.isLogout, auth.isUnblocked,forgotPasswordController.ForgotPassword);
+user_route.post('/resetPasswordOtp', auth.isLogout,auth.isUnblocked, forgotPasswordController.verifyOtp);
+user_route.get('/resetPassword', auth.isLogout,auth.isUnblocked, forgotPasswordController.loadResetPassword);
+user_route.post('/updatePassword', auth.isLogout, auth.isUnblocked,forgotPasswordController.updatePassword);
 // user profile routes are here
-user_route.get('/userProfile',userProfileController.loadUserProfile);
-user_route.get('/EditProfile',userProfileController.loadEditProfile);
-user_route.post('/updateProfile',userProfileController.updateProfile);
-user_route.get('/ChangePassword', userProfileController.changePasswordLoad);
-user_route.post('/changePassword', userProfileController.changepassword);
-user_route.get('/Address',userProfileController.loadUserAdress);
-user_route.get('/addAddress',userProfileController.loadAddAddress);
-user_route.post('/addAddress',userProfileController.addNewAddress);
-user_route.get('/editaddress',userProfileController.editAddress);
-user_route.post('/updateAddress',userProfileController.updateAddress);
-user_route.get('/deleteAddress',userProfileController.deleteAddress);
-user_route.get('/OrderHistory',userProfileController.loadOrderHistory);
-user_route.get('/orderDetails',userProfileController.loadOrderDetails);
+user_route.get('/userProfile',auth.isLogin,auth.isUnblocked,userProfileController.loadUserProfile);
+user_route.get('/EditProfile',auth.isLogin,auth.isUnblocked,userProfileController.loadEditProfile);
+user_route.post('/updateProfile',auth.isLogin,auth.isUnblocked,userProfileController.updateProfile);
+user_route.get('/ChangePassword',auth.isLogin,auth.isUnblocked, userProfileController.changePasswordLoad);
+user_route.post('/changePassword',auth.isLogin,auth.isUnblocked, userProfileController.changepassword);
+user_route.get('/Address',auth.isLogin,auth.isUnblocked,userProfileController.loadUserAdress);
+user_route.get('/addAddress',auth.isLogin,auth.isUnblocked,userProfileController.loadAddAddress);
+user_route.post('/addAddress',auth.isLogin,auth.isUnblocked,userProfileController.addNewAddress);
+user_route.get('/editaddress',auth.isLogin,auth.isUnblocked,userProfileController.editAddress);
+user_route.post('/updateAddress',auth.isLogin,auth.isUnblocked,userProfileController.updateAddress);
+user_route.get('/deleteAddress',auth.isLogin,auth.isUnblocked,userProfileController.deleteAddress);
+user_route.get('/OrderHistory',auth.isLogin,auth.isUnblocked,userProfileController.loadOrderHistory);
+user_route.get('/orderDetails',auth.isLogin,auth.isUnblocked,userProfileController.loadOrderDetails);
 // from here the carts route are set here
-user_route.get('/cart',cartController.loadCart);
-user_route.post('/addToCart', auth.isLogin,cartController.addToCart);
-user_route.post('/removeProduct', auth.isLogin,cartController.removeFromCart);
-user_route.post('/update-quantity', auth.isLogin,cartController.updateQuantity);
-user_route.post('/checkQuantity', auth.isLogin,cartController.checkQuantity);
+user_route.get('/cart',auth.isLogin,auth.isUnblocked,cartController.loadCart);
+user_route.post('/addToCart', auth.isLogin,auth.isUnblocked,cartController.addToCart);
+user_route.post('/removeProduct', auth.isLogin,auth.isUnblocked,cartController.removeFromCart);
+user_route.post('/update-quantity', auth.isLogin,auth.isUnblocked,cartController.updateQuantity);
+user_route.post('/checkQuantity', auth.isLogin,auth.isUnblocked,cartController.checkQuantity);
 // check out page 
-user_route.get('/checkOut',checkOutController.loadcheckOutPage);
-user_route.post('/placeOrder',checkOutController.addToPlaceOrder);
-user_route.get('/orderConfirmation',checkOutController.orderConfirmation);
+user_route.get('/checkOut',auth.isLogin,auth.isUnblocked,checkOutController.loadcheckOutPage);
+user_route.post('/placeOrder',auth.isLogin,auth.isUnblocked,checkOutController.addToPlaceOrder);
+user_route.get('/orderConfirmation',auth.isLogin,auth.isUnblocked,checkOutController.orderConfirmation);
 
 // order constroller
-user_route.post('/cancelOrder', userOrderController.cancelOrder);
-user_route.get('/returnOrder', userOrderController. returnOrderLoad);
-user_route.post('/submitReturnReason', userOrderController. returnOrder);
+user_route.post('/cancelOrder', auth.isLogin,auth.isUnblocked,userOrderController.cancelOrder);
+user_route.get('/returnOrder',auth.isLogin, auth.isUnblocked,userOrderController. returnOrderLoad);
+user_route.post('/submitReturnReason', auth.isLogin,auth.isUnblocked,userOrderController. returnOrder);
 
 // wishlist adddinggg
-user_route.post('/addToWishlist', userWishlistController.addToWishlist);
-user_route.get('/wishlist', userWishlistController.loadWishlist);
-user_route.post('/removeFromWishlist', userWishlistController.removeFromWishlist);
+user_route.post('/addToWishlist',auth.isLogin,auth.isUnblocked, userWishlistController.addToWishlist);
+user_route.get('/wishlist',auth.isLogin, auth.isUnblocked,userWishlistController.loadWishlist);
+user_route.post('/removeFromWishlist',auth.isLogin,auth.isUnblocked, userWishlistController.removeFromWishlist);
 
 // paypal route
-user_route.get('/onlinePayment', paymentController.renderBuyPage);
-user_route.post('/payMoney', paymentController.payProduct);
-user_route.get('/paymentSuccess', paymentController.successPage);
-user_route.get('/paymentCancel', paymentController.cancelPage);
+user_route.get('/onlinePayment',auth.isLogin,auth.isUnblocked, paymentController.renderBuyPage);
+user_route.post('/payMoney', auth.isLogin,auth.isUnblocked,paymentController.payProduct);
+user_route.get('/paymentSuccess',auth.isLogin,auth.isUnblocked, paymentController.successPage);
+user_route.get('/paymentCancel', auth.isLogin,auth.isUnblocked,paymentController.cancelPage);
 
 // wallet croutes
 
-user_route.get('/Wallet', userWalletController.loadWallet);
+user_route.get('/Wallet',auth.isLogin,auth.isUnblocked, userWalletController.loadWallet);
 
- user_route.post('/razorpay',onlinePaymentController.openRazorpay);
- user_route.post('/razorpayyy',onlinePaymentController.openRazorpayWallet);
- user_route.post('/addToWallet', userWalletController.addToWallet);
+ user_route.post('/razorpay',auth.isLogin,auth.isUnblocked,onlinePaymentController.openRazorpay);
+ user_route.post('/razorpayyy',auth.isLogin,auth.isUnblocked,onlinePaymentController.openRazorpayWallet);
+ user_route.post('/addToWallet', auth.isLogin,auth.isUnblocked,userWalletController.addToWallet);
+ user_route.post('/withdrawMoney',auth.isLogin,auth.isUnblocked, userWalletController. withdrawMoney);
+ user_route.get('/viewTransaction',auth.isLogin,auth.isUnblocked, userWalletController.viewTransaction);
+// user_route.get('/onlinePayment',auth.isLogin,auth.isUnblocked,onlinePaymentController.onlineorderConfirmation);
 
- user_route.post('/withdrawMoney', userWalletController. withdrawMoney);
+// user_route.post('/placeOrderWithWallet',auth.isLogin,auth.isUnblocked, userWalletController. placeOrderWithWallet);
 
- user_route.get('/viewTransaction', userWalletController.viewTransaction);
-// user_route.get('/onlinePayment',onlinePaymentController.onlineorderConfirmation);
-
-// user_route.post('/placeOrderWithWallet', userWalletController. placeOrderWithWallet);
-
-// user_route.get('/walletOrderConfirmation', userWalletController.walletOrderConfirmation);
-user_route.post('/placeOrderWithWallet', checkOutController. placeOrderWithWallet);
-user_route.get('/walletOrderConfirmation',checkOutController.walletOrderConfirmation);
+// user_route.get('/walletOrderConfirmation',auth.isLogin,auth.isUnblocked, userWalletController.walletOrderConfirmation);
+user_route.post('/placeOrderWithWallet', auth.isLogin,auth.isUnblocked,checkOutController. placeOrderWithWallet);
+user_route.get('/walletOrderConfirmation',auth.isLogin,auth.isUnblocked,checkOutController.walletOrderConfirmation);
 
 
 
 // userCouponController
 
-user_route.get('/Coupon',userCouponController.loadCoupon);
-user_route.post('/applyCoupon', checkOutController.applyCoupon);
+user_route.get('/Coupon',auth.isLogin,auth.isUnblocked,userCouponController.loadCoupon);
+user_route.post('/applyCoupon',auth.isLogin, auth.isUnblocked,checkOutController.applyCoupon);
 
 module.exports = user_route;
 

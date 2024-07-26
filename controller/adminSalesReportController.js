@@ -66,7 +66,8 @@ const loadSalesReport = async (req, res) => {
             startDate: req.query.startDate || '',
             endDate: req.query.endDate || '',
             ITEMS_PER_PAGE,
-            totals
+            totals,
+            adminId:req.session.user_id
         });
     } catch (error) {
         console.error(error.message);

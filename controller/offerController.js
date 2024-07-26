@@ -9,7 +9,7 @@ const loadOfferAddingPage = async (req, res) => {
     try {
        
         const products = await Products.find({ is_listed: true });
-        res.render('addOffer', { products });
+        res.render('addOffer', { products,  adminId:req.session.user_id });
     } catch (error) {
         console.log(error);
     }
@@ -19,7 +19,7 @@ const    loadCategoryOfferAddingPage=async(req,res)=>{
     try{
 
         const categorys = await Category.find({ is_listed: true });
-        res.render('addCategoryOffer', { categorys });
+        res.render('addCategoryOffer', { categorys ,  adminId:req.session.user_id});
 
     }catch(error){
         console.log(error)
@@ -37,7 +37,7 @@ const loadOfferPage = async (req, res) => {
         const totalOffers = await productOffer.countDocuments();
         const totalPages = Math.ceil(totalOffers / limit);
 
-        res.render('productOffer', { products, productOffers, currentPage: page, totalPages });
+        res.render('productOffer', { products, productOffers, currentPage: page, totalPages,  adminId:req.session.user_id });
     } catch (error) {
         console.log(error);
     }
@@ -54,7 +54,7 @@ const loadCategoryOfferPage = async (req, res) => {
         const totalOffers = await categoryOffer.countDocuments();
         const totalPages = Math.ceil(totalOffers / limit);
 
-        res.render('categoryOffer', { category, categoryOffers, currentPage: page, totalPages });
+        res.render('categoryOffer', { category, categoryOffers, currentPage: page, totalPages ,  adminId:req.session.user_id});
     } catch (error) {
         console.log(error);
     }
@@ -86,7 +86,6 @@ const addOffer = async (req, res) => {
 const addCategoryOffer = async (req, res) => {
     try {
       
-
         const {  categoryId, discount, startDate, expiryDate, is_active } = req.body;
 
         const existsOffer = await categoryOffer.findOne({ 

@@ -16,6 +16,19 @@
             <a class="nav-link" href="/OrderHistory"
                 target="__blank">Order History</a>
         </nav>
+
+        <% if (message) { %>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+            <script>
+                const message = "<%= message %>";
+                const messageType = "<%= messageType %>";
+                Swal.fire({
+                    title: messageType === "success" ? "Success" : "Error",
+                    text: message,
+                    icon: messageType
+                });
+            </script>
+        <% } %>
         <hr class="mt-0 mb-4">
         <div class="row">
             <div class="col-xl-4">
