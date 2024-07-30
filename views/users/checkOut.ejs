@@ -250,20 +250,29 @@
 });
 
 
-    function checkout(){
-       
-        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+function checkout() {
+    const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+    const discountAmount = parseFloat(document.getElementById('totalAmount').innerText);
 
-
-        if(selectedPaymentMethod.value==="cod"){
-            placeOrder()
-        }else if(selectedPaymentMethod.value=="online"){
-           
-            razopay()
-        }else if(selectedPaymentMethod.value=="wallet"){
-                wallet()
+    if (selectedPaymentMethod.value === "cod") {
+        if (discountAmount >= 1000) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Warning',
+                text: 'Amount more than 1000 cannot be allowed for Cash on Delivery',
+                showConfirmButton: true
+            });
+            return;
+        } else {
+            placeOrder();
         }
+    } else if (selectedPaymentMethod.value === "online") {
+        razopay();
+    } else if (selectedPaymentMethod.value === "wallet") {
+        wallet();
     }
+}
+
 
     function  wallet(){
         const selectedAddress = document.querySelector('input[name="selectAddress"]:checked');
@@ -413,6 +422,7 @@ function placeOrder() {
         });
         return;
     }
+    
 
     const cartDetails = '<%= JSON.stringify(cartdata) %>';
     const orderData = {

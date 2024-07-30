@@ -23,15 +23,15 @@
                         <option value="custom" <%= filterType === 'custom' ? 'selected' : '' %>>Custom Date</option>
                     </select>
                 </div>
-                <div class="form-group" id="customDateRange"  <%= filterType === 'custom' ? 'block' : 'none' %>;>
-                    
-                
+                <div class="form-group" id="customDateRange" style="display:<%= filterType === 'custom' ? 'block' : 'none' %>;">
                     <label for="startDate">Start Date: </label>
                     <input type="date" name="startDate" id="startDate" class="form-control" value="<%= startDate %>">
                     <label for="endDate">End Date: </label>
                     <input type="date" name="endDate" id="endDate" class="form-control" value="<%= endDate %>">
-                </div>
-                <button type="submit" class="btn "style="background: grey;">Filter</button>
+                </div> 
+               
+                
+                <button type="submit" class="btn btn-secondary">Filter</button>
             </form>
         </div>
 
@@ -46,8 +46,8 @@
                             <th>Customer</th>
                             <th>Order ID</th>
                             <th>Product</th>
-                            <th>paymentMethodh</th>
                             <th>Quantity</th>
+                            <th>Payment Method</th>
                             <th>Price</th>
                             <th>Discount Price</th>
                             <th>Final Price</th>
@@ -62,7 +62,6 @@
                                 <td><%= order.couponCode || 'N/A' %></td>
                                 <td><%= order.userId.name %></td>
                                 <td><%= order.orderId %></td>
-                                <td><%= order.paymentMethod %></td>
                                 <td>
                                     <ul>
                                         <% order.items.forEach(item => { %>
@@ -77,6 +76,7 @@
                                         <% }); %>
                                     </ul>
                                 </td>
+                                <td><%= order.paymentMethod%></td>
                                 <td><%= order.totalAmount %></td>
                                 <td><%= order.discountAmount || '0' %></td>
                                 <td><%= Math.ceil(order.totalAmount - (order.discountAmount || 0)) %></td>
@@ -113,12 +113,23 @@
                         <% } %>
                     </ul>
                 </div>
-                <div class="overall-totals">
-                    <h3>Overall Totals</h3>
-                    <p><strong>Total Orders:</strong> <%= totals.count %></p>
-                    <p><strong>Total Order Amount:</strong> <%= totals.totalAmount.toFixed(2) %></p>
-                    <p><strong>Total Discount Amount:</strong> <%= totals.totalDiscount.toFixed(2) %></p>
-                </div>                        
+                <div class="row mt-3">
+                    <div class="col-md-8">
+                        <div class="overall-totals">
+                            <h3>Overall Totals</h3>
+                            <p><strong>Total Orders:</strong> <%= totals.count %></p>
+                            <p><strong>Total Order Amount:</strong> <%= totals.totalAmount.toFixed(2) %></p>
+                            <p><strong>Total Discount Amount:</strong> <%= totals.totalDiscount.toFixed(2) %></p>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-right">
+                        <div class="downLoadSalesReport">
+                            <h4>Download Sales Report</h4>
+                            <button class="btn btn-danger btn-sm" onclick="downloadPDF()">Download PDF</button>
+                            <button class="btn btn-success btn-sm" onclick="downloadExcel()">Download Excel</button>
+                        </div>
+                    </div>
+                </div>
             <% } else { %>
                 <div class="alert alert-info" role="alert">
                     There are no orders currently available.
@@ -129,7 +140,6 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
 <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
 <script src="/adminAssets/js/vendors/select2.min.js"></script>
@@ -148,6 +158,14 @@
             document.getElementById('customDateRange').style.display = 'none';
         }
     });
+
+    function downloadPDF() {
+        // Add your logic to download the PDF here
+    }
+
+    function downloadExcel() {
+        // Add your logic to download the Excel file here
+    }
 </script>
 </body>
 </html>

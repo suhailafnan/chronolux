@@ -79,7 +79,7 @@ const loadResetPassword=async (req, res) => {
   const updatePassword = async (req, res) => {
     try {
       const { email, password, confirmPassword } = req.body;
-  
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
       // Fetch the user from the database
       const user = await User.findOne({email:email});
       if (!user) {
@@ -94,14 +94,16 @@ const loadResetPassword=async (req, res) => {
         console.log('password is same');
         return res.redirect(`/login`);
       }
-  
       // Validate the new password and confirmation
       if (password !== confirmPassword) {
         req.flash('errormsg', 'New password and confirm password do not match');
         console.log('errormsg', 'New password and confirm password do not match');
         return res.redirect(`/ChangePassword?id=${user_id}`);
       }
-  
+      if (!passwordRegex.test(confirmPassword)) {
+        req.flash('errormsg', 'Password must be at least 6 characters long, contain one uppercase letter, one number, and one special character.');
+        return res.redirect(`/ChangePassword?id=${user_id}`);
+      }
       // Hash the new password
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(confirmPassword, salt);

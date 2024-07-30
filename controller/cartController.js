@@ -25,10 +25,11 @@ const loadCart = async (req, res) => {
 
 const addToCart = async (req, res) => {
     try {
-       
+      
         const userId = req.session.user;
         const productId = req.query.ProductId;
-
+  
+         
         if (!userId) {
             return res.status(400).json({ success: false, message: "User ID not found in session" });
         }
@@ -36,12 +37,12 @@ const addToCart = async (req, res) => {
         if (!productId) {
             return res.status(400).json({ success: false, message: "Product ID not provided" });
         }
-
+     
         const cart = await Cart.findOne({ userId: userId });
 
         if (cart) {
             const existsCartProduct = cart.product.find(p => p.productId.toString() === productId);
-
+        
             if (existsCartProduct) {
                 // return res.status(400).json({ success: false, message: "Product already in cart" });
                 res.json({success : false , message : "already"})
@@ -51,6 +52,7 @@ const addToCart = async (req, res) => {
                 return res.status(200).json({ success: true, message: "Product added to cart successfully" });
             }
         } else {
+          
             const newCart = new Cart({
                 userId: userId,
                 product: [{ productId: productId, quantity: 1 }],

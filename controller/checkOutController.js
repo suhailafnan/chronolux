@@ -69,15 +69,16 @@ const loadcheckOutPage = async (req, res) => {
 
 
 
-  const generateRandomId = async () => {
-    try {
-      const randomId = crypto.randomBytes(8).toString('hex');
-      return randomId;
-    } catch (error) {
-      console.error(error);
-      throw new Error('Failed to generate random ID');
+const generateRandomId = () => {
+    const digits = '0123456789';
+    let randomId = '';
+    for (let i = 0; i < 8; i++) {
+      const randomIndex = crypto.randomInt(0, digits.length);
+      randomId += digits[randomIndex];
     }
+    return randomId;
   };
+ 
 
 
   const applyCoupon = async (req, res) => {

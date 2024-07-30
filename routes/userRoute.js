@@ -79,11 +79,11 @@ user_route.get('/failure' , userController.failureGoogleLogin);
 // homepages 
 user_route.get('/blocked' ,userController.blocked);
 // forgot passwords route 
-user_route.get('/forgotPassword', auth.isLogout,auth.isUnblocked, forgotPasswordController.loadForgotPassword);
-user_route.post('/forgotEmailSubmit', auth.isLogout, auth.isUnblocked,forgotPasswordController.ForgotPassword);
-user_route.post('/resetPasswordOtp', auth.isLogout,auth.isUnblocked, forgotPasswordController.verifyOtp);
-user_route.get('/resetPassword', auth.isLogout,auth.isUnblocked, forgotPasswordController.loadResetPassword);
-user_route.post('/updatePassword', auth.isLogout, auth.isUnblocked,forgotPasswordController.updatePassword);
+user_route.get('/forgotPassword', auth.isLogout, forgotPasswordController.loadForgotPassword);
+user_route.post('/forgotEmailSubmit', auth.isLogout, forgotPasswordController.ForgotPassword);
+user_route.post('/resetPasswordOtp', auth.isLogout, forgotPasswordController.verifyOtp);
+user_route.get('/resetPassword', auth.isLogout, forgotPasswordController.loadResetPassword);
+user_route.post('/updatePassword', auth.isLogout, forgotPasswordController.updatePassword);
 // user profile routes are here
 user_route.get('/userProfile',auth.isLogin,auth.isUnblocked,userProfileController.loadUserProfile);
 user_route.get('/EditProfile',auth.isLogin,auth.isUnblocked,userProfileController.loadEditProfile);

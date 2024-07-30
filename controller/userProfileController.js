@@ -117,7 +117,7 @@ const securePassword = async (password) => {
 const changepassword = async (req, res) => {
   try {
     const { user_id, oldPassword, newPassword, confirmPassword } = req.body;
-
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,}$/;
     // Fetch the user from the database
     const user = await User.findById(user_id);
     if (!user) {
@@ -138,6 +138,11 @@ const changepassword = async (req, res) => {
       return res.redirect(`/ChangePassword?id=${user_id}`);
     }
 
+    if (!passwordRegex.test(confirmPassword)) {
+      req.flash('errormsg', 'Password must be at least 6 characters long, contain one uppercase letter, one number, and one special character.');
+      return res.redirect(`/ChangePassword?id=${user_id}`);
+    }
+
     // Hash the new password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(newPassword, salt);
@@ -145,9 +150,8 @@ const changepassword = async (req, res) => {
     // Update the user's password in the database
     user.password = hashedPassword;
     await user.save();
-
     req.flash('successmsg', 'Password changed successfully');
-    res.redirect( `/userProfile?id=${user_id}`); // Redirect to a success page or the profile page
+    return res.redirect(`/userProfile?id=${user_id}`); // Redirect to a success page or the profile page
   } catch (error) {
     console.log(error.message);
     res.status(500).send("Internal Server Error");
