@@ -1,0 +1,226 @@
+<%- include("../layouts/adminHeader.ejs") %>
+<div class="screen-overlay"></div>
+<%- include("../layouts/adminSideBar.ejs") %>
+
+<main class="main-wrap">
+    <%- include("../layouts/adminNavBar.ejs") %>
+    
+
+
+
+    <section class="content-main">
+        <div >
+        <div class="row">
+            <div class="col-9">
+                <div class="content-header">
+                    <h2 class="content-title">Edit Product</h2>
+                    <div>
+                        <button class="btn btn-light rounded font-sm mr-5 text-body hover-up">Save to draft</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-12">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Basic</h4>
+                    </div>
+                    <div class="card-body">
+
+                        <!-- starting of uploading products ============================================================= -->
+                        <form id="productForm" action="update_product" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="product_id" value="<%= Product._id%>">
+                            <div class="mb-4">
+                                <label for="product_name" class="form-label">Product title</label>
+                                <input type="text" placeholder="Type here" class="form-control" required id="product_name" name="product_name" value="<%= Product.name%>"/>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Full description</label>
+                                <textarea placeholder="Type here" class="form-control" rows="4" required name="Full_description"><%= Product.Description %></textarea>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Regular price</label>
+                                        <div class="row gx-2">
+                                            <input placeholder="$" type="text" class="form-control" name="price" value="<%= Product.price%>" required/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="mb-4">
+                                        <label class="form-label">Stock</label>
+                                        <input placeholder="" type="text" class="form-control" name="stock" value="<%= Product.Stock%>" required/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label">Tax rate</label>
+                                <input type="text" placeholder="%" class="form-control" id="product_name" name="tax_rate" value="<%= Product.tax_rate%>"required />
+                            </div>
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="row gx-2">
+                                        <div class="col-sm-6 mb-3">
+                                            <label class="form-label">Category</label>
+                                            <select class="form-control border" name="category" id="category" required>
+                                                <% categorydata.forEach((category) => { %>
+                                                    <option value="<%= category._id %>" <%= Product.category && Product.category._id.toString() === category._id.toString() ? 'selected' : '' %>><%= category.name %></option>
+                                                <% }) %>
+                                            </select>
+                                        </div>
+                                       
+                                    </div>
+                                </div>
+                            </div>
+                      
+                             <div class="row">
+                                <div class="col-lg-4">
+                                    <h4>Photo 1</h4>
+                                    <div class="input-upload">
+                                        <img id="previewMainImage" src="/productsImages/<%= Product.mainimage %>" alt="" class="img-fluid" />
+                                        <br><br>
+                                        <button type="button" class="btn btn-danger mt-2" onclick="triggerFileInput('mainImageInput')">Change Image</button>
+                                        <input id="mainImageInput" class="form-control" type="file" name="mainimage" style="display:none;" onchange="previewImage(this, 'previewMainImage')" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <h4>Photo 2</h4>
+                                    <div class="input-upload">
+                                        <img id="previewSubImages1" src="/productsImages/<%= Product.sub_images1 %>" alt="" class="img-fluid" />
+                                        <br><br>
+                                        <button type="button" class="btn btn-danger mt-2" onclick="triggerFileInput('subImageInput1')">Change Image</button>
+                                        <input id="subImageInput1" class="form-control" type="file" name="sub_images1" style="display:none;" onchange="previewImage(this, 'previewSubImages1')" />
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <h4>Photo 3</h4>
+                                    <div class="input-upload">
+                                        <img id="previewSubImages2" src="/productsImages/<%= Product.sub_images2 %>" alt="" class="img-fluid" />
+                                        <br><br>
+                                        <button type="button" class="btn btn-danger mt-2" onclick="triggerFileInput('subImageInput2')">Change Image</button>
+                                        <input id="subImageInput2" class="form-control" type="file" name="sub_images2" style="display:none;" onchange="previewImage(this, 'previewSubImages2')" />
+                                    </div>
+                                </div>
+                            
+                            </div> 
+                          
+                            <br>
+                            <br>
+                            <div class="text-center">
+                                <button class="btn btn-md rounded font-sm hover-up" type="submit">UPDATE</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </section>
+</main>
+
+<!-- Cropping Modal -->
+<div id="cropperModal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crop Image</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="img-container">
+                    <img id="cropperImage" src="" alt="Image for cropping">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="cropButton">Crop</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    .btn-red {
+        background-color: #ff4c4c;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+</style>
+
+<script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/adminAssets/js/vendors/select2.min.js"></script>
+<script src="/adminAssets/js/vendors/perfect-scrollbar.js"></script>
+<script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
+<!-- crop script  -->
+<script src="https://unpkg.com/cropperjs"></script>
+<script src="/node_modules/cropperjs/dist/cropper.min.js"></script>
+<!-- Main Script -->
+<script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+<script>
+  
+  var cropper;
+    var currentInput;
+    var currentPreview;
+
+    // Handle file input change for main image
+    function previewImage(input, imgId) {
+        currentInput = input;
+        currentPreview = imgId;
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#cropperImage').attr('src', e.target.result);
+                $('#cropperModal').modal('show');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $('#cropperModal').on('shown.bs.modal', function () {
+        cropper = new Cropper(document.getElementById('cropperImage'), {
+            aspectRatio: 1,
+            viewMode: 3,
+        });
+    }).on('hidden.bs.modal', function () {
+        cropper.destroy();
+        cropper = null;
+    });
+
+    $('#cropButton').click(function() {
+        var canvas = cropper.getCroppedCanvas({
+            width: 400,
+            height: 400,
+        });
+
+        canvas.toBlob(function(blob) {
+            var url = URL.createObjectURL(blob);
+            $('#' + currentPreview).attr('src', url);
+
+            var file = new File([blob], currentInput.files[0].name, { type: blob.type });
+            var dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            currentInput.files = dataTransfer.files;
+
+            $('#cropperModal').modal('hide');
+        });
+    });
+
+  
+</script>
+<script>
+    function triggerFileInput(inputId) {
+        document.getElementById(inputId).click();
+    }
+
+ 
+</script>
+
+</body>
+</html>
