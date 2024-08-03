@@ -84,8 +84,12 @@ admin_route.get('/editCoupon',adminAuth.isLogin, couponController.loadEditCoupon
 admin_route.post('/editCoupon',adminAuth.isLogin, couponController.editCouponPage);
 
 
+
 // sales reportsss
 admin_route.get('/salesReport', adminAuth.isLogin,adminSalesReportController.loadSalesReport);
 admin_route.post('/downloadExcel',adminAuth.isLogin,adminSalesReportController.downloadExcel)
  admin_route.post('/downloadPDF',adminAuth.isLogin,adminSalesReportController.downloadPDF)
+ admin_route.get('/adminBestSalePage', adminAuth.isLogin,adminSalesReportController.adminBestSalePageLoad);
+
+
 module.exports = admin_route;

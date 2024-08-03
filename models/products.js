@@ -35,10 +35,7 @@ const productSchema = new mongoose.Schema({
         ref: 'category',
         required: true
     },
-    // sub_category: {
-    //     type: String,
-    //     required: true
-    // },
+   
     mainimage: {
         type: String,
         required: true
@@ -51,14 +48,15 @@ const productSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // sub_images: {
-    //     type: [String],
-    //     required: true
-    // },
     is_listed: {
         type: Boolean,
         default: true
-    }
+    },
+    orderCount:{
+        type:Number,
+        default:0
+    
+       }
 }, {
     timestamps: true
 });

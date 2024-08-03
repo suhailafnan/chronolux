@@ -39,76 +39,38 @@
                                             <div class="shop__sidebar__categories">
                                                 <ul class="nice-scroll">
                                                     <div class="table-responsive">
-                                                        <table class="table table-hover">
-                                                            <thead style="color: black;">
-                                                                    <tr>
-                                                                        <th style="color: black;">Name</th>
-                                                                        <th style="color: black;">Type</th>
-                                                                      </tr>
-                                                                    </thead>
-                                                                    <tbody id="categoryTableBody">
-                                                                      <% if (categories.length > 0) { %>
-                                                                        <% for (let i = 0; i < categories.length; i++) { %>
-                                                                          <tr>
-                                                                            <td><%= categories[i].name %></td>
-                                                                            <td><%= categories[i].categ %></td>
-                                                                           
-                                                                            <td class="text-end">
-                                                                                
-                                                                                <!-- dropdown //end -->
-                                                                            </td>
-                                                                          </tr>
-                                                                        <% } %>
-                                                                      <% } else { %>
-                                                                        <tr>
-                                                                          <td colspan="3">No categories found</td>
-                                                                        </tr>
-                                                                      <% } %>
-                                                                    </tbody>
-                                                                </table>
+                                                      <table class="table table-hover">
+                                                        <thead style="color: black;">
+                                                          <tr>
+                                                            <th style="color: black;">Name</th>
+                                                          </tr>
+                                                        </thead>
+                                                        <tbody id="categoryTableBody">
+                                                          <% if (categories.length > 0) { %>
+                                                            <% for (let i = 0; i < categories.length; i++) { %>
+                                                              <tr>
+                                                                <td>
+                                                                  <a href="/shop?category=<%= categories[i]._id %>">
+                                                                    <%= categories[i].name %>
+                                                                  </a>
+                                                                </td>
+                                                              </tr>
+                                                            <% } %>
+                                                          <% } else { %>
+                                                            <tr>
+                                                              <td colspan="3">No categories found</td>
+                                                            </tr>
+                                                          <% } %>
+                                                        </tbody>
+                                                      </table>
                                                     </div>
-                                                </ul>
+                                                  </ul>
+                                                  
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- <div class="card">
-                                    <div class="card-heading">
-                                        <a data-toggle="collapse" data-target="#collapseTwo">Branding</a>
-                                    </div>
-                                    <div id="collapseTwo" class="collapse show" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <div class="shop__sidebar__brand">
-                                                <ul>
-                                                    <li><a href="#">Louis Vuitton</a></li>
-                                                    <li><a href="#">Chanel</a></li>
-                                                    <li><a href="#">Hermes</a></li>
-                                                    <li><a href="#">Gucci</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div> -->
-                                <!-- <div class="card">
-                                    <div class="card-heading">
-                                        <a data-toggle="collapse" data-target="#collapseThree">Filter Price</a>
-                                    </div>
-                                    <div id="collapseThree" class="collapse show" data-parent="#accordionExample">
-                                        <div class="card-body">
-                                            <div class="shop__sidebar__price">
-                                                <ul>
-                                                    <li><a href="#"> ₹0.00 -  ₹50.00</a></li>
-                                                    <li><a href="#"> ₹50.00 -  ₹100.00</a></li>
-                                                    <li><a href="#"> ₹100.00 -  ₹150.00</a></li>
-                                                    <li><a href="#"> ₹150.00 -  ₹200.00</a></li>
-                                                    <li><a href="#"> ₹200.00 -  ₹250.00</a></li>
-                                                    <li><a href="#">250.00+</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                       
-                                    </div>
-                                </div> -->
+                            
                             </div>
                         </div>
                     </div>

@@ -255,11 +255,11 @@ function checkout() {
     const discountAmount = parseFloat(document.getElementById('totalAmount').innerText);
 
     if (selectedPaymentMethod.value === "cod") {
-        if (discountAmount >= 1000) {
+        if (discountAmount >= 2500) {
             Swal.fire({
                 icon: 'warning',
                 title: 'Warning',
-                text: 'Amount more than 1000 cannot be allowed for Cash on Delivery',
+                text: 'Amount more than or equal to 2500 cannot be allowed for Cash on Delivery',
                 showConfirmButton: true
             });
             return;

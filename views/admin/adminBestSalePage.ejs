@@ -1,0 +1,86 @@
+<%- include("../layouts/adminHeader.ejs") %>
+<%- include("../layouts/adminSideBar.ejs") %>
+
+<main class="main-wrap">
+    <%- include("../layouts/adminNavBar.ejs") %>
+
+    <section class="content-main">
+        <div class="content-header">
+            <div>
+                <h2 class="content-title card-title">Best Sellers</h2>
+            </div>
+        </div>
+
+        <div class="filters">
+            <h3>Top 3 Best-Selling Products</h3>
+            <div class="row">
+                <% products.forEach(product => { %>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <img src="/productsImages/<%= product.mainimage %>" class="card-img-top" alt="<%= product.name %>">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= product.name %></h5>
+                                <p class="card-text">Price: ₹<%= product.finalPrice %></p>
+                                <p class="card-text">Sold: <%= product.orderCount %></p>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+
+            <h3>Top 3 Best-Selling Categories</h3>
+            <div class="row">
+                <% categories.forEach(category => { %>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= category.name %></h5>
+                                <p class="card-text">Sold: <%= category.orderCount %></p>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+        </div>   
+    </section>
+</main>
+
+<style>
+    .card {
+    margin-bottom: 20px;
+}
+
+.card-img-top {
+    width: 250px;
+    height: 300px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+
+.card-title {
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+.card-text {
+    font-size: 1em;
+}
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
+<script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>
+<script src="/adminAssets/js/vendors/select2.min.js"></script>
+<script src="/adminAssets/js/vendors/perfect-scrollbar.js"></script>
+<script src="/adminAssets/js/vendors/jquery.fullscreen.min.js"></script>
+<script src="/adminAssets/js/vendors/chart.js"></script>
+<script src="/adminAssets/js/main.js?v=1.1" type="text/javascript"></script>
+<script src="/adminAssets/js/custom-chart.js" type="text/javascript"></script>
+<script src="/adminAssets/js/blockUn.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+</body>
+</html>

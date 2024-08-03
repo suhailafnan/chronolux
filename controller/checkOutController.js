@@ -10,36 +10,7 @@ const Order=require("../models/orderModels");
 const crypto = require('crypto');
 const Wallet= require("../models/walletModel");
 const Coupon =require("../models/couponModel")
-// const loadcheckOutPage = async (req, res) => {
-//     try {
-//       const user= req.session.user;
-//       const addressdata = await Address.findOne({ userId: user });
-  
-//       const cartdata = await Cart.findOne({ userId: user }).populate(
-//         "product.productId"
-//       );
-    
-//       let totalamount = 0;
-//       cartdata.product.forEach((item) => {
-//         const { productId, quantity } = item;
-//         if (productId && productId.finalPrice) {
-//             const subtotal = productId.finalPrice * quantity;
-//             totalamount += subtotal;
-          
-//         }
-//       });
-  
-//       res.render("checkOut", {
-//         addressdata,
-//         totalamount,
-//         user, 
-//         cartdata
-        
-//       });
-//     } catch (error) {
-//       console.log(error.message);
-//   }
-//   };
+
 const loadcheckOutPage = async (req, res) => {
     try {
         const user = req.session.user;
@@ -127,7 +98,6 @@ const addToPlaceOrder = async (req, res) => {
     try {
         const user = req.session.user;
         const orderData = req.body;
-
         const paymentMethod = orderData.paymentMethod;
         const addressId = orderData.addressId;
         const userId = req.session.user._id;
@@ -225,27 +195,37 @@ const addToPlaceOrder = async (req, res) => {
         const items = [];
         for (const item of cart.product) {
             const oneProduct = await Products.findById(item.productId);
+        
             if (!oneProduct) {
                 continue;
             }
-
+        
             const itemDetails = { 
                 productId: item.productId,
                 quantity: item.quantity,
                 categoryId: oneProduct.category,
                 price: oneProduct.finalPrice,
             };
-
+        
             items.push(itemDetails);
-
+        
             oneProduct.Stock -= item.quantity;
+            oneProduct.orderCount += item.quantity;
             await oneProduct.save();
+        
+         
+            const category = await Category.findById(oneProduct.category);
+            if (category) {
+                category.orderCount += item.quantity;
+                await category.save();
+            }
         }
-
+        
+     
         await Cart.findOneAndUpdate({ userId }, { product: [] });
 
-        const randomId = await generateRandomId();
 
+        const randomId = await generateRandomId();
         const newOrder = new Order({
             userId,
             items,
@@ -276,56 +256,6 @@ const addToPlaceOrder = async (req, res) => {
     }
 };
 
-
-
-
-
-// const giveCoupon = async (userId, totalAmount, orderId) => {
-//     try {
-//         const user = await User.findById(userId);
-//         const order = await Order.findById(orderId);
-//         const coupons = await Coupon.find({ is_active: true });
-
-//         let addedCoupons = [];
-//         for (const coupon of coupons) {
-//             if (totalAmount >= coupon.minimum) {
-//                 const couponExists = user.coupons.some(item => item.equals(coupon._id));
-
-//                 if (!couponExists) {
-//                     await User.findByIdAndUpdate(
-//                         { _id: userId },
-//                         { $push: { coupons: coupon._id } }
-//                     );
-//                     addedCoupons.push(coupon);
-//                 }
-//             }
-//         }
-
-//         return addedCoupons;
-//     } catch (error) {
-//         console.log(error);
-//         throw error; 
-//     }
-// };
-
-// const orderConfirmation = async (req, res) => {
-//     try {
-//         const user = req.session.user;
-//         const userId = req.session.user._id;
-//         const orderId = req.query.orderId;
-//         const order = await Order.findById(orderId).populate('items.productId');
-
-//         if (!order) {
-//             return res.status(404).render('errorPage', { message: 'Order not found' });
-//         }
-
-//         const addedCoupons = await giveCoupon(userId, order.totalAmount, orderId);
-//         res.render('orderConfirmation', { user, order, addedCoupons });
-//     } catch (error) {
-//         console.log(error.message);
-//         res.status(500).render('errorPage', { message: 'Internal Server Error' });
-//     }
-// };
 
 // ########this will  check that is that coupon given or not but the hting in the up will check like that 
 const giveCoupon = async (userId, totalAmount, orderId) => {
@@ -468,16 +398,39 @@ const placeOrderWithWallet = async (req, res) => {
       await wallet.save();
   
       // ###################################Process cart items###################################
-      const items = [];
-      for (const item of cart.product) {
+   
+    const items = [];
+    for (const item of cart.product) {
         const product = await Products.findById(item.productId);
-        if (!product) continue;
-  
-        items.push({ productId: item.productId, quantity: item.quantity, categoryId: product.category, price: product.finalPrice });
-  
+    
+        if (!product) {
+            continue;
+
+           
+        }
+    
+        const itemDetails = { 
+            productId: item.productId,
+            quantity: item.quantity,
+            categoryId: product.category,
+            price: product.finalPrice,
+        };
+    
+        items.push(itemDetails);
+    
         product.Stock -= item.quantity;
+        product.orderCount += item.quantity;
         await product.save();
-      }
+    
+     
+        const category = await Category.findById(product.category);
+        if (category) {
+            category.orderCount += item.quantity;
+            await category.save();
+        }
+    }
+    
+
   
       // ###################################Clear the cart in herre###################################
       await Cart.findOneAndUpdate({ userId }, { product: [] });
@@ -513,33 +466,7 @@ const placeOrderWithWallet = async (req, res) => {
   };
   
   
-//   const giveCoupon = async (userId, totalAmount, orderId) => {
-//     try {
-//       console.log("inside the give coupon function")
-//         const user = await User.findById(userId);
-//         const coupons = await Coupon.find({ is_active: true });
-//           if(coupons){
-//             cosnole.log(coupons)
-//           }else{
-//             console.log("coupons not found")
-//           }
-//         let addedCoupons = [];
-//         for (const coupon of coupons) {
-//             if (totalAmount >= coupon.minimum) {
-//                 await User.findByIdAndUpdate(
-//                     { _id: userId },
-//                     { $push: { coupons: coupon._id } }
-//                 );
-//                 addedCoupons.push(coupon);
-//             }
-//         }
-  
-//         return addedCoupons;
-//     } catch (error) {
-//         console.log(error);
-//         throw error;
-//     }
-//   };
+
   
 
 

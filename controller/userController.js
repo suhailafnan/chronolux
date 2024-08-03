@@ -15,7 +15,8 @@ const Wallet= require("../models/walletModel");
 // for loading the website this method is called
 const loadWebpage = async (req, res) => {
   try {
-    res.render('index', { user: req.session.user });
+    const products = await Products.find().limit(4);
+    res.render('index', { user: req.session.user,products });
   } catch (error) {
     console.log(error.messsage);
   }
@@ -37,9 +38,9 @@ const generateRandomId = () => {
 const loadHomepage = async (req, res) => {
   try {
   //  homeeeee
-
+  const products = await Products.find().limit(4);
   // const user = req.session.user
-    res.render('index', { user :req.session.user});
+    res.render('index', { user :req.session.user,products});
   } catch (error) {
     console.log(error.message);
   }
@@ -279,6 +280,7 @@ const failureGoogleLogin = (req, res) => {
   res.send("Error");
 };
 
+
 const loadShop = async (req, res) => {
   try {
     const user = req.session.user;
@@ -287,8 +289,15 @@ const loadShop = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 9;
     const skip = (page - 1) * limit;
+    
+    const selectedCategory = req.query.category; // Get the selected category from the query parameters
 
-    const products = await Products.find().skip(skip).limit(limit);
+    let query = {};
+    if (selectedCategory) {
+      query.category = selectedCategory;
+    }
+
+    const products = await Products.find(query).skip(skip).limit(limit);
     const activeProductOffers = await productOffer.find({ is_active: true });
     const activeCategoryOffers = await categoryOffer.find({ is_active: true });
 
@@ -328,15 +337,16 @@ const loadShop = async (req, res) => {
       await product.save();
     }
 
-    const totalProducts = await Products.countDocuments();
+    const totalProducts = await Products.countDocuments(query);
     const totalPages = Math.ceil(totalProducts / limit);
 
-    res.render("shop", { categories, products, user, currentPage: page, totalPages });
+    res.render("shop", { categories, products, user, currentPage: page, totalPages, selectedCategory });
   } catch (error) {
     console.log(error.message);
     res.status(500).send('Internal server error');
   }
 };
+
 
 
 
@@ -350,18 +360,30 @@ const userLogout=async (req,res)=>{
   }
 }
 
-const loadShopDetials= async (req, res) => {
+const  loadShopDetials = async (req, res) => {
   try {
-    const id=req.query.ProductId;
-   
-    const categories = await Category.find();
-     const products = await Products. findById(id);
+    const id = req.query.ProductId;
+    
+    const product = await Products.findById(id).populate('category');
 
-    res.render("product_details", { catogeries: categories ,products, user :req.session.user});
+    const relatedProducts = await Products.find({
+      category: product.category._id,
+      _id: { $ne: product._id }
+    }).limit(4);
+
+    const categories = await Category.find();
+
+    res.render("product_details", { 
+      categories: categories,
+      products: product,
+      relatedProducts: relatedProducts,
+      user: req.session.user 
+    });
   } catch (error) {
     console.log(error.message);
   }
 };
+
 
 
 const getProducts = async (req, res) => {

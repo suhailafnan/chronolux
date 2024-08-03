@@ -2,7 +2,8 @@
 const Order = require('../models/orderModels');
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
-
+const Category = require("../models/category");
+const Products =require("../models/products"); 
 const ITEMS_PER_PAGE = 6;
 
 const loadSalesReport = async (req, res) => {
@@ -262,9 +263,21 @@ const downloadPDF = async (req, res) => {
     }
 };
 
+const adminBestSalePageLoad = async (req, res) => {
+    try {
+        const products = await Products.find().sort({ orderCount: -1 }).limit(3);
+        const categories = await Category.find().sort({ orderCount: -1 }).limit(3);
+        res.render("adminBestSalePage", { adminId: req.session.user_id, products, categories });
+    } catch (error) {
+        console.error(error.message);
+        res.render('errorPage');
+    }
+};
+
 
 module.exports = {
     loadSalesReport,
     downloadExcel,
-     downloadPDF
+     downloadPDF,
+     adminBestSalePageLoad
 };
