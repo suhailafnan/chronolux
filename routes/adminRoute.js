@@ -34,8 +34,8 @@ admin_route.use(flash());
 const productMulter=require("../middleware/multerController")
 
 
-admin_route.get("/",adminController.adminLoadLogin);
-admin_route.post("/", adminController.verifyAdminLogin);
+admin_route.get("/",adminAuth.isLogout,adminController.adminLoadLogin);
+admin_route.post("/", adminAuth.isLogout,adminController.verifyAdminLogin);
 admin_route.get("/home",adminAuth.isLogin,adminController.loadAdminHome);
 admin_route.get('/logoutAdminProfile', adminAuth.isLogin, adminController.adminLogout);
 admin_route.get("/page_users",adminAuth.isLogin,adminController.loadUsers);
@@ -87,9 +87,9 @@ admin_route.post('/editCoupon',adminAuth.isLogin, couponController.editCouponPag
 
 // sales reportsss
 admin_route.get('/salesReport', adminAuth.isLogin,adminSalesReportController.loadSalesReport);
-admin_route.post('/downloadExcel',adminAuth.isLogin,adminSalesReportController.downloadExcel)
- admin_route.post('/downloadPDF',adminAuth.isLogin,adminSalesReportController.downloadPDF)
- admin_route.get('/adminBestSalePage', adminAuth.isLogin,adminSalesReportController.adminBestSalePageLoad);
+admin_route.get('/downloadExcel',adminAuth.isLogin,adminSalesReportController.downloadExcel)
+ admin_route.get('/downloadPDF',adminAuth.isLogin,adminSalesReportController.downloadPDF)
+admin_route.get('/adminBestSalePage', adminAuth.isLogin,adminSalesReportController.adminBestSalePageLoad);
 
 
 module.exports = admin_route;

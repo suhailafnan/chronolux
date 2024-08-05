@@ -153,68 +153,64 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
+
 <script>
-    document.getElementById('filterType').addEventListener('change', function() {
-        if (this.value === 'custom') {
-            document.getElementById('customDateRange').style.display = 'block';
-        } else {
-            document.getElementById('customDateRange').style.display = 'none';
-        }
+
+document.getElementById('filterType').addEventListener('change', function() {
+    if (this.value === 'custom') {
+        document.getElementById('customDateRange').style.display = 'block';
+    } else {
+        document.getElementById('customDateRange').style.display = 'none';
+    }
+});
+
+document.getElementById('downloadExcel').addEventListener('click', function() {
+    const filterType = document.getElementById('filterType').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
+
+    fetch(`/admin/downloadExcel?filterType=${filterType}&startDate=${startDate}&endDate=${endDate}`, {
+        method: 'GET'
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'RG-SalesReport.xlsx';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
     });
+});
 
+document.getElementById('downloadPDF').addEventListener('click', function() {
+    const filterType = document.getElementById('filterType').value;
+    const startDate = document.getElementById('startDate').value;
+    const endDate = document.getElementById('endDate').value;
 
-
-    document.getElementById('downloadExcel').addEventListener('click', function() {
-        let forEachedOrders = <%- JSON.stringify(forEachedOrders) %>;
-
-        fetch('/admin/downloadExcel', {
-            method: 'POST',
-            headers: {
-                "Content-Type": 'application/json'
-            },
-            body: JSON.stringify({ forEachedOrders: forEachedOrders })
-        })
-        .then(response => response.blob())
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'RG-SalesReport.xlsx';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
+    fetch(`/admin/downloadPDF?filterType=${filterType}&startDate=${startDate}&endDate=${endDate}`, {
+        method: 'GET'
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        a.download = 'orders.pdf';
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+    })
+    .catch((error) => {
+        console.error('Error:', error);
     });
-
-    document.getElementById('downloadPDF').addEventListener('click', function() {
-        let forEachedOrders = <%- JSON.stringify(forEachedOrders) %>;
-
-        fetch('/admin/downloadPDF', {
-            method: 'POST',
-            headers: {
-                "Content-Type": 'application/json'
-            },
-            body: JSON.stringify({ forEachedOrders: forEachedOrders })
-        })
-        .then(response => response.blob())
-        .then(blob => {
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = 'orders.pdf';
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-    });
+});
 </script>
 </body>
 </html>

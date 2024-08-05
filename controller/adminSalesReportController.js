@@ -2,9 +2,11 @@
 const Order = require('../models/orderModels');
 const ExcelJS = require('exceljs');
 const PDFDocument = require('pdfkit');
+const fs = require('fs');
 const Category = require("../models/category");
 const Products =require("../models/products"); 
 const ITEMS_PER_PAGE = 6;
+
 
 const loadSalesReport = async (req, res) => {
     try {
@@ -84,19 +86,39 @@ const loadSalesReport = async (req, res) => {
 };
 
 
+
 const downloadExcel = async (req, res) => {
     try {
-     
-        const orders = await Order.find({})
+        const { filterType, startDate, endDate } = req.query;
+
+        let filter = {};
+        const today = new Date();
+        if (filterType === 'daily') {
+            const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+            const endOfDay = new Date(today.setHours(23, 59, 59, 999));
+            filter = { createdAt: { $gte: startOfDay, $lt: endOfDay } };
+        } else if (filterType === 'weekly') {
+            const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+            startOfWeek.setHours(0, 0, 0, 0);
+            filter = { createdAt: { $gte: startOfWeek, $lt: new Date() } };
+        } else if (filterType === 'yearly') {
+            const startOfYear = new Date(today.getFullYear(), 0, 1);
+            filter = { createdAt: { $gte: startOfYear, $lt: new Date() } };
+        } else if (filterType === 'custom' && startDate && endDate) {
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+            end.setDate(end.getDate() + 1);
+            filter = { createdAt: { $gte: start, $lt: end } };
+        }
+
+        const orders = await Order.find(filter)
             .populate('userId', 'name')
             .populate('items.productId', 'name price')
             .exec();
 
-   
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Sales Report');
 
-       
         worksheet.columns = [
             { header: 'SL.NO', key: 'slNo', width: 10 },
             { header: 'Order Date', key: 'orderDate', width: 20 },
@@ -113,28 +135,30 @@ const downloadExcel = async (req, res) => {
         let sumOffer = 0;
         let sumFinalPrice = 0;
 
-        
         orders.forEach((order, index) => {
             order.items.forEach((item, itemIndex) => {
                 const rowIndex = index * order.items.length + itemIndex + 1;
+                const offerPrice = item.price - order.discountAmount / order.items.length;
+                const finalPrice = order.totalAmount / order.items.length;
+
                 worksheet.addRow({
                     slNo: rowIndex,
-                    orderDate: order.currendDate.toISOString().split('T')[0],
+                    orderDate: order.createdAt.toISOString().split('T')[0],
                     userName: order.userId.name,
                     orderId: order.orderId,
                     productName: item.productId.name,
                     productPrice: item.price,
-                    offerPrice: item.price - order.discountAmount / order.items.length,
-                    finalPrice: order.totalAmount / order.items.length,
+                    offerPrice: offerPrice,
+                    finalPrice: finalPrice,
                     status: order.orderStatus,
                 });
+
                 sumPrice += item.price;
-                sumOffer += (item.price - (order.discountAmount / order.items.length));
-                sumFinalPrice += (order.totalAmount / order.items.length);
+                sumOffer += offerPrice;
+                sumFinalPrice += finalPrice;
             });
         });
 
-      
         worksheet.addRow({});
         worksheet.addRow({
             slNo: '',
@@ -148,26 +172,60 @@ const downloadExcel = async (req, res) => {
             status: ''
         });
 
-    
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         res.setHeader('Content-Disposition', 'attachment; filename=sales_report.xlsx');
 
-  
         await workbook.xlsx.write(res);
         res.status(200).end();
-
     } catch (error) {
         console.error('Error generating Excel file:', error);
         res.status(500).send('Error generating Excel file');
     }
 };
- 
+
+
 
 
 const downloadPDF = async (req, res) => {
     try {
-    
-        const orders = await Order.find({})
+        const { filterType, startDate, endDate } = req.query;
+
+        let filter = {};
+        const today = new Date();
+
+        if (filterType === 'daily') {
+            filter = {
+                createdAt: {
+                    $gte: new Date(today.setHours(0, 0, 0, 0)),
+                    $lt: new Date(today.setHours(24, 0, 0, 0))
+                }
+            };
+        } else if (filterType === 'weekly') {
+            const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+            filter = {
+                createdAt: {
+                    $gte: new Date(startOfWeek.setHours(0, 0, 0, 0)),
+                    $lt: new Date(today.setHours(24, 0, 0, 0))
+                }
+            };
+        } else if (filterType === 'yearly') {
+            const startOfYear = new Date(today.getFullYear(), 0, 1);
+            filter = {
+                createdAt: {
+                    $gte: new Date(startOfYear.setHours(0, 0, 0, 0)),
+                    $lt: new Date(today.setHours(24, 0, 0, 0))
+                }
+            };
+        } else if (filterType === 'custom' && startDate && endDate) {
+            filter = {
+                createdAt: {
+                    $gte: new Date(new Date(startDate).setHours(0, 0, 0, 0)),
+                    $lt: new Date(new Date(endDate).setHours(24, 0, 0, 0))
+                }
+            };
+        }
+
+        const orders = await Order.find(filter)
             .populate('userId', 'name')
             .populate('items.productId', 'name price')
             .exec();
@@ -196,7 +254,7 @@ const downloadPDF = async (req, res) => {
         });
 
         currentX = tableStartX;
-        doc.fillColor('black'); 
+        doc.fillColor('black');
         tableHeader.forEach((header, index) => {
             doc.fontSize(10).font('Helvetica-Bold').text(header, currentX, startY + 5, { width: cellWidths[index], align: 'left' });
             currentX += cellWidths[index];
@@ -211,36 +269,47 @@ const downloadPDF = async (req, res) => {
             order.items.forEach((item, itemIndex) => {
                 currentX = tableStartX;
 
+                const rowIndex = orderIndex * order.items.length + itemIndex + 1;
+                const offerPrice = item.price - order.discountAmount / order.items.length;
+                const finalPrice = order.totalAmount / order.items.length;
+
                 const rowData = [
-                    orderIndex * order.items.length + itemIndex + 1,
-                    order.currendDate.toISOString().split('T')[0],
+                    rowIndex,
+                    order.createdAt.toISOString().split('T')[0],
                     order.userId.name,
                     order.orderId,
                     item.productId.name,
                     item.price.toFixed(2),
-                    (item.price - (order.discountAmount / order.items.length)).toFixed(2),
-                    (order.totalAmount / order.items.length).toFixed(2),
+                    offerPrice.toFixed(2),
+                    finalPrice.toFixed(2),
                     order.orderStatus
                 ];
-                sumPrice += item.price;
-                sumOffer += item.price - (order.discountAmount / order.items.length);
-                sumFinalPrice += order.totalAmount / order.items.length;
 
-                rowData.forEach((data, i) => {
-                    doc.fontSize(8).font('Helvetica').text(data.toString(), currentX, currentY, { width: cellWidths[i], align: 'left' });
-                    currentX += cellWidths[i];
+                rowData.forEach((data, colIndex) => {
+                    doc.fontSize(8).font('Helvetica').text(data.toString(), currentX, currentY, { width: cellWidths[colIndex], align: 'left' });
+                    currentX += cellWidths[colIndex];
                 });
 
                 currentY += rowHeight;
+                sumPrice += item.price;
+                sumOffer += offerPrice;
+                sumFinalPrice += finalPrice;
 
                 if (currentY > doc.page.height - doc.page.margins.bottom) {
                     doc.addPage();
                     currentY = startY;
 
                     currentX = tableStartX;
+                    doc.fillColor(headerBackgroundColor);
+                    tableHeader.forEach((header, index) => {
+                        doc.rect(currentX, startY, cellWidths[index], rowHeight).fill();
+                        currentX += cellWidths[index];
+                    });
+
+                    currentX = tableStartX;
                     doc.fillColor('black');
                     tableHeader.forEach((header, index) => {
-                        doc.fontSize(10).font('Helvetica-Bold').text(header, currentX, currentY + 5, { width: cellWidths[index], align: 'left' });
+                        doc.fontSize(10).font('Helvetica-Bold').text(header, currentX, startY + 5, { width: cellWidths[index], align: 'left' });
                         currentX += cellWidths[index];
                     });
 
@@ -251,9 +320,9 @@ const downloadPDF = async (req, res) => {
 
         const totalRowData = ['', '', '', '', 'Total', sumPrice.toFixed(2), sumOffer.toFixed(2), sumFinalPrice.toFixed(2), ''];
         currentX = tableStartX;
-        totalRowData.forEach((data, i) => {
-            doc.fontSize(8).font('Helvetica-Bold').text(data.toString(), currentX, currentY, { width: cellWidths[i], align: 'left' });
-            currentX += cellWidths[i];
+        totalRowData.forEach((data, colIndex) => {
+            doc.fontSize(8).font('Helvetica-Bold').text(data.toString(), currentX, currentY, { width: cellWidths[colIndex], align: 'left' });
+            currentX += cellWidths[colIndex];
         });
 
         doc.end();
@@ -262,6 +331,8 @@ const downloadPDF = async (req, res) => {
         res.status(500).send('Error generating PDF file');
     }
 };
+
+
 
 const adminBestSalePageLoad = async (req, res) => {
     try {
