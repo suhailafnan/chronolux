@@ -17,14 +17,17 @@ const loadorderDetails = async (req, res) => {
             .limit(limit)
             .populate('userId')
             .populate('items.productId')
-            .populate('items.categoryId');
+            .populate('items.categoryId')
+            .sort({ createdAt: -1 })  
+            .exec();
         const totalPages = Math.ceil(totalOrders / limit);
 
         res.render('orderPage', {
             orders: orders,
             currentPage: page,
             totalPages: totalPages,
-            adminId:req.session.user_id
+            adminId:req.session.user_id,
+           
         });
     } catch (error) {
         console.log(error.message);

@@ -1,21 +1,78 @@
 
-
+const Wallet = require("../models/walletModel");
 const Order = require('../models/orderModels');
 const User = require('../models/UserModel');
 const PDFDocument = require('pdfkit');
+const Products =require("../models/products"); 
 
 const cancelOrder = async (req, res) => {
     try {
-
+        const user = req.session.user._id;
         const { orderId } = req.body;
+
+        // Find and update the order status
         const order = await Order.findOneAndUpdate(
             { orderId: orderId },
             { $set: { orderStatus: "Cancelled" } },
             { new: true }
         );
+
         if (order) {
             console.log('Order status updated');
-            res.status(200).send({ success: true, message: 'Order status updated successfully', order });
+
+            let message = 'Order Canceled successfully';
+            if (order.paymentMethod === "online") {
+                let wallet = await Wallet.findOne({ UserId: user });
+
+                if (wallet) {
+                    wallet.balance += order.totalAmount;
+                    wallet.history.push({
+                        amount: order.totalAmount,
+                        transactionType: "cancel Order Amount",
+                        previousBalance: wallet.balance - order.totalAmount,
+                    });
+                } else {
+                    wallet = new Wallet({
+                        UserId: user,
+                        balance: order.totalAmount,
+                        history: [{
+                            amount: order.totalAmount,
+                            transactionType: "cancel Order Amount",
+                            previousBalance: 0,
+                        }],
+                    });
+                }
+
+                await wallet.save();
+                console.log('Wallet updated');
+                message = 'Order Canceled successfully and amount added to wallet';
+            }else if(order.paymentMethod === "wallet"){
+                    let wallet = await Wallet.findOne({ UserId: user });
+    
+                    if (wallet) {
+                        wallet.balance += order.totalAmount;
+                        wallet.history.push({
+                            amount: order.totalAmount,
+                            transactionType: "cancel Order Amount",
+                            previousBalance: wallet.balance - order.totalAmount,
+                        });
+                    } else {
+                        wallet = new Wallet({
+                            UserId: user,
+                            balance: order.totalAmount,
+                            history: [{
+                                amount: order.totalAmount,
+                                transactionType: "cancel Order Amount",
+                                previousBalance: 0,
+                            }],
+                        });
+                    }
+                    await wallet.save();
+                    console.log('Wallet updated');
+                    message = 'Order Canceled successfully and amount added to wallet';
+                }
+            
+            res.status(200).send({ success: true, message, order });
         } else {
             res.status(404).send({ success: false, message: 'Order not found' });
         }
@@ -25,40 +82,68 @@ const cancelOrder = async (req, res) => {
     }
 };
 
-const   returnOrderLoad= async (req, res) => {
-    try {
-        const orderId = req.query.orderId;
-        const order=await Order.findOne({orderId:orderId})
-        const user=req.session.user
-       res.render("returnOrder",{order,user})
-    } catch (error) {
-        console.log(error.message);
-    }
-};
-
-
-const   returnOrder= async (req, res) => {
+const returnOrder = async (req, res) => {
     try {
         const { orderId, returnReason } = req.body;
-        console.log(returnReason)
-        console.log(orderId) 
+        console.log(returnReason);
+        console.log(orderId);
+
+        // Find the order by orderId
         const order = await Order.findOneAndUpdate(
             { orderId: orderId },
             { $set: { orderStatus: "Returned", returnReason: returnReason } },
             { new: true }
         );
+
         if (order) {
             console.log('Order status updated');
-            res.status(200).send({ success: true, message: 'Order status updated successfully', order });
+            
+            const user = order.userId;
+            let wallet = await Wallet.findOne({ UserId: user });
+
+            let amountToCredit = order.totalAmount;
+            if (order.deliveryCharge) {
+                amountToCredit -= order.deliveryCharge;
+            }
+
+            if (wallet) {
+                wallet.balance += amountToCredit;
+                wallet.history.push({
+                    amount: amountToCredit,
+                    transactionType: "Return Order Amount",
+                    previousBalance: wallet.balance - amountToCredit,
+                });
+            } else {
+                wallet = new Wallet({
+                    UserId: user,
+                    balance: amountToCredit,
+                    history: [{
+                        amount: amountToCredit,
+                        transactionType: "Return Order Amount",
+                        previousBalance: 0,
+                    }],
+                });
+            }
+            await wallet.save();
+
+            // Update product stock if the reason is not "Damaged product"
+            if (returnReason !== "Damaged product") {
+                for (const item of order.items) {
+                    await Products.findByIdAndUpdate(item.productId, {
+                        $inc: { Stock: item.quantity }
+                    });
+                }
+            }
+
+            res.status(200).send({ success: true, message: 'Order returned successfully', order });
         } else {
             res.status(404).send({ success: false, message: 'Order not found' });
         }
     } catch (error) {
         console.log(error.message);
+        res.status(500).send({ success: false, message: 'Internal Server Error' });
     }
 };
-
-
 const downloadInvoice = async (req, res) => {
     try {
         const { orderId } = req.body; // Retrieve orderId from request body
@@ -82,7 +167,7 @@ const downloadInvoice = async (req, res) => {
         // Title and Header
         doc.fontSize(30).font('Helvetica-Bold').text('TAX INVOICE', { align: 'center' });
         doc.fontSize(20).font('Helvetica').text('CHRONOLUX', { align: 'center' });
-        doc.fontSize(12).font('Helvetica').text('Rush Games Pvt Ltd, KINFRA Techno Industrial Park,', { align: 'center' });
+        doc.fontSize(12).font('Helvetica').text('Chronoluxo Pvt Ltd, KINFRA Techno Industrial Park,', { align: 'center' });
         doc.fontSize(12).font('Helvetica').text('National Highway 66, near Calicut University', { align: 'center' });
         doc.fontSize(12).font('Helvetica').text('Kakkanchery Chelembra PO, Dt, Thenhipalam, Kerala 673634', { align: 'center' });
 
@@ -175,7 +260,6 @@ const downloadInvoice = async (req, res) => {
 
 module.exports={
     cancelOrder,
-    returnOrderLoad,
     returnOrder,
     downloadInvoice
 }

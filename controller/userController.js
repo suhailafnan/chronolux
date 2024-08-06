@@ -405,15 +405,7 @@ const getProducts = async (req, res) => {
           sortCriteria = {};
           break;
   }
-  // if(sortOption=="priceLowHigh"){
-  //   sortCriteria = { price: 1 };
-  // }else if(sortOption=="priceHighLow"){
-  //   sortCriteria = { price: -1 }
-  // }else if(sortOption=="nameAZ"){
-  //   sortCriteria={name:1}
-  // }else{
-  //   sortCriteria={}
-  // }
+
   try {
     const page = parseInt(req.query.page) || 1; 
     const limit = parseInt(req.query.limit) || 9; 

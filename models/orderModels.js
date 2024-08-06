@@ -94,6 +94,10 @@ const orderSchema = new mongoose.Schema({
     returnReason: {
         type: String
     },
+    deliveryCharge:{
+        type:Number,
+        default:0
+    },
     currendDate: {
         type: Date,
         default: () => Date.now(),

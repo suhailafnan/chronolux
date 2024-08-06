@@ -111,7 +111,6 @@ user_route.get('/orderConfirmation',auth.isLogin,auth.isUnblocked,checkOutContro
 
 // order constroller
 user_route.post('/cancelOrder', auth.isLogin,auth.isUnblocked,userOrderController.cancelOrder);
-user_route.get('/returnOrder',auth.isLogin, auth.isUnblocked,userOrderController. returnOrderLoad);
 user_route.post('/submitReturnReason', auth.isLogin,auth.isUnblocked,userOrderController. returnOrder);
 user_route.post('/downloadInvoice', auth.isLogin,userOrderController. downloadInvoice);
 // wishlist adddinggg

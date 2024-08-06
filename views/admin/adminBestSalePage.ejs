@@ -12,10 +12,10 @@
         </div>
 
         <div class="filters">
-            <h3>Top 3 Best-Selling Products</h3>
+            <h3>Top 10 Best-Selling Products</h3>
             <div class="row">
                 <% products.forEach(product => { %>
-                    <div class="col-md-4">
+                    <div class="col-md-2"> 
                         <div class="card">
                             <img src="/productsImages/<%= product.mainimage %>" class="card-img-top" alt="<%= product.name %>">
                             <div class="card-body">
@@ -28,10 +28,10 @@
                 <% }) %>
             </div>
 
-            <h3>Top 3 Best-Selling Categories</h3>
+            <h3>Top 10 Best-Selling Categories</h3>
             <div class="row">
                 <% categories.forEach(category => { %>
-                    <div class="col-md-4">
+                    <div class="col-md-2"> 
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title"><%= category.name %></h5>
@@ -47,28 +47,27 @@
 
 <style>
     .card {
-    margin-bottom: 20px;
-}
+        margin-bottom: 20px;
+    }
 
-.card-img-top {
-    width: 250px;
-    height: 300px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-}
+    .card-img-top {
+        width: 150px;  
+        height: 150px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
 
+    .card-title {
+        font-size: 1em;
+        font-weight: bold;
+    }
 
-.card-title {
-    font-size: 1.2em;
-    font-weight: bold;
-}
-
-.card-text {
-    font-size: 1em;
-}
-
+    .card-text {
+        font-size: 0.9em; 
+    }
 </style>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="/adminAssets/js/vendors/jquery-3.6.0.min.js"></script>
 <script src="/adminAssets/js/vendors/bootstrap.bundle.min.js"></script>

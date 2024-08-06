@@ -52,15 +52,55 @@ const generateRandomId = () => {
  
 
 
-  const applyCoupon = async (req, res) => {
-    try {
+//   const applyCoupon = async (req, res) => {
+//     try {
        
-        const couponCode=req.query.couponCode
-        console.log('Coupon code received:', couponCode); 
+//         const couponCode=req.query.couponCode
+//         console.log('Coupon code received:', couponCode); 
         
+//         const userId = req.session.user._id;
+//         const coupon = await Coupon.findOne({ couponCode: couponCode, is_active: true });
+//         console.log('Coupon found:', coupon); 
+
+//         if (!coupon) {
+//             return res.status(400).json({ success: false, message: 'Invalid or expired coupon code.' });
+//         }
+
+//         // Fetch the user's cart details
+//         const cart = await Cart.findOne({ userId }).populate('product.productId');
+
+//         let totalAmount = 0;
+//         cart.product.forEach((item) => {
+//             const { productId, quantity } = item;
+//             if (productId && productId.finalPrice) {
+//                 const subtotal = productId.finalPrice * quantity;
+//                 totalAmount += subtotal;
+//             }
+//         });
+
+//         // Calculate the discount
+//         const discountAmount = (totalAmount * coupon.discount) / 100;
+//         const newTotalAmount = totalAmount - discountAmount;
+
+//         res.json({
+//             success: true,
+//             discountAmount,
+//             discountPercentage: coupon.discount,
+//             newTotalAmount
+//         });
+//     } catch (error) {
+//         console.error(error.message);
+//         res.status(500).json({ success: false, message: 'Internal Server Error' });
+//     }
+// };
+
+
+// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+const applyCoupon = async (req, res) => {
+    try {
+        const couponCode = req.query.couponCode;
         const userId = req.session.user._id;
         const coupon = await Coupon.findOne({ couponCode: couponCode, is_active: true });
-        console.log('Coupon found:', coupon); 
 
         if (!coupon) {
             return res.status(400).json({ success: false, message: 'Invalid or expired coupon code.' });
@@ -93,6 +133,8 @@ const generateRandomId = () => {
         res.status(500).json({ success: false, message: 'Internal Server Error' });
     }
 };
+// $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
 
 const addToPlaceOrder = async (req, res) => {
     try {
@@ -104,7 +146,7 @@ const addToPlaceOrder = async (req, res) => {
         const totalAmount = orderData.totalAmount;
         const discountAmount = orderData.discountAmount; 
         const appliedCouponCode = orderData.couponCode;  
-
+        const deliveryCharge=40
         const addressData = await Address.findOne({ userId, "address._id": addressId });
         if (!addressData) {
             return res.status(404).json({ success: false, message: 'Address not found' });
@@ -236,6 +278,10 @@ const addToPlaceOrder = async (req, res) => {
             orderId: randomId,
             createdAt: new Date()
         });
+       
+        if(totalAmount<=2500){
+            newOrder.deliveryCharge=40
+        }
 
         await newOrder.save();
 
@@ -305,7 +351,7 @@ const walletOrderConfirmation = async (req, res) => {
         const userId = req.session.user._id;
         const orderId = req.query.orderId;
         const order = await Order.findById(orderId).populate('items.productId');
-
+        const deliveryCharge=40
         if (!order) {
             return res.status(404).render('errorPage', { message: 'Order not found' });
         }
@@ -447,7 +493,10 @@ const placeOrderWithWallet = async (req, res) => {
         orderId: randomId,
         createdAt: new Date(),
       });
-  
+      
+      if(totalAmount<=2500){
+          newOrder.deliveryCharge=40
+      }
       await newOrder.save();
   
       //################################### Handle coupon code###################################

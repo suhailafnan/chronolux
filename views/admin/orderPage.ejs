@@ -27,7 +27,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% orders.forEach((order, index) => { %>
+                    <% let reversedOrders = orders.slice().reverse(); %>
+                    <% reversedOrders.forEach((order, index) => { %>
                     <tr>
                         <td><%= (currentPage - 1) * 5 + index + 1 %></td>
                         <td><%= order.userId.name %></td>
@@ -36,7 +37,7 @@
                         <td><%= new Date(order.currendDate).toLocaleDateString() %></td>
                        
                         <% if ( order.paymentMethod === "cod") { %>
-                           <td>Cash on delivery</td>
+                            <td>Cash on delivery</td>
                         <% } else if (order.paymentMethod === "online") { %>
                             <td>Online</td>
                         <% } else { %>
@@ -50,6 +51,7 @@
                     <% }); %>
                 </tbody>
             </table>
+            
         </div>
         <div class="card-footer">
             <nav aria-label="Page navigation">

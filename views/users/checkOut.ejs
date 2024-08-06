@@ -92,13 +92,11 @@
                             <li>Subtotal <span id="subtotalAmount"><%= totalamount %></span></li>
                             <li>Discount <span id="discountAmount">0</span></li>
                             <li>Discount Percentage <span id="discountPercentage">0%</span></li>
+                            <li>Delivery Charge <span id="deliveryCharge">0</span></li>
                             <li>Total <span id="totalAmount"><%= totalamount %></span></li>
                         </ul>
                        
-                        <ul class="checkout__total__all">
-                            <li>Delivery Charge <span></span></li>
-                           
-                        </ul>
+                    
                         
                         <div class="checkout__input__checkbox">
                             <label for="cod">
@@ -196,59 +194,142 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
  <script>
     
-    document.getElementById('couponForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // Prevent the form from submitting normally
-    const couponCode = document.getElementById('couponCode').value;
+//     document.getElementById('couponForm').addEventListener('submit', function(event) {
+//     event.preventDefault(); // Prevent the form from submitting normally
+//     const couponCode = document.getElementById('couponCode').value;
 
-    if (couponCode.trim() === "") {
-        Swal.fire({
-            icon: 'warning',
-            title: 'Warning',
-            text: 'Please enter a coupon code.',
-            showConfirmButton: true
-        });
-        return;
-    }
-   console.log(couponCode)
-    fetch(`/applyCoupon?couponCode=${couponCode}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
+//     if (couponCode.trim() === "") {
+//         Swal.fire({
+//             icon: 'warning',
+//             title: 'Warning',
+//             text: 'Please enter a coupon code.',
+//             showConfirmButton: true
+//         });
+//         return;
+//     }
+//    console.log(couponCode)
+//     fetch(`/applyCoupon?couponCode=${couponCode}`, {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
        
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('discountAmount').innerText = data.discountAmount.toFixed(2);
-            document.getElementById('discountPercentage').innerText = data.discountPercentage + '%';
-            document.getElementById('totalAmount').innerText = data.newTotalAmount.toFixed(2);
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//         if (data.success) {
+//             document.getElementById('discountAmount').innerText = data.discountAmount.toFixed(2);
+//             document.getElementById('discountPercentage').innerText = data.discountPercentage + '%';
+//             document.getElementById('totalAmount').innerText = data.newTotalAmount.toFixed(2);
+//             Swal.fire({
+//                 icon: 'success',
+//                 title: 'Coupon Applied',
+//                 text: 'Your coupon has been applied successfully!',
+//                 showConfirmButton: true
+//             });
+//         } else {
+//             Swal.fire({
+//                 icon: 'error',
+//                 title: 'Error',
+//                 text: data.message,
+//                 showConfirmButton: true
+//             });
+//         }
+//     })
+//     .catch(error => {
+//         console.error('Error applying coupon:', error);
+//         Swal.fire({
+//             icon: 'error',
+//             title: 'Error',
+//             text: 'An error occurred while applying the coupon. Please try again.',
+//             showConfirmButton: true
+//         });
+//     });
+// });
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&^&&&&&&&&&
+
+document.addEventListener('DOMContentLoaded', function () {
+    const totalAmountElement = document.getElementById('totalAmount');
+    const deliveryChargeElement = document.getElementById('deliveryCharge');
+
+    function updateDeliveryCharge() {
+        let totalAmount = parseFloat(totalAmountElement.innerText);
+        let deliveryCharge = 0;
+
+        if (totalAmount < 2500) {
+            deliveryCharge = 40;
+        }
+
+        deliveryChargeElement.innerText = deliveryCharge.toFixed(2);
+        totalAmountElement.innerText = (totalAmount + deliveryCharge).toFixed(2);
+    }
+
+    // Initial check for delivery charge
+    updateDeliveryCharge();
+
+    document.getElementById('couponForm').addEventListener('submit', function(event) {
+        event.preventDefault(); // Prevent the form from submitting normally
+        const couponCode = document.getElementById('couponCode').value;
+
+        if (couponCode.trim() === "") {
             Swal.fire({
-                icon: 'success',
-                title: 'Coupon Applied',
-                text: 'Your coupon has been applied successfully!',
+                icon: 'warning',
+                title: 'Warning',
+                text: 'Please enter a coupon code.',
                 showConfirmButton: true
             });
-        } else {
+            return;
+        }
+
+        fetch(`/applyCoupon?couponCode=${couponCode}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const discountAmount = data.discountAmount.toFixed(2);
+                const discountPercentage = data.discountPercentage + '%';
+                let newTotalAmount = data.newTotalAmount.toFixed(2);
+
+                document.getElementById('discountAmount').innerText = discountAmount;
+                document.getElementById('discountPercentage').innerText = discountPercentage;
+                totalAmountElement.innerText = newTotalAmount;
+
+                // Update delivery charge based on the new total amount after coupon
+                updateDeliveryCharge();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Coupon Applied',
+                    text: 'Your coupon has been applied successfully!',
+                    showConfirmButton: true
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.message,
+                    showConfirmButton: true
+                });
+            }
+        })
+        .catch(error => {
+            console.error('Error applying coupon:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: data.message,
+                text: 'An error occurred while applying the coupon. Please try again.',
                 showConfirmButton: true
             });
-        }
-    })
-    .catch(error => {
-        console.error('Error applying coupon:', error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'An error occurred while applying the coupon. Please try again.',
-            showConfirmButton: true
         });
     });
 });
 
+
+// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&^&&&&&&&&&
 
 function checkout() {
     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
