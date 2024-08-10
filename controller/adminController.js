@@ -2,6 +2,13 @@ const User = require("../models/UserModel");
 const Category =require("../models/category");
 const Products =require("../models/products");
 const bcrypt = require("bcrypt");
+const flash = require("connect-flash");
+const Cart=require("../models/cart"); 
+const Address=require("../models/address"); 
+const Order=require("../models/orderModels"); 
+const crypto = require('crypto');
+const Wallet= require("../models/walletModel");
+const Coupon =require("../models/couponModel")
 
 
 const adminLoadLogin=async (req,res)=>{
@@ -45,17 +52,78 @@ const verifyAdminLogin = async (req, res) => {
   }
 };
 
+// const loadAdminHome = async (req, res) => {
+//   try {
+//     const adminData = await User.findById({ _id: req.session.user_id });
+//     const adminId=req.session.user_id
+//     const order=await Order.find().count()
+   
+//     res.render("adminIndex", { admin: adminData ,adminId});
+//   } catch (error) {
+//     console.log(error.message);
+//   }
+
+// };\
 const loadAdminHome = async (req, res) => {
   try {
-    const adminData = await User.findById({ _id: req.session.user_id });
-    const adminId=req.session.user_id
-    
-    res.render("adminIndex", { admin: adminData ,adminId});
+    const adminData = await User.findById(req.session.user_id);
+    const adminId = req.session.user_id;
+    const deliveredOrdersCount = await Order.countDocuments({ orderStatus: 'Delivered' });
+
+    const totalAmount = await Order.aggregate([
+      {
+        $group: {
+          _id: null, 
+          total: { $sum: "$totalAmount" }
+        }
+      }
+    ]);
+
+    const deliveredTotalAmount = await Order.aggregate([
+      { 
+        $match: { orderStatus: 'Delivered' }
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$totalAmount" }
+        }
+      }
+    ]);
+
+    const monthlyRevenue = await Order.aggregate([
+      {
+        $group: {
+          _id: { 
+            year: { $year: "$currendDate" }, 
+            month: { $month: "$currendDate" } 
+          },
+          total: { $sum: "$totalAmount" }
+        }
+      },
+      {
+        $sort: { "_id.year": -1, "_id.month": -1 } 
+      }
+    ]);
+    const productsCount = await Products.countDocuments({ is_listed: "true" });
+    const categoryCount = await Category.countDocuments({ is_listed: "true" });
+
+
+    res.render("adminIndex", { 
+      admin: adminData, 
+      adminId,
+      deliveredOrdersCount,
+      productsCount,
+      categoryCount,
+      totalAmount: totalAmount.length > 0 ? totalAmount[0].total : 0,
+      deliveredTotalAmount: deliveredTotalAmount.length > 0 ? deliveredTotalAmount[0].total : 0,
+      monthlyRevenue
+    });
   } catch (error) {
     console.log(error.message);
   }
-
 };
+
  
    
   const loadUsers = async (req, res) => {

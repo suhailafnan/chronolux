@@ -90,6 +90,7 @@ admin_route.get('/salesReport', adminAuth.isLogin,adminSalesReportController.loa
 admin_route.get('/downloadExcel',adminAuth.isLogin,adminSalesReportController.downloadExcel)
  admin_route.get('/downloadPDF',adminAuth.isLogin,adminSalesReportController.downloadPDF)
 admin_route.get('/adminBestSalePage', adminAuth.isLogin,adminSalesReportController.adminBestSalePageLoad);
+admin_route.post('/chartData', adminAuth.isLogin,adminSalesReportController.chartSortby);
 
 
 module.exports = admin_route;

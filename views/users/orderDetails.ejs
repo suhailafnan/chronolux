@@ -119,12 +119,21 @@
                                 <button class="btn btn-danger" onclick="CancelOrder('<%= order.orderId %>')">Cancel</button>
                             </div>
                         <% } else if (order.orderStatus == "Delivered") { %>
-                            <div class="returned">
+                            <!-- <div class="returned">
                                 <button class="btn btn-danger" onclick="showReturnModal('<%= order.orderId %>')">Return</button>
                             </div>
                             <div class="invoice">
-                                <button class="btn btn-primary" onclick="downloadInvoice('<%= order.orderId %>')">Download Invoice</button>
-                            </div>
+                                <button class="btn btn-primary" onclick="downloadInvoice('<%= order.orderId %>')">Download Invoice </button>
+                            </div> -->
+                            
+
+                          
+                                <div class="order-actions">
+                                    <button class="btn btn-danger action-button" onclick="showReturnModal('<%= order.orderId %>')">Return</button>
+                                    <button class="btn btn-primary action-button" onclick="downloadInvoice('<%= order.orderId %>')">Download Invoice</button>
+                                </div>
+                           
+                            
                         <% } %>
                         
                     </div>
@@ -378,7 +387,7 @@ function CancelOrder(orderId) {
 }
 
 .returned button {
-    width: 150px; /* Set button width */
+    width: 150px; 
 }
 
     .cancelReturned{
@@ -434,29 +443,7 @@ function CancelOrder(orderId) {
             left: 30px;
 
         }
-    /* .deliverd{
-        background: green;
-            border-radius: 30px;
-            position: absolute;
-            width: 30px;
-          
-
-    }
-    .shipped{
-        background: green;
-            border-radius: 30px;
-            position: absolute;
-            width: 30px;
-          
-
-    }
-    .Approved {
-            background: green;
-            border-radius: 30px;
-            position: relative;
-            width: 30px;
-            height: 30px;
-        } */
+  
     .btn {
         display: inline-block;
         padding: 10px 20px;
@@ -467,14 +454,7 @@ function CancelOrder(orderId) {
         border-radius: 5px;
         transition: background-color 0.3s ease;
     }
-    /* .orderStatus{
-        background: #9e8e8e;
-        /* position: absolute; 
-       margin-left: 400px;
-       width: 290px;
-       height: 60px;
-       /* margin-top: 220px; 
-    } */
+  
     .delete-btn {
         background-color: #f44336;
         color: white;

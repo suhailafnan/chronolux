@@ -514,11 +514,6 @@ const placeOrderWithWallet = async (req, res) => {
     }
   };
   
-  
-
-  
-
-
 module.exports={
     loadcheckOutPage,
     addToPlaceOrder,

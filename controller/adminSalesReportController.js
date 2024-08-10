@@ -345,11 +345,145 @@ const adminBestSalePageLoad = async (req, res) => {
     }
 };
 
+// const getYearlyOrderData = async () => {
+//     try {
+//         const yearlyData = await Order.aggregate([
+//             {
+//                 $group: {
+//                     _id: { $year: "$currendDate" }, // Group by year
+//                     totalSales: { $sum: "$totalAmount" },
+//                     orderCount: { $sum: 1 }
+//                 }
+//             },
+//             { $sort: { "_id": 1 } } // Sort by year
+//         ]);
+
+//         return yearlyData;
+//     } catch (error) {
+//         console.error('Error fetching yearly order data:', error);
+//         throw error;
+//     }
+// };
+
+
+// const getMonthlyOrderData = async (year) => {
+//     try {
+//         const start = new Date(`${year}-01-01`);
+//         const end = new Date(`${year + 1}-01-01`);
+
+//         const monthlyData = await Order.aggregate([
+//             { $match: { currendDate: { $gte: start, $lt: end } } },
+//             {
+//                 $group: {
+//                     _id: { $month: "$currendDate" }, // Group by month
+//                     totalSales: { $sum: "$totalAmount" },
+//                     orderCount: { $sum: 1 }
+//                 }
+//             },
+//             { $sort: { "_id": 1 } } // Sort by month
+//         ]);
+
+//         return monthlyData;
+//     } catch (error) {
+//         console.error('Error fetching monthly order data:', error);
+//         throw error;
+//     }
+// };
+
+
+
+// const loadChart = async (req, res) => {
+//     try {
+//         const filter = req.query.filter;
+//         let data;
+//         let title;
+
+//         if (filter === 'monthly') {
+//             data = await getMonthlyOrderData(new Date().getFullYear()); // Replace with dynamic year if needed
+//             title = 'Monthly Sales Data';
+//         } else if (filter === 'yearly') {
+//             data = await getYearlyOrderData();
+//             title = 'Yearly Sales Data';
+//         }
+
+//         res.json({
+//             labels: data.map(item => filter === 'monthly' ? `Month ${item._id}` : `Year ${item._id}`),
+//             values: data.map(item => item.totalSales),
+//             orderCounts: data.map(item => item.orderCount),
+//             title: title
+//         });
+//     } catch (error) {
+//         console.error('Error fetching chart data:', error);
+//         res.status(500).json({ error: 'Internal server error' });
+//     }
+// };
+
+
+
+
+
+// ********** FOR SORTING CHART IN DASHBOARD **********
+const chartSortby = async (req, res) => {
+    try {
+      const { sortby } = req.body;
+  
+      let data = {};
+      let groupBy, label, labels;
+  
+      if (sortby === 'weekly') {
+        groupBy = { $dayOfWeek: '$currendDate' };
+        label = 'Daily Sales';
+        labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      } else if (sortby === 'monthly') {
+        groupBy = { $month: '$currendDate' };
+        label = 'Monthly Sales';
+        labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      } else if (sortby === 'yearly') {
+        groupBy = { $year: '$currendDate' };
+        label = 'Yearly Sales';
+        labels = ['Q1', 'Q2', 'Q3', 'Q4']; // Assuming quarters, adjust as needed
+        groupBy = {
+          $ceil: { $divide: [{ $month: '$currendDate' }, 3] } // Divide months into quarters
+        };
+      } else {
+        return res.status(400).send({ message: 'Invalid sortby option' });
+      }
+  
+      const salesData = await Order.aggregate([
+        { $group: { _id: groupBy, totalSales: { $sum: '$totalAmount' } } },
+        { $sort: { _id: 1 } }
+      ]);
+  
+      const salesArray = Array(labels.length).fill(0);
+      salesData.forEach(sale => {
+        salesArray[sale._id - 1] = sale.totalSales;
+      });
+  
+      data = {
+        labels: labels,
+        datasets: [{
+          label: label,
+          backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          borderColor: 'rgba(75, 192, 192, 1)',
+          borderWidth: 1,
+          data: salesArray
+        }]
+      };
+  
+      res.json(data);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: 'Server Error' });
+    }
+  };
+
+
 
 
 module.exports = {
     loadSalesReport,
     downloadExcel,
      downloadPDF,
-     adminBestSalePageLoad
+     adminBestSalePageLoad,
+     chartSortby
 };
