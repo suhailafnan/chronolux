@@ -134,6 +134,152 @@ const applyCoupon = async (req, res) => {
     }
 };
 // $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+const paymentFailed = async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+        const { paymentMethod, addressId, totalAmount, discountAmount, couponCode } = req.body;
+
+        // Fetch address
+        const addressData = await Address.findOne({ userId, "address._id": addressId });
+        if (!addressData) {
+            return res.status(404).json({ success: false, message: 'Address not found' });
+        }
+
+        const selectedAddress = addressData.address.find(addr => addr._id.toString() === addressId);
+        if (!selectedAddress) {
+            return res.status(404).json({ success: false, message: 'Selected address not found' });
+        }
+
+        // Fetch cart
+        const cart = await Cart.findOne({ userId }).populate("product.productId");
+        if (!cart) {
+            return res.status(404).json({ success: false, message: 'Cart not found' });
+        }
+
+        // Check stock
+        let outOfStockProducts = [];
+        for (const item of cart.product) {
+            const product = item.productId;
+            if (product.Stock < item.quantity) {
+                outOfStockProducts.push(product.name);
+            }
+        }
+
+        if (outOfStockProducts.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: "Products are out of stock, please remove products",
+                outOfStockProducts
+            });
+        }
+
+        // Prepare order items
+        const items = [];
+        for (const item of cart.product) {
+            const oneProduct = await Products.findById(item.productId);
+            if (!oneProduct) {
+                continue;
+            }
+
+            const itemDetails = { 
+                productId: item.productId,
+                quantity: item.quantity,
+                categoryId: oneProduct.category,
+                price: oneProduct.finalPrice,
+            };
+
+            items.push(itemDetails);
+
+            // Update product stock and order count
+            oneProduct.Stock -= item.quantity;
+            oneProduct.orderCount += item.quantity;
+            await oneProduct.save();
+
+            // Update category order count
+            const category = await Category.findById(oneProduct.category);
+            if (category) {
+                category.orderCount += item.quantity;
+                await category.save();
+            }
+        }
+
+        // Clear cart
+        await Cart.findOneAndUpdate({ userId }, { product: [] });
+
+        // Generate random order ID
+        const randomId = await generateRandomId();
+
+        // Create order with "payment failed" status
+        const newOrder = new Order({
+            userId,
+            items,
+            totalAmount,
+            discountAmount, 
+            address: selectedAddress,
+            paymentMethod: "payment failed", // Payment method as failed
+            orderStatus: "payment failed",   // Order status as failed
+            orderId: randomId,
+            createdAt: new Date()
+        });
+
+        // Apply delivery charge if necessary
+        if (totalAmount <= 2500) {
+            newOrder.deliveryCharge = 40;
+        }
+
+        // Save the order
+        await newOrder.save();
+
+        // Handle coupon application
+        if (couponCode) {
+            const appliedCoupon = await Coupon.findOne({ couponCode, is_active: true });
+            if (appliedCoupon) {
+                await User.findByIdAndUpdate(
+                    userId,
+                    { $pull: { coupons: appliedCoupon._id } }
+                );
+            }
+        }
+
+        res.status(200).json({ success: true, orderId: newOrder._id });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+
+
+const rePaymentSuccess = async (req, res) => {
+    try {
+        const userId = req.session.user._id;
+        const { amount, orderId } = req.query;
+
+        const order = await Order.findOne({ orderId: orderId });
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        order.paymentMethod = "online"; 
+        order.orderStatus = "Approved"; 
+        order.totalAmount = amount;
+
+       
+        await order.save();
+
+        res.status(200).json({ success: true, orderId: order._id });
+    } catch (error) {
+        console.error(error.message);
+        res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
+};
+
+module.exports = {
+    rePaymentSuccess
+};
+
+
 
 
 const addToPlaceOrder = async (req, res) => {
@@ -514,6 +660,11 @@ const placeOrderWithWallet = async (req, res) => {
     }
   };
   
+
+
+
+
+
 module.exports={
     loadcheckOutPage,
     addToPlaceOrder,
@@ -522,5 +673,7 @@ module.exports={
    giveCoupon,
    applyCoupon,
    walletOrderConfirmation,
-   placeOrderWithWallet
+   placeOrderWithWallet,
+   paymentFailed ,
+   rePaymentSuccess
 }

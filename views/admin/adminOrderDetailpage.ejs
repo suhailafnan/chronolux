@@ -48,6 +48,7 @@
                                 <option value="Delivered" <% if (order.orderStatus === 'Delivered') { %> selected <% } %>>Delivered</option>
                                 <option value="Cancelled" <% if (order.orderStatus === 'Cancelled') { %> selected <% } %>>Cancelled</option>
                                 <option value="Returned" <% if (order.orderStatus === 'Returned') { %> selected <% } %>>Returned</option>
+                                <option value="payment failed" <% if (order.orderStatus === 'payment failed') { %> selected <% } %>>payment failed</option>
                             </select>
                         </p>
                     </div>

@@ -130,6 +130,8 @@ user_route.get('/Wallet',auth.isLogin,auth.isUnblocked, userWalletController.loa
 
  user_route.post('/razorpay',auth.isLogin,auth.isUnblocked,onlinePaymentController.openRazorpay);
  user_route.post('/razorpayyy',auth.isLogin,auth.isUnblocked,onlinePaymentController.openRazorpayWallet);
+
+ user_route.post('/razorpayRePayment',auth.isLogin,auth.isUnblocked,onlinePaymentController.openRePaymentRazorpay);
  user_route.post('/addToWallet', auth.isLogin,auth.isUnblocked,userWalletController.addToWallet);
  user_route.post('/withdrawMoney',auth.isLogin,auth.isUnblocked, userWalletController. withdrawMoney);
  user_route.get('/viewTransaction',auth.isLogin,auth.isUnblocked, userWalletController.viewTransaction);
@@ -147,6 +149,9 @@ user_route.get('/walletOrderConfirmation',auth.isLogin,auth.isUnblocked,checkOut
 
 user_route.get('/Coupon',auth.isLogin,auth.isUnblocked,userCouponController.loadCoupon);
 user_route.post('/applyCoupon',auth.isLogin, auth.isUnblocked,checkOutController.applyCoupon);
+user_route.post('/paymentFailed',auth.isLogin, auth.isUnblocked,checkOutController.paymentFailed);
+
+user_route.post('/rePayment',auth.isLogin, auth.isUnblocked,checkOutController.rePaymentSuccess);
 
 module.exports = user_route;
 

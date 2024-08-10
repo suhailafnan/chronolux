@@ -17,14 +17,19 @@
             <div class="card mb-4 mb-xl-0">
                 <div class="card-header">Profile Picture</div>
                 <div class="card-body text-center">
+
                     <img class="img-account-profile rounded-circle mb-2"
-                        src="http://bootdey.com/img/Content/avatar/avatar1.png" alt>
-                    <br>
-                    <br>
-                    <div class="big-bold-text"><%= user.name %></div>
+                        src="http://bootdey.com/img/Content/avatar/avatar1.png" alt style="width: 175px; height: 175px;">
+                        <br>
+                        <br>
+                        <div class="big-bold-text"><%= user.name %></div>
+                    
+
+                   
                 </div>
             </div>
         </div>
+
 
         <div class="col-xl-8">
             <div class="card mb-8">
@@ -76,16 +81,37 @@
                                             <p><strong>Payment Method:</strong> Cash on delivery</p>
                                         <% } else if (order.paymentMethod === "online") { %>
                                             <p><strong>Payment Method:</strong> Razorpay</p>
-                                        <% } else { %>
+                                        <% } else if (order.paymentMethod === "payment failed") { %>
+                                            <p><strong>Payment Method:</strong> 
+                                                <span style="background-color: red; color: white; padding: 2px 5px;">payment failed</span>
+                                            </p>
+                                        <% }else { %>
                                             <p><strong>Payment Method:</strong> Wallet</p>
                                         <% } %>
                                         <p><strong>Date:</strong> <%= new Date(order.currendDate).toLocaleDateString() %></p>
                                     </div>
-                                    <div class="viewBtn">
+                                  
+                                    <% if(order.paymentMethod === "payment failed"){%>
+                                        <div class="viewBtn">
+                                            <button onclick="rePayment('<%= order.orderId %>','<%= order.totalAmount %>')" class="btn btn-danger">
+                                                Re Payment
+                                            </button>
+                                        </div>
+
+                                    <%} else{%>
+                                        <div class="viewBtn">
+                                            <button onclick="window.location.href='/orderDetails?orderId=<%= order.orderId %>'" class="btn btn-info">
+                                                View Details
+                                            </button>
+                                        </div>
+
+                                     <%}%>
+
+                                    <!-- <div class="viewBtn">
                                         <button onclick="window.location.href='/orderDetails?orderId=<%= order.orderId %>'" class="btn btn-info">
                                             View Details
                                         </button>
-                                    </div>
+                                    </div> -->
                                 </div>
                             </div>
                         </div>
@@ -122,6 +148,7 @@
         </div>
     </div>
 </div>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style type="text/css">
   .viewBtn {
     margin-left: 245px;
@@ -219,5 +246,71 @@
         margin-bottom: 10px;
     }
 </style>
+<script>
+    function rePayment(orderId, amount) {
+        if (amount) {
+            razopay(amount, orderId);
+        } else {    
+            alert("Please enter an amount.");
+        }
+    }
 
+    function razopay(amount, orderId) {
+        let totalAmountInPaise = amount * 100;
+        fetch(`/razorpayRePayment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ totalAmountInPaise ,orderId})
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                let options = {
+                    "key": data.key_id,
+                    "amount": data.amount,
+                    "currency": "INR",
+                    "name": "ChronoLux",
+                    "handler": function (response) {
+                        console.log(response);
+
+                        fetch(`/rePayment?amount=${amount}&orderId=${orderId}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                window.location.reload(); 
+                            } else {
+                                console.error("Error:", data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                    },
+                    "prefill": {
+                        "name": data.name,
+                        "email": data.email
+                    }
+                };
+
+                let razorpayObject = new Razorpay(options);
+                razorpayObject.on('payment.failed', function (response) {
+                    console.log("Payment failed", response);
+                });
+                razorpayObject.open();
+            } else {
+                console.error("Error:", data.msg);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
 <%-include("../layouts/userFooter.ejs") %>

@@ -479,12 +479,132 @@ fetch('/razorpay', {
 
              console.log("failed")
              console.log("paymennnttttttttttttt   ..........     failed")
+            //  window.location.href = `/paymentFailed?orderId=${data.orderId}`;
+
+            paymentFailed()
              
             })
             razorpayObject.open();
 
         }
     })
+}
+
+
+// function razopay() {
+//     const selectedAddress = document.querySelector('input[name="selectAddress"]:checked');
+//     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+//     const totalAmount = document.getElementById('totalAmount').innerText;
+
+//     if (!selectedAddress || !selectedPaymentMethod) {
+//         Swal.fire({
+//             icon: 'warning',
+//             title: 'Warning',
+//             text: 'Please select an address and a payment method.',
+//             showConfirmButton: true
+//         });
+//         return;
+//     }
+
+//     let totalAmountInPaise = parseFloat(totalAmount) * 100;
+
+//     fetch('/razorpay', {
+//         method: 'POST',
+//         headers: {
+//             'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify({ totalAmountInPaise })
+//     })
+//     .then(res => res.json())
+//     .then(data => {
+//         if (data.success) {
+//             let options = {
+//                 "key": `${data.key_id}`,
+//                 "amount": `${data.amount}`,
+//                 "currency": "INR",
+//                 "name": "Chrono",
+//                 "handler": function (response) {
+//                     placeOrder();
+//                 },
+//                 "profile": {
+//                     "name": `${data.name}`,
+//                     "email": `${data.email}`
+//                 }
+//             };
+
+//             let razorpayObject = new Razorpay(options);
+//             razorpayObject.on('payment.failed', (response) => {
+//                 paymentFailed();  // Call your payment failed function
+//             });
+//             razorpayObject.open();
+//         }
+//     });
+// }
+
+function paymentFailed() {
+    const selectedAddress = document.querySelector('input[name="selectAddress"]:checked');
+    const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+    const totalAmount = document.getElementById('totalAmount').innerText;
+    const couponCode = document.getElementById('couponCode').value;
+    const discountAmount = document.getElementById('discountAmount').innerText;
+
+    if (!selectedAddress || !selectedPaymentMethod) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Warning',
+            text: 'Please select an address and a payment method.',
+            showConfirmButton: true
+        });
+        return;
+    }
+
+    const orderData = {
+        addressId: selectedAddress.value,
+        paymentMethod: selectedPaymentMethod.value,
+        totalAmount: totalAmount,
+        discountAmount: discountAmount,
+    };
+
+    if (couponCode) {
+        orderData.couponCode = couponCode;
+    }
+
+    fetch('/paymentFailed', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(orderData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Payment Failed',
+                text: 'Your payment has failed!',
+                showConfirmButton: true
+            }).then(() => {
+                window.location.href = `/OrderHistory`;
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: data.message,
+                showConfirmButton: true
+            });
+        }
+    })
+    .catch(error => {
+        console.log('Fetch error', error);
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'An error occurred while placing your order. Please try again.',
+            showConfirmButton: true
+        });
+    });
 }
 
 

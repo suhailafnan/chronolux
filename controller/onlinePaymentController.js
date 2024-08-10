@@ -83,8 +83,45 @@ const openRazorpay = async (req, res) => {
     }
 };
 
+
+const openRePaymentRazorpay = async (req, res) => {
+  try {
+      const users = await User.findOne({ _id: req.session.user });
+      const amount = req.body.totalAmountInPaise;
+      const orderId=req.body.orderId;
+      const options = {
+          amount: amount,
+          currency: "INR",
+          receipt: "suhailafnan00@gmail.com",
+      };
+
+      instance.orders.create(options, (err, order) => {
+          if (!err) {
+           
+              res.send({
+                  success: true, 
+                  msg: "Amount added to the wallet",
+                  amount: amount,
+                  key_id: process.env.RAZORPAY_IDKEY,
+                  name: users.name,
+                  email: users.email,
+                  orderId:orderId
+              });
+          } else {
+              console.error("Error when rePayment :", err);
+              res.status(500).send({ success: false, msg: "Error when rePayment" });
+          }
+      });
+  } catch (error) {
+      console.log("Error from Razorpay:", error.message);
+      res.status(500).send({ success: false, msg: "Internal server error" });
+  }
+};
+
+
   module.exports={
     
     openRazorpay,
-    openRazorpayWallet
+    openRazorpayWallet,
+    openRePaymentRazorpay
   }

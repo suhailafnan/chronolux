@@ -19,7 +19,7 @@ const orderSchema = new mongoose.Schema({
             },
             Status: {
                 type: String,
-                enum: ['Confirmed', 'Shipped', 'Cancelled', 'Return', 'Delivered','payment failed'],
+                enum: ['Confirmed', 'Shipped', 'Cancelled', 'Return', 'Delivered'],
                 default: 'Confirmed',
             },
             reason: {
@@ -88,7 +88,7 @@ const orderSchema = new mongoose.Schema({
     },
     orderStatus: {
         type: String,
-        enum: ['Approved', 'Shipped', 'Cancelled', 'Return', 'Delivered'],
+        enum: ['Approved', 'Shipped', 'Cancelled', 'Return', 'Delivered','payment failed'],
         default: 'Approved',
     },
     returnReason: {
