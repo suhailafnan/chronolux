@@ -133,9 +133,7 @@ const insertUser = async (req, res) => {
 
     if (referedCode) {
       console.log("referenceCode is::::::::::::::::", referedCode);
-    } else {
-      console.log("Error in getting referedCode");
-    }
+    } 
     if (!name.trim()) {
       res.render("signup", { message: "Name is required" });
       return;
@@ -171,7 +169,7 @@ const insertUser = async (req, res) => {
 
       // Add referedCode if referenceCode is present
       if (referedCode) {
-        console.log("asdkjfhiawjdghhhhhhshhkhhjfhsdkghsfkghkdf");
+        
         user.referedCode = referedCode;
       }
 

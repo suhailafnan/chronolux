@@ -194,59 +194,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
  <script>
     
-//     document.getElementById('couponForm').addEventListener('submit', function(event) {
-//     event.preventDefault(); // Prevent the form from submitting normally
-//     const couponCode = document.getElementById('couponCode').value;
 
-//     if (couponCode.trim() === "") {
-//         Swal.fire({
-//             icon: 'warning',
-//             title: 'Warning',
-//             text: 'Please enter a coupon code.',
-//             showConfirmButton: true
-//         });
-//         return;
-//     }
-//    console.log(couponCode)
-//     fetch(`/applyCoupon?couponCode=${couponCode}`, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-       
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//         if (data.success) {
-//             document.getElementById('discountAmount').innerText = data.discountAmount.toFixed(2);
-//             document.getElementById('discountPercentage').innerText = data.discountPercentage + '%';
-//             document.getElementById('totalAmount').innerText = data.newTotalAmount.toFixed(2);
-//             Swal.fire({
-//                 icon: 'success',
-//                 title: 'Coupon Applied',
-//                 text: 'Your coupon has been applied successfully!',
-//                 showConfirmButton: true
-//             });
-//         } else {
-//             Swal.fire({
-//                 icon: 'error',
-//                 title: 'Error',
-//                 text: data.message,
-//                 showConfirmButton: true
-//             });
-//         }
-//     })
-//     .catch(error => {
-//         console.error('Error applying coupon:', error);
-//         Swal.fire({
-//             icon: 'error',
-//             title: 'Error',
-//             text: 'An error occurred while applying the coupon. Please try again.',
-//             showConfirmButton: true
-//         });
-//     });
-// });
-// &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&^&&&&&&&&&
+
 
 document.addEventListener('DOMContentLoaded', function () {
     const totalAmountElement = document.getElementById('totalAmount');
@@ -491,55 +440,7 @@ fetch('/razorpay', {
 }
 
 
-// function razopay() {
-//     const selectedAddress = document.querySelector('input[name="selectAddress"]:checked');
-//     const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
-//     const totalAmount = document.getElementById('totalAmount').innerText;
 
-//     if (!selectedAddress || !selectedPaymentMethod) {
-//         Swal.fire({
-//             icon: 'warning',
-//             title: 'Warning',
-//             text: 'Please select an address and a payment method.',
-//             showConfirmButton: true
-//         });
-//         return;
-//     }
-
-//     let totalAmountInPaise = parseFloat(totalAmount) * 100;
-
-//     fetch('/razorpay', {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json'
-//         },
-//         body: JSON.stringify({ totalAmountInPaise })
-//     })
-//     .then(res => res.json())
-//     .then(data => {
-//         if (data.success) {
-//             let options = {
-//                 "key": `${data.key_id}`,
-//                 "amount": `${data.amount}`,
-//                 "currency": "INR",
-//                 "name": "Chrono",
-//                 "handler": function (response) {
-//                     placeOrder();
-//                 },
-//                 "profile": {
-//                     "name": `${data.name}`,
-//                     "email": `${data.email}`
-//                 }
-//             };
-
-//             let razorpayObject = new Razorpay(options);
-//             razorpayObject.on('payment.failed', (response) => {
-//                 paymentFailed();  // Call your payment failed function
-//             });
-//             razorpayObject.open();
-//         }
-//     });
-// }
 
 function paymentFailed() {
     const selectedAddress = document.querySelector('input[name="selectAddress"]:checked');

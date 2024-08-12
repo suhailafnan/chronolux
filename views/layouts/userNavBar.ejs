@@ -1,15 +1,12 @@
 <%- include('../layouts/userHeader.ejs')%>
- <!-- Page Preloder -->
-   <div id="preloder">
+  <!-- Page Preloader -->
+  <div id="preloder">
     <div class="loader"></div>
 </div>
 
-
-
 <!-- Header Section Begin -->
- 
 <header class="header">
-  <div class="header__top">
+    <div class="header__top">
         <div class="container">
             <div class="row">
                 <div class="col-lg-6 col-md-7">
@@ -19,58 +16,53 @@
                 </div>
                 <div class="col-lg-6 col-md-5">
                     <div class="header__top__right">
-                    
-                     
                         <div class="header__top__links">
                             <% if (user) { %>
-                               
-                              <input type="hidden" name="user_id" value="<%= user._id %>">
-                              <a href="/userProfile?id=<%= user._id %>" class="sign-in-link">
-                                <i class="far fa-user"></i>
-                                <span><%= user.name %>!</span>
-                              </a>
-                              
-                                  <a href="#" class="sign-in-link logout-link" data-id="<%= user._id %>">
-                                     <i class="fas fa-sign-out-alt"></i>
+                                <input type="hidden" name="user_id" value="<%= user._id %>">
+                                <a href="/userProfile?id=<%= user._id %>" class="sign-in-link">
+                                    <i class="far fa-user"></i>
+                                    <span><%= user.name %>!</span>
+                                </a>
+                                <a href="#" class="sign-in-link logout-link" data-id="<%= user._id %>">
+                                    <i class="fas fa-sign-out-alt"></i>
                                     <span>Logout</span>
-                                  </a>
-
-                               
-                              
+                                </a>
                             <% } else { %>
-                              <a href="/register" class="sign-in-link">
-                                <i class="far fa-user"></i>
-                                Sign in
-                              </a>
+                                <a href="/register" class="sign-in-link">
+                                    <i class="far fa-user"></i>
+                                    Sign in
+                                </a>
                             <% } %>
-                            <a href="#">FAQs</a>
-                          </div>
-                        <div class="header__top__hover">
-                            <span>Usd <i class="arrow_carrot-down"></i></span>
-                            <ul>
-                                <li>USD</li>
-                                <li>EUR</li>
-                                <li>USD</li>
-                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div> 
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-3 col-md-3">
-                <div class="header__logo">
-                    <a href="./index.html"><img src="userAssets/img/chronolux icon 2.jpg" alt=""></a>
-                </div>
-            </div>
-            <div class="col-lg-6 col-md-6">
-                <nav class="header__menu mobile-menu">
+    </div>
+
+    <!-- Navbar Section Begin -->
+    <nav class="header__menu navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <!-- Logo -->
+            <a class="navbar-brand" href="/home">
+                <img src="userAssets/img/chronolux icon 2.jpg" alt="ChronoLux" style="height: 50px;">
+            </a>
+
+            <!-- Toggle Button for small screens -->
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Collapsible Menu -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item ">
+                        <a href="/home" class="nav-link">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/shop" class="nav-link">Shop</a>
+                    </li>
                     
-                    <ul>
-                        <li class="active"><a href="/home">Home</a></li>
-                        <li><a href="/shop">Shop</a></li>
                         <li><a href="#">Pages</a>
                             <ul class="dropdown">
                                 <li><a href="./about.html">About Us</a></li>
@@ -83,35 +75,27 @@
                         <li><a href="./blog.html">Blog</a></li>
                         <li><a href="./contact.html">Contacts</a></li>
                     </ul>
-                </nav>
-            </div>
-            <div class="col-lg-3 col-md-3">
+                    
+                </ul>
                 <div class="header__nav__option">
-                  <a href="#" class="search-switch"><img src="userAssets/img/icon/search.png" alt=""></a> 
+                    <a href="#" class="search-switch"><img src="userAssets/img/icon/search.png" alt=""></a>
                     <% if (user) { %>
-                                                          
-
-                        <a href="/wishlist" ><img src="userAssets/img/icon/heart.png" alt=""></a>
-                   <% } else { %>
-                       <!-- <a href="/login" class="btn-product-icon btn-wishlist btn-expandable" style="color: red;"><span>Login</span></a> -->
-                      <a href="/login" ><img src="userAssets/img/icon/heart.png" alt=""></a>
-                   <% } %>
-                   
+                        <a href="/wishlist"><img src="userAssets/img/icon/heart.png" alt=""></a>
+                    <% } else { %>
+                        <a href="/login"><img src="userAssets/img/icon/heart.png" alt=""></a>
+                    <% } %>
                     <a href="/cart"><img src="userAssets/img/icon/shoppcart.png" alt="" width="30" height="20"></a>
-
-                    <!-- <div class="price">$0.00</div> -->
                 </div>
             </div>
         </div>
-        <div class="canvas__open"><i class="fa fa-bars"></i></div>
-    </div>
-</header> 
-<style>
-    .webicon{
-        position: relative;
-        margin-left: 5px;
-    }
-</style>
+    </nav>
+</header>
+<!-- Header Section End -->
+
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
 <!-- SweetAlert2 Script -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
