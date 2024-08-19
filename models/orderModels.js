@@ -28,12 +28,8 @@ const orderSchema = new mongoose.Schema({
             price: {
                 
                 type: Number
-            },
-            categoryId: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: 'category',
-                required: true
-            },
+            }
+           
         },
     ],
     totalAmount: {

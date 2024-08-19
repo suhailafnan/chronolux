@@ -5,8 +5,7 @@ const Order = require("../models/orderModels");
 const Address = require("../models/address");
 const crypto = require("crypto");
 const Products = require("../models/products");
-const Coupon = require("../models/couponModel")
-
+const Coupon = require("../models/couponModel");
 
 const generateRandomId = async () => {
   try {
@@ -22,7 +21,15 @@ const loadWallet = async (req, res) => {
   try {
     const user = req.session.user;
     const wallet = await Wallet.findOne({ UserId: user });
-    res.render("userWallet", { user, wallet });
+    let cartCount = 0;
+
+    if (req.session.user) {
+      const cart = await Cart.findOne({ userId: req.session.user._id });
+      if (cart && cart.product) {
+        cartCount = cart.product.length;
+      }
+    }
+    res.render("userWallet", { user, wallet, cartCount });
   } catch (error) {
     console.log(error);
   }
@@ -103,50 +110,81 @@ const viewTransaction = async (req, res) => {
   try {
     const user = req.session.user;
     const wallet = await Wallet.findOne({ UserId: user._id });
-    res.render("walletTransaction", { user, wallet });
+    let cartCount = 0;
+
+    if (req.session.user) {
+      const cart = await Cart.findOne({ userId: req.session.user._id });
+      if (cart && cart.product) {
+        cartCount = cart.product.length;
+      }
+    }
+    res.render("walletTransaction", { user, wallet, cartCount });
   } catch (error) {
     console.log(error);
   }
 };
 
-
 const placeOrderWithWallet = async (req, res) => {
   try {
-    const { addressId, paymentMethod, totalAmount, cartDetails, couponCode } = req.body;
+    const { addressId, paymentMethod, totalAmount, cartDetails, couponCode } =
+      req.body;
     const user = req.session.user;
     const userId = user._id;
 
     // ###################################Fetch the user's wallet and cart###################################
     const wallet = await Wallet.findOne({ UserId: userId });
     if (!wallet) {
-      return res.status(404).json({ success: false, message: "Wallet not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Wallet not found" });
     }
 
     const cart = await Cart.findOne({ userId }).populate("product.productId");
     if (!cart) {
-      return res.status(404).json({ success: false, message: "Cart not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Cart not found" });
     }
 
     // ###################################Check if the wallet has sufficient balance###################################
     if (totalAmount > wallet.balance) {
-      return res.status(400).json({ success: false, message: "Insufficient balance in wallet!" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Insufficient balance in wallet!" });
     }
 
     //################################### Fetch the selected address###################################
-    const addressData = await Address.findOne({ userId, "address._id": addressId });
+    const addressData = await Address.findOne({
+      userId,
+      "address._id": addressId,
+    });
     if (!addressData) {
-      return res.status(404).json({ success: false, message: "Address not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Address not found" });
     }
 
-    const selectedAddress = addressData.address.find(addr => addr._id.toString() === addressId);
+    const selectedAddress = addressData.address.find(
+      (addr) => addr._id.toString() === addressId
+    );
     if (!selectedAddress) {
-      return res.status(404).json({ success: false, message: "Selected address not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Selected address not found" });
     }
 
     // ###################################Check for out-of-stock products###################################
-    const outOfStockProducts = cart.product.filter(item => item.productId.Stock < item.quantity).map(item => item.productId.name);
+    const outOfStockProducts = cart.product
+      .filter((item) => item.productId.Stock < item.quantity)
+      .map((item) => item.productId.name);
     if (outOfStockProducts.length > 0) {
-      return res.status(400).json({ success: false, message: "Products are out of stock, please remove product(s)", outOfStockProducts });
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Products are out of stock, please remove product(s)",
+          outOfStockProducts,
+        });
     }
 
     // ############Handle first order and referral bonus###################################
@@ -162,21 +200,51 @@ const placeOrderWithWallet = async (req, res) => {
         const referredUser = await User.findOne({ referenceCode: referedCode });
         if (referredUser) {
           const referredUserId = referredUser._id;
-          let referredUserWallet = await Wallet.findOne({ UserId: referredUserId });
+          let referredUserWallet = await Wallet.findOne({
+            UserId: referredUserId,
+          });
           if (!referredUserWallet) {
-            referredUserWallet = new Wallet({ UserId: referredUserId, balance: 50, history: [{ amount: 50, transactionType: "Referral bonus", previousBalance: 0 }] });
+            referredUserWallet = new Wallet({
+              UserId: referredUserId,
+              balance: 50,
+              history: [
+                {
+                  amount: 50,
+                  transactionType: "Referral bonus",
+                  previousBalance: 0,
+                },
+              ],
+            });
           } else {
             referredUserWallet.balance += 50;
-            referredUserWallet.history.push({ amount: 50, transactionType: "Referral bonus", previousBalance: referredUserWallet.balance - 50 });
+            referredUserWallet.history.push({
+              amount: 50,
+              transactionType: "Referral bonus",
+              previousBalance: referredUserWallet.balance - 50,
+            });
           }
           await referredUserWallet.save();
-          
+
           let currentUserWallet = await Wallet.findOne({ UserId: userId });
           if (!currentUserWallet) {
-            currentUserWallet = new Wallet({ UserId: userId, balance: 30, history: [{ amount: 30, transactionType: "First order bonus", previousBalance: 0 }] });
+            currentUserWallet = new Wallet({
+              UserId: userId,
+              balance: 30,
+              history: [
+                {
+                  amount: 30,
+                  transactionType: "First order bonus",
+                  previousBalance: 0,
+                },
+              ],
+            });
           } else {
             currentUserWallet.balance += 30;
-            currentUserWallet.history.push({ amount: 30, transactionType: "First order bonus", previousBalance: currentUserWallet.balance - 30 });
+            currentUserWallet.history.push({
+              amount: 30,
+              transactionType: "First order bonus",
+              previousBalance: currentUserWallet.balance - 30,
+            });
           }
           await currentUserWallet.save();
         }
@@ -186,7 +254,11 @@ const placeOrderWithWallet = async (req, res) => {
     // ###################################Update wallet balance###################################
     const previousBalance = wallet.balance;
     wallet.balance -= totalAmount;
-    wallet.history.push({ amount: totalAmount, transactionType: "Ordered", previousBalance });
+    wallet.history.push({
+      amount: totalAmount,
+      transactionType: "Ordered",
+      previousBalance,
+    });
     await wallet.save();
 
     // ###################################Process cart items###################################
@@ -195,7 +267,12 @@ const placeOrderWithWallet = async (req, res) => {
       const product = await Products.findById(item.productId);
       if (!product) continue;
 
-      items.push({ productId: item.productId, quantity: item.quantity, categoryId: product.category, price: product.finalPrice });
+      items.push({
+        productId: item.productId,
+        quantity: item.quantity,
+        categoryId: product.category,
+        price: product.finalPrice,
+      });
 
       product.Stock -= item.quantity;
       await product.save();
@@ -221,75 +298,105 @@ const placeOrderWithWallet = async (req, res) => {
 
     //################################### Handle coupon code###################################
     if (couponCode) {
-      const appliedCoupon = await Coupon.findOne({ couponCode, is_active: true });
+      const appliedCoupon = await Coupon.findOne({
+        couponCode,
+        is_active: true,
+      });
       if (appliedCoupon) {
-        await User.findByIdAndUpdate(userId, { $pull: { coupons: appliedCoupon._id } });
+        await User.findByIdAndUpdate(userId, {
+          $pull: { coupons: appliedCoupon._id },
+        });
       }
     }
 
-    res.status(200).json({ success: true, orderId: newOrder._id, message: "Order placed successfully!" });
+    res
+      .status(200)
+      .json({
+        success: true,
+        orderId: newOrder._id,
+        message: "Order placed successfully!",
+      });
   } catch (error) {
     console.error("Error placing order with wallet:", error);
-    res.status(500).json({ success: false, message: "An error occurred while placing the order." });
+    res
+      .status(500)
+      .json({
+        success: false,
+        message: "An error occurred while placing the order.",
+      });
   }
 };
 
-
 const giveCoupon = async (userId, totalAmount, orderId) => {
   try {
-    console.log("inside the give coupon function")
-      const user = await User.findById(userId);
-      const coupons = await Coupon.find({ is_active: true });
-        if(coupons){
-          cosnole.log(coupons)
-        }else{
-          console.log("coupons not found")
-        }
-      let addedCoupons = [];
-      for (const coupon of coupons) {
-          if (totalAmount >= coupon.minimum) {
-              await User.findByIdAndUpdate(
-                  { _id: userId },
-                  { $push: { coupons: coupon._id } }
-              );
-              addedCoupons.push(coupon);
-          }
+    console.log("inside the give coupon function");
+    const user = await User.findById(userId);
+    const coupons = await Coupon.find({ is_active: true });
+    if (coupons) {
+      cosnole.log(coupons);
+    } else {
+      console.log("coupons not found");
+    }
+    let addedCoupons = [];
+    for (const coupon of coupons) {
+      if (totalAmount >= coupon.minimum) {
+        await User.findByIdAndUpdate(
+          { _id: userId },
+          { $push: { coupons: coupon._id } }
+        );
+        addedCoupons.push(coupon);
       }
+    }
 
-      return addedCoupons;
+    return addedCoupons;
   } catch (error) {
-      console.log(error);
-      throw error;
+    console.log(error);
+    throw error;
   }
 };
 
 const walletOrderConfirmation = async (req, res) => {
   try {
-    console.log("order not efrsdfgsdgdfgfdhd")
-      const user = req.session.user;
-      const userId = req.session.user._id;
-      const orderId = req.query.orderId;
-      const order = await Order.findOne({orderId:orderId}).populate('items.productId');
+    console.log("order not efrsdfgsdgdfgfdhd");
+    const user = req.session.user;
+    const userId = req.session.user._id;
+    const orderId = req.query.orderId;
+    const order = await Order.findOne({ orderId: orderId }).populate(
+      "items.productId"
+    );
 
-      if (!order) {
-        console.log("order not found")
-          return res.status(404).render('errorPage', { message: 'Order not found' });
-      }else{
-        console.log(order)
-      }
+    if (!order) {
+      console.log("order not found");
+      return res
+        .status(404)
+        .render("errorPage", { message: "Order not found" });
+    } else {
+      console.log(order);
+    }
+    let cartCount = 0;
 
-      const addedCoupons = await giveCoupon(user, order.totalAmount, orderId);
-      if (! addedCoupons) {
-        console.log(" addedCouponsnot found")
-          return res.status(404).render('errorPage', { message: ' addedCoupons' });
+    if (req.session.user) {
+      const cart = await Cart.findOne({ userId: req.session.user._id });
+      if (cart && cart.product) {
+        cartCount = cart.product.length;
       }
-      res.render('walletOrderConfirmation', { user, order, addedCoupons });
+    }
+    const addedCoupons = await giveCoupon(user, order.totalAmount, orderId);
+    if (!addedCoupons) {
+      console.log(" addedCouponsnot found");
+      return res.status(404).render("errorPage", { message: " addedCoupons" });
+    }
+    res.render("walletOrderConfirmation", {
+      user,
+      order,
+      addedCoupons,
+      cartCount,
+    });
   } catch (error) {
-      console.log(error.message);
-      res.status(500).render('errorPage', { message: 'Internal Server Error' });
+    console.log(error.message);
+    res.status(500).render("errorPage", { message: "Internal Server Error" });
   }
 };
-
 
 module.exports = {
   loadWallet,
@@ -298,5 +405,5 @@ module.exports = {
   viewTransaction,
   placeOrderWithWallet,
   giveCoupon,
-   walletOrderConfirmation
+  walletOrderConfirmation,
 };

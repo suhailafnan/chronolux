@@ -1,5 +1,5 @@
 <%- include('../layouts/userNavBar.ejs') %>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/themify-icons@0.1.2/css/themify-icons.css">
+
 
 <!-- Breadcrumb Section Begin -->
 <section class="breadcrumb-option">
@@ -38,6 +38,7 @@
                                                 <p><strong>Status:</strong> <span style="color: rgb(34, 189, 28);">IN STOCK</span></p>
                                             <% } %>
                                             <button class="btn btn-primary add-to-cart" data-product-id="<%= item.productId._id %>">Add to Cart</button>
+
                                             <button class="btn btn-danger remove-wishlist" onclick="removeFromWishlist('<%= item.productId._id %>')">Remove</button>
                                         </div>
                                     </div>
@@ -57,10 +58,13 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM fully loaded and parsed"); 
         const addToCartButtons = document.querySelectorAll('.add-to-cart');
         addToCartButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const productId = this.dataset.productId;
+                console.log('Button clicked:', productId);
+
                 Swal.fire({
                     title: 'Are you sure?',
                     text: "Do you want to add this product to your cart?",
@@ -71,13 +75,18 @@
                     confirmButtonText: 'Yes, add it!'
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        fetch(`/addToCart?ProductId=${productId}`, {
+                        console.log('Confirmed. Sending request to add product to cart.');
+
+                        fetch(`/addToCartFromWshlist?ProductId=${productId}`, {
                             method: 'post',
                             headers: {
                                 'Content-Type': 'application/json'
                             }
                         })
-                        .then(response => response.json())
+                        .then(response => {
+                            console.log('Response received:', response); 
+                            return response.json();
+                        })
                         .then(data => {
                             if (data.success) {
                                 Swal.fire(
@@ -87,6 +96,12 @@
                                 ).then(() => {
                                     window.location.reload(); 
                                 });
+                            } else if (data.message === 'already') {
+                                Swal.fire(
+                                    'Already in Cart!',
+                                    'This product is already in your cart.',
+                                    'info'
+                                );
                             } else {
                                 Swal.fire(
                                     'Error!',
@@ -96,6 +111,7 @@
                             }
                         })
                         .catch(error => {
+                            console.error('Error adding product to cart:', error); // Debugging statement
                             Swal.fire(
                                 'Error!',
                                 'There was a problem adding the product to your cart.',
@@ -107,6 +123,7 @@
             });
         });
     });
+
 
     function removeFromWishlist(productId) {
         console.log("hello inside wishlist");

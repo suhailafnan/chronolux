@@ -1,7 +1,7 @@
 
-<%- include('../layouts/userHeader.ejs') %>
+
 <%- include('../layouts/userNavBar.ejs') %>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/themify-icons@0.1.2/css/themify-icons.css">
+
 
 <!-- Breadcrumb Section End -->
 
@@ -34,12 +34,7 @@
                                     </td>
                                     <td class="quantity__item">
                                         <div class="quantity">
-                                            <!-- <div class="pro-qty-2">
                                             
-                                                <input type="text" value="<%= item.quantity %>" data-price="<%= item.productId.finalPrice%>" class="quantity-input">
-                                               
-                                            </div>
-                                        </div> -->
                                        
                                                <div class="quantity__item">
                                                     <div class="quantity">
@@ -73,29 +68,19 @@
                             <a href="/shop">Continue Shopping</a>
                         </div>
                     </div>
-                    <!-- <div class="col-lg-6 col-md-6 col-sm-6">
-                        <div class="continue__btn update__btn">
-                            <a href="#"><i class="fa fa-spinner"></i> Update cart</a>
-                        </div>
-                    </div> -->
+                    
                 </div>
             </div>
             <div class="col-lg-4">
-                <!-- <div class="cart__discount">
-                    <h6>Discount codes</h6>
-                    <form action="#">
-                        <input type="text" placeholder="Coupon code">
-                        <button type="submit">Apply</button>
-                    </form>
-                </div> -->
+               
                 <div class="cart__total">
                     <h6>Cart total</h6>
                     <ul>
                         <li  >Total  <span id="totalAmount" style="font-weight: 500;">  </span></li>
-                        <!-- <li id="totalAmount">total <span id="totalAmount">  </span></li> -->
+                      
                         
                     </ul>
-                    <!-- <a href="/checkOut" class="primary-btn"  onclick="checkOut('<%= cartData._id %>')">Proceed to checkout</a> -->
+                    
                     <a href="#" class="primary-btn"  onclick="checkOut('<%= cartData._id %>')">Proceed to checkout</a>
                 </div>
             </div>
@@ -137,8 +122,7 @@
                     }).then(() => {
                         window.location.reload();
                     });;
-                    // Optionally remove the product row from the DOM
-                    // document.querySelector(`[data-product-id="${productId}"]`).remove();
+                 
                 } else {
                     Swal.fire({
                         icon: 'error',
@@ -177,8 +161,7 @@
                     }).then(() => {
                         window.location.reload();
                     });
-                    // Optionally remove the product row from the DOM
-                    // document.querySelector([data-product-id="${productId}"]).remove();
+                 
                 } else {
                     Swal.fire({
                         icon: 'error',

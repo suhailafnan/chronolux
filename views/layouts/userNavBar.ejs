@@ -1,20 +1,17 @@
 <%- include('../layouts/userHeader.ejs')%>
-  <!-- Page Preloader -->
-  <div id="preloder">
-    <div class="loader"></div>
-</div>
+
 
 <!-- Header Section Begin -->
 <header class="header">
     <div class="header__top">
         <div class="container">
             <div class="row">
-                <div class="col-lg-6 col-md-7">
+                <div class="col-lg-12 col-sm-12">
                     <div class="header__top__left">
                         <p>Free shipping, 30-day return or refund guarantee.</p>
                     </div>
                 </div>
-                <div class="col-lg-6 col-md-5">
+                <div class="col-lg-12 col-sm-12">
                     <div class="header__top__right">
                         <div class="header__top__links">
                             <% if (user) { %>
@@ -56,26 +53,29 @@
             <!-- Collapsible Menu -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mx-auto">
-                    <li class="nav-item ">
+                    <li class="nav-item">
                         <a href="/home" class="nav-link">Home</a>
                     </li>
                     <li class="nav-item">
                         <a href="/shop" class="nav-link">Shop</a>
                     </li>
-                    
-                        <li><a href="#">Pages</a>
-                            <ul class="dropdown">
-                                <li><a href="./about.html">About Us</a></li>
-                                <li><a href="./shop-details.html">Shop Details</a></li>
-                                <li><a href="./shopping-cart.html">Shopping Cart</a></li>
-                                <li><a href="./checkout.html">Check Out</a></li>
-                                <li><a href="./blog-details.html">Blog Details</a></li>
-                            </ul>
-                        </li>
-                        <li><a href="./blog.html">Blog</a></li>
-                        <li><a href="./contact.html">Contacts</a></li>
-                    </ul>
-                    
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Pages
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="/about">About Us</a></li>
+                            <li><a class="dropdown-item" href="/shop">Shop Details</a></li>
+                            <li><a class="dropdown-item" href="/cart">Shopping Cart</a></li>
+                            <li><a class="dropdown-item" href="/blogDetails">Blog Details</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/blogDetails" class="nav-link">Blog</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="/contact" class="nav-link">Contacts</a>
+                    </li>
                 </ul>
                 <div class="header__nav__option">
                     <a href="#" class="search-switch"><img src="userAssets/img/icon/search.png" alt=""></a>
@@ -84,7 +84,15 @@
                     <% } else { %>
                         <a href="/login"><img src="userAssets/img/icon/heart.png" alt=""></a>
                     <% } %>
-                    <a href="/cart"><img src="userAssets/img/icon/shoppcart.png" alt="" width="30" height="20"></a>
+                    <a href="/cart">
+                        <img src="userAssets/img/icon/shoppcart.png" alt="" width="30" height="20">
+                       
+                            <% if (cartCount > 0) { %>
+                            <span class="cart-count" ><%= cartCount %></span>
+                        <% } %>
+                      
+                        
+                    </a>
                 </div>
             </div>
         </div>
@@ -92,13 +100,9 @@
 </header>
 <!-- Header Section End -->
 
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
-<!-- SweetAlert2 Script -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         const logoutLink = document.querySelector('.logout-link');
@@ -123,3 +127,36 @@
         }
     });
 </script>
+<style>
+    .container {
+        position: relative;
+    }
+    .header__menu {
+        position: relative;
+    }
+    .navbar-toggler {
+        position: relative;
+    }
+    .dropdown-menu-dark {
+        background-color: #000; 
+        color: #fff;
+    }
+    .dropdown-menu-dark .dropdown-item {
+        color: #fff; 
+        padding: 10px 20px;
+    }
+    .dropdown-menu-dark .dropdown-item:hover {
+        background-color: #333; 
+        color: #fff; 
+    }
+    .header__nav__option .cart-count {
+       
+        color: #970000;
+        border-radius: 50%;
+        padding: 2px 8px;
+        font-size: 14px;
+        position: absolute;
+        top: -10px;
+        right: -10px;
+    }
+</style>

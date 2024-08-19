@@ -10,7 +10,7 @@ const checkOutController = require("../controller/checkOutController");
 const forgotPasswordController = require("../controller/forgotPasswordController");
 const userOrderController = require("../controller/userOrderController");
 const userWishlistController = require("../controller/userWishlistController");
-const paymentController = require("../controller/paymentController");
+
 const onlinePaymentController= require("../controller/onlinePaymentController");
 const userWalletController = require("../controller/userWalletController");
 const userCouponController = require("../controller/userCouponController")
@@ -18,7 +18,7 @@ const flash=require("express-flash")
 const nocache = require("nocache");
 const auth = require("../middleware/auth");
 
-
+const userBlogAndThings= require("../controller/userBlogAndThings")
 
 
 user_route.use(nocache());
@@ -118,11 +118,8 @@ user_route.post('/addToWishlist',auth.isLogin,auth.isUnblocked, userWishlistCont
 user_route.get('/wishlist',auth.isLogin, auth.isUnblocked,userWishlistController.loadWishlist);
 user_route.post('/removeFromWishlist',auth.isLogin,auth.isUnblocked, userWishlistController.removeFromWishlist);
 
-// paypal route
-user_route.get('/onlinePayment',auth.isLogin,auth.isUnblocked, paymentController.renderBuyPage);
-user_route.post('/payMoney', auth.isLogin,auth.isUnblocked,paymentController.payProduct);
-user_route.get('/paymentSuccess',auth.isLogin,auth.isUnblocked, paymentController.successPage);
-user_route.get('/paymentCancel', auth.isLogin,auth.isUnblocked,paymentController.cancelPage);
+user_route.post('/addToCartFromWshlist',auth.isLogin,auth.isUnblocked, userWishlistController.addToCartFromWshlist);
+
 
 // wallet croutes
 
@@ -153,5 +150,10 @@ user_route.post('/paymentFailed',auth.isLogin, auth.isUnblocked,checkOutControll
 
 user_route.post('/rePayment',auth.isLogin, auth.isUnblocked,checkOutController.rePaymentSuccess);
 
+
+user_route.get('/about',auth.isLogin,auth.isUnblocked,userBlogAndThings.loadAbout);
+user_route.get('/blogDetails',auth.isLogin,auth.isUnblocked,userBlogAndThings.loadBlogDetails);
+
+user_route.get('/contact',auth.isLogin,auth.isUnblocked,userBlogAndThings.loadContact);
 module.exports = user_route;
 

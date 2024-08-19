@@ -92,7 +92,7 @@ const editCategoryLoad = async (req, res) => {
 
 const updateCategory = async (req, res) => {
   try {
-    const { name, Description, categ, category_id } = req.body;
+    const { name, Description, category_id } = req.body;
     let errors = [];
 
     if (!name.trim()) {
@@ -102,13 +102,16 @@ const updateCategory = async (req, res) => {
       errors.push("Description is required.");
     }
 
-    const exist = await Category.find({
-      $and: [{ name: name }],
+    const existingCategory = await Category.findOne({
+      name: name,
+      _id: { $ne: category_id },
     });
-    if (exist.length > 0) {
-      console.log("existing foundd , the category has alredy been declared");
-      errors.push("existing foundd , the category has alredy been declared.");
+
+    if (existingCategory) {
+      console.log("Category name already exists.");
+      errors.push("Category name already exists.");
     }
+
     if (errors.length > 0) {
       return res.redirect(
         `/admin/page_Categories?message=${encodeURIComponent(
@@ -116,21 +119,22 @@ const updateCategory = async (req, res) => {
         )}&messageType=error`
       );
     }
-    const Updatecat = await Category.findByIdAndUpdate(
-      { _id: category_id },
-      {
-        $set: {
-          name: name,
-          Description: Description,
-          //,categ:categ
-        },
-      }
-    );
+
+    await Category.findByIdAndUpdate(category_id, {
+      $set: {
+        name: name,
+        Description: Description,
+      },
+    });
+
     res.redirect(
       "/admin/page_Categories?message=Category updated successfully&messageType=success"
     );
   } catch (error) {
     console.log(error.message);
+    res.redirect(
+      `/admin/page_Categories?message=Something went wrong&messageType=error`
+    );
   }
 };
 
